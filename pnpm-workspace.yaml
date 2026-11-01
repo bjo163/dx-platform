@@ -1,0 +1,15 @@
+packages:
+  - packages/types
+  - packages/shared
+  - packages/protocol
+  - packages/policy
+  - packages/platform
+  - packages/browser
+  - packages/tools
+  - packages/artifacts
+  - packages/audio
+  - packages/image
+  - packages/session
+  - packages/runtime
+  - packages/cli
+  - packages/tests

@@ -1,59 +1,30 @@
 {
   "name": "wtagent",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Turn ChatGPT Web (including Pro) into Codex. Turn Claude Web into Claude Code. Also DeepSeek, Gemini, Grok, Kimi, GLM. No API key, no MCP, no tunnel, no plugin.",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/XiXian42/wtagent.git"
-  },
-  "homepage": "https://github.com/XiXian42/wtagent#readme",
-  "bugs": {
-    "url": "https://github.com/XiXian42/wtagent/issues"
-  },
   "type": "module",
-  "bin": {
-    "wtagent": "src/cli/main.js"
-  },
-  "keywords": [
-    "agent",
-    "web-ai",
-    "chatgpt",
-    "cli",
-    "local-tools",
-    "browser"
-  ],
-  "files": [
-    "src",
-    "README.md",
-    "LICENSE"
-  ],
-  "scripts": {
-    "test": "node scripts/run-tests.js",
-    "test:unit": "node --test test/protocol.test.js test/policy.test.js test/tools.test.js test/prompt-builder.test.js test/session-export.test.js test/platform.test.js test/cli.test.js test/at-files.test.js test/self-update.test.js test/startup-notices.test.js test/provider-registry.test.js test/claude-adapter.test.js test/deepseek-adapter.test.js test/gemini-adapter.test.js test/grok-adapter.test.js test/kimi-adapter.test.js test/glm-adapter.test.js",
-    "test:integration": "node --test test/runtime.test.js",
-    "test:windows": "node --test test/windows-command-launcher.test.js test/windows-diagnostics.test.js test/windows-search-path.test.js test/atomic-write.test.js test/process-utils.test.js test/cdp-state.test.js test/windows-fixtures.test.js test/windows-package-smoke.test.js test/self-update.test.js test/cli.test.js test/browser-adapter.test.js test/cdp-browser.test.js test/runtime.test.js test/tools.test.js",
-    "check": "node scripts/check-syntax.js",
-    "doctor": "node src/cli/main.js doctor",
-    "login": "node src/cli/main.js login",
-    "prepack": "npm run check && npm test",
-    "release": "npm publish --tag latest",
-    "release:alpha": "npm publish --tag alpha",
-    "test:chatgpt-dom": "node scripts/test-chatgpt-dom.js",
-    "test:media": "node scripts/test-media.js"
-  },
+  "private": true,
+  "packageManager": "pnpm@10.33.4",
   "engines": {
-    "node": "^20.17.0 || ^22.13.0 || >=23.5.0"
+    "node": "^20.17.0 || ^22.13.0 || >=23.5.0",
+    "pnpm": ">=9.0.0"
   },
-  "license": "MIT",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
+  "scripts": {
+    "dev": "pnpm --filter wtagent dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:unit": "pnpm --filter wtagent test:unit",
+    "test:integration": "pnpm --filter wtagent test:integration",
+    "check": "pnpm -r check",
+    "doctor": "pnpm --filter wtagent doctor",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean && rm -rf node_modules/.cache",
+    "release": "pnpm publish -r",
+    "postinstall": "pnpm build"
   },
-  "dependencies": {
-    "@inquirer/prompts": "^8.5.2",
-    "commander": "^14.0.3",
-    "fast-xml-parser": "^5.10.1",
-    "playwright-core": "^1.62.0",
-    "zod": "^4.4.3"
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
+    "@types/node": "^22.15.0"
   }
 }

@@ -1,0 +1,47 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/types"
+    },
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/protocol"
+    },
+    {
+      "path": "./packages/policy"
+    },
+    {
+      "path": "./packages/platform"
+    },
+    {
+      "path": "./packages/browser"
+    },
+    {
+      "path": "./packages/tools"
+    },
+    {
+      "path": "./packages/artifacts"
+    },
+    {
+      "path": "./packages/audio"
+    },
+    {
+      "path": "./packages/image"
+    },
+    {
+      "path": "./packages/session"
+    },
+    {
+      "path": "./packages/runtime"
+    },
+    {
+      "path": "./packages/cli"
+    },
+    {
+      "path": "./packages/tests"
+    }
+  ]
+}

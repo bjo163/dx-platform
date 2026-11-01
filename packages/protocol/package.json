@@ -1,0 +1,33 @@
+{
+  "name": "@wtagent/protocol",
+  "version": "1.0.3",
+  "description": "Protocol utilities for WTAgent.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@wtagent/shared": "workspace:*",
+    "@wtagent/types": "workspace:*",
+    "fast-xml-parser": "^5.10.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
