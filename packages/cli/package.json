@@ -24,6 +24,10 @@
     "access": "public"
   },
   "type": "module",
+  "engines": {
+    "node": "^20.17.0 || ^22.13.0 || >=23.5.0",
+    "pnpm": ">=9.0.0"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
@@ -47,9 +51,6 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist",
-    "test": "vitest run",
-    "test:unit": "vitest run test/unit",
-    "test:integration": "vitest run test/integration",
     "check": "tsc -b --noEmit",
     "doctor": "node dist/main.js doctor",
     "login": "node dist/main.js login",

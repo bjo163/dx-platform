@@ -271,6 +271,18 @@ importers:
 
   packages/tests:
     dependencies:
+      '@wtagent/artifacts':
+        specifier: workspace:*
+        version: link:../artifacts
+      '@wtagent/audio':
+        specifier: workspace:*
+        version: link:../audio
+      '@wtagent/browser':
+        specifier: workspace:*
+        version: link:../browser
+      '@wtagent/image':
+        specifier: workspace:*
+        version: link:../image
       '@wtagent/platform':
         specifier: workspace:*
         version: link:../platform
@@ -280,6 +292,12 @@ importers:
       '@wtagent/protocol':
         specifier: workspace:*
         version: link:../protocol
+      '@wtagent/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@wtagent/session':
+        specifier: workspace:*
+        version: link:../session
       '@wtagent/shared':
         specifier: workspace:*
         version: link:../shared
@@ -289,10 +307,16 @@ importers:
       '@wtagent/types':
         specifier: workspace:*
         version: link:../types
+      wtagent:
+        specifier: workspace:*
+        version: link:../cli
     devDependencies:
       '@types/node':
         specifier: ^22.15.0
         version: 22.20.5
+      playwright-core:
+        specifier: ^1.62.0
+        version: 1.64.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

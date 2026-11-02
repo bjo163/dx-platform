@@ -62,7 +62,7 @@ export function appendSystemReminder(
 // document order. Retained for compatibility diagnostics and transport
 // scaffold stripping.
 export function extractMarkedBlocks(text: string, tag: string): string[] {
-  const inner = new RegExp(`<${tag}>[\s\S]*?</${tag}>`, "g");
+  const inner = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "g");
   const blocks: string[] = [];
   let match: RegExpExecArray | null;
   while ((match = inner.exec(String(text ?? ""))) != null) {

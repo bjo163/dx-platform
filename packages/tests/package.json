@@ -1,31 +1,32 @@
 {
   "name": "@wtagent/tests",
   "version": "1.0.3",
+  "private": true,
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:unit": "vitest run test/unit",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
     "watch": "vitest"
   },
   "dependencies": {
+    "@wtagent/artifacts": "workspace:*",
+    "@wtagent/audio": "workspace:*",
+    "@wtagent/browser": "workspace:*",
+    "@wtagent/image": "workspace:*",
     "@wtagent/platform": "workspace:*",
     "@wtagent/policy": "workspace:*",
     "@wtagent/protocol": "workspace:*",
+    "@wtagent/runtime": "workspace:*",
+    "@wtagent/session": "workspace:*",
     "@wtagent/shared": "workspace:*",
     "@wtagent/tools": "workspace:*",
-    "@wtagent/types": "workspace:*"
+    "@wtagent/types": "workspace:*",
+    "wtagent": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^22.15.0",
+    "playwright-core": "^1.62.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4",
-    "@types/node": "^22.15.0",
     "zod": "^4.4.3"
-  },
-  "exports": {
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js"
-    }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "wtagent",
+  "name": "wtagent-workspace",
   "version": "1.0.3",
   "description": "Turn ChatGPT Web (including Pro) into Codex. Turn Claude Web into Claude Code. Also DeepSeek, Gemini, Grok, Kimi, GLM. No API key, no MCP, no tunnel, no plugin.",
   "type": "module",
@@ -11,13 +11,12 @@
   },
   "scripts": {
     "dev": "pnpm --filter wtagent dev",
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "test:unit": "pnpm --filter wtagent test:unit",
-    "test:integration": "pnpm --filter wtagent test:integration",
-    "check": "pnpm -r check",
+    "build": "tsc -b",
+    "test": "pnpm --filter @wtagent/tests test",
+    "watch": "pnpm --filter @wtagent/tests watch",
+    "check": "tsc -b --force",
     "doctor": "pnpm --filter wtagent doctor",
-    "lint": "pnpm -r lint",
+    "login": "pnpm --filter wtagent login",
     "clean": "pnpm -r clean && rm -rf node_modules/.cache",
     "release": "pnpm publish -r",
     "postinstall": "pnpm build"

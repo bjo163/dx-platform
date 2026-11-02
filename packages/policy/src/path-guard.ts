@@ -11,12 +11,12 @@ const WINDOWS_RESERVED_NAMES = new Set([
 ]);
 
 // Characters that are never legal in a Windows file name.
-const WINDOWS_ILLEGAL_CHARS = /[<>:"/\|?*\x00-\x1f]/;
+const WINDOWS_ILLEGAL_CHARS = /[<>:"/\\|?*\x00-\x1f]/;
 
 function splitWindowsComponents(candidatePath: string | undefined) {
   let normalized = String(candidatePath ?? "").replace(/\//g, "\\");
   if (normalized.startsWith("\\\\")) {
-    normalized = normalized.replace(/^\+/, "");
+    normalized = normalized.replace(/^\\+/, "");
     const uncParts = normalized.split("\\");
     normalized = uncParts.slice(2).join("\\");
   } else if (/^[A-Za-z]:/.test(normalized)) {
@@ -66,10 +66,10 @@ export function isPathInside(rootPath: string, candidatePath: string, options?: 
     const normalize = (value: string) => {
       const resolved = path.win32.resolve(String(value ?? ""))
         .replace(/\//g, "\\");
-      if (/^[a-z]:\$/i.test(resolved)) {
+      if (/^[a-z]:\\$/i.test(resolved)) {
         return resolved.toLowerCase();
       }
-      return resolved.replace(/\+$/, "").toLowerCase();
+      return resolved.replace(/\\+$/, "").toLowerCase();
     };
     const root = normalize(rootPath);
     const candidate = normalize(candidatePath);
