@@ -13,3 +13,6 @@ packages:
   - packages/runtime
   - packages/cli
   - packages/tests
+  - packages/mcp
+  - packages/gateway
+  - packages/job

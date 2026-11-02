@@ -2,31 +2,25 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
+    "lib": ["ES2022"],
     "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "strict": true,
-      // Ported from the JavaScript original: these two are the residual of that
-      // port, not new design choices. Re-enable per package as it is retyped.
-      "noImplicitAny": false,
-      "useUnknownInCatchVariables": false,
-    "noEmitOnError": true,
-    "declaration": true,
-    "declarationMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "composite": true,
+    "incremental": true,
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "noEmit": false,
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": false,
-    "verbatimModuleSyntax": false,
-    "isolatedModules": true
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

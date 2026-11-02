@@ -1,0 +1,38 @@
+{
+  "name": "@wtagent/gateway",
+  "version": "1.0.3",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@wtagent/types": "workspace:*",
+    "@wtagent/shared": "workspace:*",
+    "@wtagent/tools": "workspace:*",
+    "@wtagent/protocol": "workspace:*",
+    "@wtagent/session": "workspace:*",
+    "@wtagent/runtime": "workspace:*",
+    "@wtagent/mcp": "workspace:*",
+    "@wtagent/image": "workspace:*",
+    "@wtagent/artifacts": "workspace:*",
+    "@wtagent/audio": "workspace:*",
+    "@wtagent/job": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/node": "^22.15.0"
+  }
+}

@@ -20,7 +20,10 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "composite": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts"
