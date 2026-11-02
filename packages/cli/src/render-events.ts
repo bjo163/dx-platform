@@ -60,15 +60,28 @@ export class Renderer {
   handled: Set<any>;
   isTTY: any;
   lifecycleShown: Set<any>;
+  longWaitMs: number;
+  longWaitRepeatMs: number;
+  nextNoticeMs: number;
+  #announcing = false;
+  progress: { turn: any; message: string } | null;
   providerLabel: any;
   spinner: { [key: string]: any } | null;
   stream: any;
   timer: any;
   toolStart: Map<any, any>;
-  constructor({ stream = process.stdout, providerLabel = "model" }: any = {}) {
+  turnSamples: number[];
+  constructor({
+    stream = process.stdout,
+    providerLabel = "model",
+    longWaitMs = 25_000,
+    longWaitRepeatMs = 90_000,
+  }: any = {}) {
     this.stream = stream;
     this.providerLabel = providerLabel;
     this.isTTY = Boolean(stream.isTTY);
+    this.longWaitMs = longWaitMs;
+    this.longWaitRepeatMs = longWaitRepeatMs;
     this.spinner = null;
     this.timer = null;
     this.frame = 0;
@@ -80,6 +93,11 @@ export class Renderer {
     // still emit lifecycle events when they resume the same web conversation,
     // but those milestones are only useful on the first turn.
     this.lifecycleShown = new Set();
+    // How long the waits that already finished took, and what the model said
+    // last while the current one runs. Both only feed the live status line.
+    this.turnSamples = [];
+    this.progress = null;
+    this.nextNoticeMs = this.longWaitMs;
   }
 
   // ---- spinner -----------------------------------------------------------
@@ -110,8 +128,51 @@ export class Renderer {
     if (this.spinner.bytes) {
       line += ` · ${this.spinner.bytes} chars`;
     }
+    line += this.#waitTail();
     line += RESET;
     this.stream.write(`\r\x1b[2K${line}`);
+    this.#notice();
+  }
+
+  // The turn number and the average of the waits that already finished are the
+  // only estimate this side of the provider can offer honestly.
+  #waitTail() {
+    const parts: string[] = [];
+    if (this.progress?.turn != null) {
+      parts.push(`turn ${this.progress.turn}`);
+    }
+    if (this.turnSamples.length >= 2) {
+      const recent = this.turnSamples.slice(-5);
+      const average = recent.reduce((sum, value) => sum + value, 0) / recent.length;
+      parts.push(`~${Math.max(1, Math.round(average))}s avg`);
+    }
+    return parts.length ? ` ${DIM}· ${parts.join(" · ")}${RESET}` : "";
+  }
+
+  // A wait that outlasts the normal one reads as a hang, so it earns a line in
+  // scrollback rather than only a spinning glyph. The next notice is scheduled
+  // by waited-duration: printing it re-renders the status line, and a level
+  // counter would let a long tool run recurse once per frame.
+  #notice() {
+    if (this.#announcing || !this.spinner) {
+      return;
+    }
+    const waited = Date.now() - this.spinner.start;
+    if (waited < this.nextNoticeMs) {
+      return;
+    }
+    this.nextNoticeMs = waited + this.longWaitRepeatMs;
+    const last = this.progress?.message
+      ? ` ${DIM}·${RESET} ${truncate(this.progress.message, 80)}`
+      : "";
+    this.#announcing = true;
+    try {
+      this.println(`${this.#hdr()} ${DIM}⏳ ${t("renderer.stillWaiting", {
+        seconds: Math.round(waited / 1000),
+      })}${RESET}${last}`);
+    } finally {
+      this.#announcing = false;
+    }
   }
 
   beginProcessing() {
@@ -124,6 +185,8 @@ export class Renderer {
       start: Date.now(),
       bytes: 0,
     };
+    this.progress = null;
+    this.nextNoticeMs = this.longWaitMs;
     this.#ensureTimer();
   }
 
@@ -134,6 +197,7 @@ export class Renderer {
       start: Date.now(),
       bytes: 0,
     };
+    this.nextNoticeMs = this.longWaitMs;
     this.#ensureTimer();
   }
 
@@ -152,6 +216,8 @@ export class Renderer {
       this.stream.write("\r\x1b[2K");
     }
     this.spinner = null;
+    this.progress = null;
+    this.nextNoticeMs = this.longWaitMs;
   }
 
   // ---- output primitives -------------------------------------------------
@@ -198,7 +264,13 @@ export class Renderer {
 
   // ---- semantic renderers ------------------------------------------------
 
-  #progress(message) {
+  // The model's interim prose belongs in scrollback, but printing it must not
+  // tear the status line down: the wait continues right after it.
+  #progress(message, turn) {
+    this.progress = {
+      message: String(message ?? ""),
+      turn: turn ?? this.progress?.turn ?? null,
+    };
     this.println(`${this.#hdr()} ${DIM}·${RESET} ${truncate(message, 300)}`);
   }
 
@@ -298,9 +370,17 @@ export class Renderer {
         this.beginProcessing();
         this.addBytes((payload.delta ?? "").length);
         break;
-      case "model.message_complete":
+      case "model.message_complete": {
+        // A finished wait is the only honest measurement of how long one takes.
+        if (this.spinner?.kind === "processing") {
+          this.turnSamples.push((Date.now() - this.spinner.start) / 1000);
+          if (this.turnSamples.length > 5) {
+            this.turnSamples.shift();
+          }
+        }
         this.stopSpinner();
         break;
+      }
       case "model.empty_response":
         this.stopSpinner();
         this.note(
@@ -330,9 +410,8 @@ export class Renderer {
         }));
         break;
       case "model.progress":
-        this.stopSpinner();
         if (payload.message) {
-          this.#progress(payload.message);
+          this.#progress(payload.message, payload.turn);
         }
         break;
       case "protocol.invalid":

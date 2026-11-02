@@ -16,6 +16,14 @@ function captureStream() {
   };
 }
 
+function ttyCaptureStream() {
+  const stream = captureStream();
+  stream.isTTY = true;
+  return stream;
+}
+
+const NEVER = Number.MAX_SAFE_INTEGER;
+
 test("prints browser and conversation lifecycle status only once per CLI session", () => {
   const stream = captureStream();
   const renderer = new Renderer({ stream });
@@ -79,4 +87,56 @@ test("names the backoff pause so a retry does not look like a hang", () => {
 
   assert.match(stream.output(), /Retrying in 2s…/);
   assert.equal(stream.output().match(/Retrying in/g)?.length, 1);
+});
+
+test("keeps the live status line running while the model reports progress", () => {
+  const stream = ttyCaptureStream();
+  const renderer = new Renderer({ stream, longWaitMs: NEVER, longWaitRepeatMs: NEVER });
+
+  renderer.handle({ type: "model.message_sent", payload: {} });
+  renderer.handle({ type: "model.progress", payload: { turn: 2, message: "checking the build" } });
+
+  assert.ok(renderer.spinner, "a progress line must not silence the wait it describes");
+  assert.ok(renderer.timer, "the frame timer must survive a progress line");
+  assert.match(stream.output(), /checking the build/);
+  renderer.stopSpinner();
+});
+
+test("counts the turn and averages the waits that already finished", () => {
+  const stream = ttyCaptureStream();
+  const renderer = new Renderer({ stream, longWaitMs: NEVER, longWaitRepeatMs: NEVER });
+
+  for (const turn of [1, 2]) {
+    renderer.handle({ type: "model.message_sent", payload: {} });
+    renderer.handle({ type: "model.message_complete", payload: { turn } });
+  }
+  renderer.handle({ type: "model.message_sent", payload: {} });
+  renderer.handle({ type: "model.progress", payload: { turn: 3, message: "almost there" } });
+
+  assert.match(stream.output(), /turn 3/);
+  assert.match(stream.output(), /~\d+s avg/);
+  renderer.stopSpinner();
+});
+
+test("announces a wait that outlasts the usual one exactly once", () => {
+  const stream = ttyCaptureStream();
+  const renderer = new Renderer({ stream, longWaitMs: 0, longWaitRepeatMs: NEVER });
+
+  renderer.handle({ type: "model.message_sent", payload: {} });
+  renderer.handle({ type: "model.progress", payload: { turn: 4, message: "reading files" } });
+  renderer.handle({ type: "tool.output", payload: { chunk: "x" } });
+
+  assert.equal(stream.output().match(/still waiting after/g)?.length, 1);
+  renderer.stopSpinner();
+});
+
+test("piped output keeps interim prose and never grows a live line", () => {
+  const stream = captureStream();
+  const renderer = new Renderer({ stream, longWaitMs: 0 });
+
+  renderer.handle({ type: "model.message_sent", payload: {} });
+  renderer.handle({ type: "model.progress", payload: { turn: 1, message: "Reading the manifest" } });
+
+  assert.match(stream.output(), /Reading the manifest/);
+  assert.doesNotMatch(stream.output(), /still waiting/);
 });
