@@ -5,6 +5,7 @@ export * from "./chatgpt-dom.js";
 export * from "./chatgpt-web-adapter.js";
 export * from "./claude-web-adapter.js";
 export * from "./deepseek-web-adapter.js";
+export * from "./dom-drift.js";
 export * from "./fake-web-model-adapter.js";
 export * from "./gemini-web-adapter.js";
 export * from "./glm-web-adapter.js";

@@ -3,6 +3,13 @@ import path from "node:path";
 import { emitKeypressEvents } from "node:readline";
 import type { BrowserContext, Frame, Locator, Page } from "playwright-core";
 import { launchAndConnectCdpChrome } from "./cdp-browser.js";
+import {
+  diffDomStructures,
+  hashDomStructure,
+  readDomStructure,
+  type DomDriftReport,
+  type DomStructure,
+} from "./dom-drift.js";
 import { discoverChromeExecutable } from "@wtagent/platform/chrome-discovery";
 import { ensureDirectory } from "@wtagent/platform/paths";
 import { BrowserAdapterError } from "@wtagent/shared/errors";
@@ -14,6 +21,14 @@ export { hasCompleteAgentEnvelope } from "@wtagent/protocol/envelope";
 // adapter never has to restate (and can never drift from) it.
 type CdpChrome = Awaited<ReturnType<typeof launchAndConnectCdpChrome>>;
 type StdinStream = typeof process.stdin;
+
+// What the page looked like the last time this adapter successfully worked.
+type DomBaseline = {
+  structure: DomStructure;
+  hash: string;
+  url: string | null;
+  at: number;
+};
 
 // Provider-independent classification of a conversation route. "provisional"
 // is never produced by the base implementation: it is a provider refinement of
@@ -272,7 +287,7 @@ function normalizedConversationUrl(value: string | URL | null | undefined) {
   }
 }
 
-export async function firstVisible(locators: Locator[]) {
+export async function firstVisible(locators: Locator[]): Promise<Locator | null> {
   for (const locator of locators) {
     const count = await locator.count().catch(() => 0);
     for (let index = 0; index < count; index += 1) {
@@ -425,6 +440,11 @@ export class BaseWebAdapter {
   lastAssistantTextBeforeSend: string = "";
   lastSendStatus: string;
   pendingSubmission: Promise<unknown> | null;
+  // Drift evidence: the shape of the last page that worked, and the current
+  // page's diff against it. A provider redesign and a page that merely has not
+  // rendered yet look identical to a locator, but not to this pair.
+  domBaseline: DomBaseline | null;
+  lastDomDrift: DomDriftReport | null;
 
   constructor({
     profileDir,
@@ -485,6 +505,72 @@ export class BaseWebAdapter {
     this.lastAssistantTurn = null;
     this.lastSendStatus = "not-submitted";
     this.pendingSubmission = null;
+    this.domBaseline = null;
+    this.lastDomDrift = null;
+  }
+
+  // ---- DOM-drift resilience -------------------------------------------
+
+  // Reading the whole document only pays for itself where a failure has to be
+  // explained, so the read is bounded and never allowed to mask the original
+  // error.
+  async #readDomShape(): Promise<DomStructure | null> {
+    const page = this.page as any;
+    if (!page || typeof page.evaluate !== "function") {
+      return null;
+    }
+    let timer;
+    try {
+      return await Promise.race([
+        Promise.resolve().then(() => page.evaluate(readDomStructure)).catch(() => null),
+        new Promise<null>((resolve) => {
+          timer = setTimeout(() => resolve(null), 1_000);
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async captureDomBaseline(): Promise<DomBaseline | null> {
+    const structure = await this.#readDomShape();
+    if (!structure) {
+      return null;
+    }
+    this.domBaseline = {
+      structure,
+      hash: hashDomStructure(structure),
+      url: this.page?.url() ?? null,
+      at: Date.now(),
+    };
+    return this.domBaseline;
+  }
+
+  // Null means "no drift evidence": nothing worked yet to compare against, or
+  // the page really is unchanged and the failure was a plain missing render.
+  async detectDomDrift(): Promise<DomDriftReport | null> {
+    const baseline = this.domBaseline;
+    const structure = baseline ? await this.#readDomShape() : null;
+    if (!baseline || !structure) {
+      return null;
+    }
+    const hash = hashDomStructure(structure);
+    const report = diffDomStructures(baseline.structure, structure);
+    if (hash === baseline.hash && !report.changed) {
+      return null;
+    }
+    this.lastDomDrift = report;
+    return report;
+  }
+
+  // A missing composer is either a redesign or a stalled render, and only the
+  // first is worth a structural report on disk for whoever owns the locators.
+  async #explainMissingComposer(): Promise<DomDriftReport | null> {
+    const domDrift = await this.detectDomDrift();
+    if (domDrift) {
+      await this.writeDiagnostics("dom-drift", { domDrift });
+    }
+    return domDrift;
   }
 
   // ---- provider primitives (override in subclasses) ----------------------
@@ -1988,9 +2074,11 @@ export class BaseWebAdapter {
       }
       const composer = await this.#waitForComposer(30_000);
       if (!composer) {
+        const domDrift = await this.#explainMissingComposer();
         throw new BrowserAdapterError(
-          `${this.providerName} composer was not found after opening a conversation.`,
-          { code: "COMPOSER_NOT_FOUND" },
+          `${this.providerName} composer was not found after opening a conversation.`
+            + (domDrift ? " The page structure changed since the last working render." : ""),
+          { code: "COMPOSER_NOT_FOUND", ...(domDrift ? { domDrift } : {}) },
         );
       }
 
@@ -2192,9 +2280,11 @@ export class BaseWebAdapter {
     await this.#assertTrustedPageForSend(urlBeforeSend);
     const composer = await this.#waitForComposer(30_000);
     if (!composer) {
+      const domDrift = await this.#explainMissingComposer();
       throw new BrowserAdapterError(
-        `${this.providerName} composer is unavailable.`,
-        { code: "COMPOSER_NOT_FOUND" },
+        `${this.providerName} composer is unavailable.`
+          + (domDrift ? " The page structure changed since the last working render." : ""),
+        { code: "COMPOSER_NOT_FOUND", ...(domDrift ? { domDrift } : {}) },
       );
     }
 
@@ -2865,10 +2955,22 @@ export class BaseWebAdapter {
 
   async #waitForComposer(timeoutMs: number) {
     const deadline = Date.now() + timeoutMs;
+    // A stalled render and a redesign both read as "no composer", so poll half
+    // the budget, reload once, then keep polling. Nothing has been sent at this
+    // point, so a reload cannot lose a turn.
+    const reloadAt = deadline - timeoutMs / 2;
+    let reloaded = false;
     while (Date.now() < deadline) {
       this.#throwIfCancelRequested();
       const composer = await this.#findComposer();
-      if (composer) return composer;
+      if (composer) {
+        await this.captureDomBaseline();
+        return composer;
+      }
+      if (!reloaded && Date.now() >= reloadAt) {
+        reloaded = true;
+        await this.page!.reload({ waitUntil: "domcontentloaded" }).catch(() => null);
+      }
       await this.page!.waitForTimeout(500);
     }
     return null;
@@ -3608,6 +3710,16 @@ export class BaseWebAdapter {
       sendStatus: this.lastSendStatus,
       elapsedMs: proof?.submittedAt == null ? null : Math.round(this.monotonicNow() - proof.submittedAt),
       routes: [...(this.diagnosticRoutes ?? [])],
+      // Layout evidence: the shape that last worked, and how the current page
+      // differs from it. A drift report is useless without both halves.
+      domLayout: this.domBaseline
+        ? {
+          hash: this.domBaseline.hash.slice(0, 12),
+          url: this.domBaseline.url,
+          capturedAt: new Date(this.domBaseline.at).toISOString(),
+        }
+        : null,
+      domDrift: details?.domDrift ?? null,
     };
     const directory = path.join(this.profileDir, "..", "diagnostics");
     const filename = path.join(directory, `${stamp}-${label}.json`);
