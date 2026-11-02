@@ -25,10 +25,10 @@
     "@wtagent/types": "workspace:*",
     "@wtagent/shared": "workspace:*",
     "@wtagent/policy": "workspace:*",
-    "@wtagent/platform": "workspace:*"
+    "@wtagent/platform": "workspace:*",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "zod": "^4.4.3"
+    "typescript": "^5.9.3"
   }
 }
