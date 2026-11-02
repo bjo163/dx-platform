@@ -12,6 +12,8 @@
     "@wtagent/audio": "workspace:*",
     "@wtagent/browser": "workspace:*",
     "@wtagent/image": "workspace:*",
+    "@wtagent/gateway": "workspace:*",
+    "@wtagent/job": "workspace:*",
     "@wtagent/platform": "workspace:*",
     "@wtagent/policy": "workspace:*",
     "@wtagent/protocol": "workspace:*",

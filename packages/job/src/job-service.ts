@@ -1,28 +1,36 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
-import { AgentSession } from "@wtagent/session";
-import type { CanonicalTranscriptItem, CanonicalTranscript } from "@wtagent/types";
+import { AgentSession } from "@wtagent/session/agent-session";
+import type { CanonicalTranscriptItem } from "@wtagent/types";
+import { assertValidJobId, JobStore, type JobCreateInput, type JobRecord, type JobStatus } from "./job-store.js";
+import { JobRunner } from "./job-runner.js";
+import type { HeadlessRuntime, HeadlessRuntimeConfig } from "./headless-runtime.js";
 
-// ── Types ────────────────────────────────────────────────────────
-
-export type JobStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
-
-export interface JobRecord {
-  jobId: string;
-  task: string;
-  status: JobStatus;
-  createdAt: string;
-  updatedAt: string;
-  startedAt?: string;
-  completedAt?: string;
-  sessionId: string;
-  metadata?: Record<string, unknown>;
-}
+export type { JobRecord, JobStatus } from "./job-store.js";
 
 export interface JobCreateOptions {
   task: string;
+  provider?: string;
+  projectRoot?: string;
+  allowedTools?: string[];
   metadata?: Record<string, unknown>;
+}
+
+export interface JobServiceOptions {
+  // Tools a job may use when the caller did not name any. A background job has
+  // nobody to answer an approval prompt, so the default must be read-only.
+  defaultAllowedTools?: string[];
+  provider?: string;
+  pollIntervalMs?: number;
+  buildRuntime?: (config: HeadlessRuntimeConfig) => HeadlessRuntime;
+  loadSession?: (record: JobRecord) => Promise<any>;
+}
+
+export interface JobProgress {
+  turn: number;
+  phase: string;
+  runCount: number;
 }
 
 export interface JobStatusResponse {
@@ -31,14 +39,13 @@ export interface JobStatusResponse {
   status: JobStatus;
   createdAt: string;
   updatedAt: string;
-  startedAt?: string;
-  completedAt?: string;
-  progress?: {
-    turn: number;
-    phase: string;
-    runCount: number;
-  };
-  result?: any;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  attempts: number;
+  allowedTools: string[];
+  progress?: JobProgress;
+  result?: JobRecord["result"];
+  error?: JobRecord["error"];
 }
 
 export interface JobLogsResponse {
@@ -49,229 +56,152 @@ export interface JobLogsResponse {
   events: any[];
 }
 
-// ── Job Service ──────────────────────────────────────────────────
+async function readJsonLines(file: string): Promise<any[]> {
+  let raw: string;
+  try {
+    raw = await fs.readFile(file, "utf8");
+  } catch (error) {
+    if ((error as { code?: string }).code === "ENOENT") return [];
+    throw error;
+  }
+  const lines: any[] = [];
+  for (const line of raw.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    try {
+      lines.push(JSON.parse(line));
+    } catch {
+      // A tail writer can leave a partial line behind after a crash; the rest of
+      // the log is still worth returning.
+    }
+  }
+  return lines;
+}
 
 export class JobService {
-  private baseDir: string;
-  private jobsDir: string;
-  private sessionsDir: string;
+  readonly baseDir: string;
+  readonly store: JobStore;
+  readonly runner: JobRunner;
+  readonly sessionsDir: string;
+  readonly #options: JobServiceOptions;
 
-  constructor(baseDir: string) {
+  constructor(baseDir: string, options: JobServiceOptions = {}) {
     this.baseDir = baseDir;
-    this.jobsDir = path.join(baseDir, "jobs");
+    this.#options = options;
     this.sessionsDir = path.join(baseDir, "sessions");
+    this.store = new JobStore(path.join(baseDir, "jobs"));
+    this.runner = new JobRunner({
+      store: this.store,
+      sessionsDir: this.sessionsDir,
+      pollIntervalMs: options.pollIntervalMs,
+      loadSession: options.loadSession,
+      buildRuntime: options.buildRuntime,
+    });
   }
 
   async initialize(): Promise<void> {
-    await fs.mkdir(this.jobsDir, { recursive: true });
-    await fs.mkdir(this.sessionsDir, { recursive: true });
+    await this.store.initialize();
+    await fs.mkdir(this.sessionsDir, { recursive: true, mode: 0o700 });
   }
 
   async createJob(options: JobCreateOptions): Promise<JobRecord> {
-    const jobId = randomUUID();
-    const now = new Date().toISOString();
-    
-    // Create session for this job
+    const provider = options.provider ?? this.#options.provider ?? "chatgpt";
     const session = await AgentSession.create({
       sessionsDir: this.sessionsDir,
-      tasksDir: path.join(this.sessionsDir, "tasks"),
       task: options.task,
-      projectRoot: this.baseDir, // use base dir as project root
+      projectRoot: options.projectRoot ?? this.baseDir,
       mode: "agent",
-      provider: "chatgpt",
+      provider,
     });
-    
-    const job: JobRecord = {
-      jobId,
+    const input: JobCreateInput = {
+      jobId: randomUUID().replaceAll("-", "").slice(0, 32),
       task: options.task,
-      status: "pending",
-      createdAt: now,
-      updatedAt: now,
       sessionId: session.sessionId,
+      projectRoot: session.state.projectRoot,
+      provider,
+      allowedTools: options.allowedTools ?? this.#options.defaultAllowedTools ?? [],
       metadata: options.metadata,
     };
-    
-    // Save job record
-    const jobPath = path.join(this.jobsDir, `${jobId}.json`);
-    await fs.writeFile(jobPath, JSON.stringify(job, null, 2));
-    
-    return job;
+    return this.store.create(input);
   }
 
   async getJob(jobId: string): Promise<JobRecord | null> {
-    const jobPath = path.join(this.jobsDir, `${jobId}.json`);
-    try {
-      const data = await fs.readFile(jobPath, "utf8");
-      return JSON.parse(data) as JobRecord;
-    } catch (err) {
-      if ((err as any).code === "ENOENT") return null;
-      throw err;
-    }
+    return this.store.read(jobId);
   }
 
   async listJobs(): Promise<JobRecord[]> {
-    try {
-      const files = await fs.readdir(this.jobsDir);
-      const jobs: JobRecord[] = [];
-      
-      for (const file of files) {
-        if (file.endsWith(".json")) {
-          const job = await this.getJob(file.replace(".json", ""));
-          if (job) jobs.push(job);
-        }
-      }
-      
-      return jobs;
-    } catch (err) {
-      if ((err as any).code === "ENOENT") return [];
-      throw err;
-    }
+    return this.store.list();
   }
 
-  async updateJobStatus(jobId: string, status: JobStatus, updates: Partial<JobRecord> = {}): Promise<void> {
-    const job = await this.getJob(jobId);
-    if (!job) throw new Error(`Job ${jobId} not found`);
-    
-    job.status = status;
-    job.updatedAt = new Date().toISOString();
-    
-    if (status === "running" && !job.startedAt) {
-      job.startedAt = job.updatedAt;
+  // The session a job belongs to is recorded at creation; jobId is only a queue
+  // key. A job whose session directory was removed still has a reportable
+  // record, so progress is best-effort.
+  async #loadSession(record: JobRecord): Promise<any | null> {
+    try {
+      return await AgentSession.load({ sessionsDir: this.sessionsDir, sessionId: record.sessionId });
+    } catch (error) {
+      if ((error as { code?: string }).code === "ENOENT") return null;
+      throw error;
     }
-    
-    if (status === "completed" || status === "failed" || status === "cancelled") {
-      job.completedAt = job.updatedAt;
-    }
-    
-    Object.assign(job, updates);
-    
-    const jobPath = path.join(this.jobsDir, `${jobId}.json`);
-    await fs.writeFile(jobPath, JSON.stringify(job, null, 2));
   }
 
   async getJobStatus(jobId: string): Promise<JobStatusResponse | null> {
-    const job = await this.getJob(jobId);
-    if (!job) return null;
-    
-    const session = await AgentSession.load({
-      sessionsDir: this.sessionsDir,
-      tasksDir: path.join(this.sessionsDir, "tasks"),
-      sessionId: job.sessionId,
-      taskId: job.jobId,
-    });
-    
-    const progress = {
-      turn: session.state.turn,
-      phase: session.state.phase,
-      runCount: session.state.runCount,
+    const record = await this.store.read(jobId);
+    if (!record) return null;
+    const response: JobStatusResponse = {
+      jobId: record.jobId,
+      task: record.task,
+      status: record.status,
+      createdAt: record.createdAt,
+      updatedAt: record.updatedAt,
+      startedAt: record.startedAt,
+      completedAt: record.completedAt,
+      attempts: record.attempts,
+      allowedTools: record.allowedTools,
+      result: record.result,
+      error: record.error,
     };
-    
-    return {
-      jobId: job.jobId,
-      task: job.task,
-      status: job.status,
-      createdAt: job.createdAt,
-      updatedAt: job.updatedAt,
-      startedAt: job.startedAt,
-      completedAt: job.completedAt,
-      progress,
-    };
+    const session = await this.#loadSession(record);
+    if (session) {
+      response.progress = {
+        turn: session.state.turn,
+        phase: session.state.phase,
+        runCount: session.state.runCount,
+      };
+    }
+    return response;
   }
 
   async getJobLogs(jobId: string): Promise<JobLogsResponse | null> {
-    const job = await this.getJob(jobId);
-    if (!job) return null;
-    
-    const session = await AgentSession.load({
-      sessionsDir: this.sessionsDir,
-      tasksDir: path.join(this.sessionsDir, "tasks"),
-      sessionId: job.sessionId,
-      taskId: job.jobId,
-    });
-    
-    const transcript = await session.readTranscript();
-    
-    // Get events
-    const eventsPath = path.join(session.directory, "events.jsonl");
-    let events: any[] = [];
-    try {
-      const raw = await fs.readFile(eventsPath, "utf8");
-      events = raw.split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
-    } catch (err) {
-      if ((err as any).code !== "ENOENT") throw err;
+    const record = await this.store.read(jobId);
+    if (!record) return null;
+    const session = await this.#loadSession(record);
+    if (!session) {
+      return { jobId: record.jobId, transcript: [], stdout: "", stderr: "", events: [] };
     }
-    
-    // Get tool output
-    const toolOutputPath = path.join(session.directory, "tool-output.jsonl");
+    const transcript = await session.readTranscript().catch(() => ({ items: [] }));
+    const events = await readJsonLines(path.join(session.directory, "events.jsonl"));
     let stdout = "";
     let stderr = "";
-    try {
-      const raw = await fs.readFile(toolOutputPath, "utf8");
-      for (const line of raw.split(/\r?\n/).filter(Boolean)) {
-        const record = JSON.parse(line);
-        if (record.ok) {
-          stdout += record.stdout ?? "";
-        } else {
-          stderr += record.stderr ?? "";
-        }
-      }
-    } catch (err) {
-      if ((err as any).code !== "ENOENT") throw err;
+    for (const entry of await readJsonLines(path.join(session.directory, "tool-output.jsonl"))) {
+      if (entry.ok) stdout += entry.stdout ?? "";
+      else stderr += entry.stderr ?? "";
     }
-    
-    return {
-      jobId: job.jobId,
-      transcript: transcript.items,
-      stdout,
-      stderr,
-      events,
-    };
+    return { jobId: record.jobId, transcript: transcript.items ?? [], stdout, stderr, events };
   }
 
-  async diffJobs(jobId1: string, jobId2: string): Promise<any> {
-    const job1 = await this.getJob(jobId1);
-    const job2 = await this.getJob(jobId2);
-    
-    if (!job1 || !job2) throw new Error("One or both jobs not found");
-    
-    // Compare transcript items
-    const logs1 = await this.getJobLogs(jobId1);
-    const logs2 = await this.getJobLogs(jobId2);
-    
-    if (!logs1 || !logs2) throw new Error("Failed to load logs for one or both jobs");
-    
-    const diff = {
-      job1: jobId1,
-      job2: jobId2,
-      status: {
-        job1: job1.status,
-        job2: job2.status,
-      },
-      transcriptLength: {
-        job1: logs1.transcript.length,
-        job2: logs2.transcript.length,
-      },
-      stdoutLength: {
-        job1: logs1.stdout.length,
-        job2: logs2.stdout.length,
-      },
-      stderrLength: {
-        job1: logs1.stderr.length,
-        job2: logs2.stderr.length,
-      },
-    };
-    
-    return diff;
+  async cancelJob(jobId: string): Promise<JobRecord | null> {
+    return this.runner.cancel(assertValidJobId(jobId));
   }
 
-  async cancelJob(jobId: string): Promise<void> {
-    const job = await this.getJob(jobId);
-    if (!job) throw new Error(`Job ${jobId} not found`);
-    
-    await this.updateJobStatus(jobId, "cancelled");
+  start(): Promise<void> {
+    return this.runner.start();
+  }
+
+  stop(): Promise<void> {
+    return this.runner.stop();
   }
 }
 
-export function createJobService(baseDir: string): JobService {
-  return new JobService(baseDir);
+export function createJobService(baseDir: string, options: JobServiceOptions = {}): JobService {
+  return new JobService(baseDir, options);
 }

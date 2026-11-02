@@ -20,7 +20,12 @@
   "dependencies": {
     "@wtagent/types": "workspace:*",
     "@wtagent/shared": "workspace:*",
-    "@wtagent/session": "workspace:*"
+    "@wtagent/session": "workspace:*",
+    "@wtagent/browser": "workspace:*",
+    "@wtagent/runtime": "workspace:*",
+    "@wtagent/policy": "workspace:*",
+    "@wtagent/tools": "workspace:*",
+    "@wtagent/platform": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

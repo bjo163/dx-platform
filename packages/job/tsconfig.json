@@ -18,7 +18,12 @@
     "paths": {
       "@wtagent/types": ["../types/dist"],
       "@wtagent/shared": ["../shared/dist"],
-      "@wtagent/session": ["../session/dist"]
+      "@wtagent/session": ["../session/dist"],
+      "@wtagent/browser": ["../browser/dist"],
+      "@wtagent/runtime": ["../runtime/dist"],
+      "@wtagent/policy": ["../policy/dist"],
+      "@wtagent/tools": ["../tools/dist"],
+      "@wtagent/platform": ["../platform/dist"]
     },
     "noEmit": false,
     "resolveJsonModule": true,
