@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { MCPServer, MCP_PROTOCOL_VERSION } from "@wtagent/mcp";
 
 let nextId = 1;
@@ -156,9 +157,9 @@ test("the stdio entry point speaks MCP from a real process", async (t) => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-mcp-proc-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   await fs.writeFile(path.join(root, "note.txt"), "spawned\n");
-  const entry = new URL("../../mcp/dist/main.js", import.meta.url);
+  const entry = fileURLToPath(new URL("../../mcp/dist/main.js", import.meta.url));
 
-  const child = spawn(process.execPath, [entry.pathname.replace(/^\//, ""), "--project", root], {
+  const child = spawn(process.execPath, [entry, "--project", root], {
     stdio: ["pipe", "pipe", "pipe"],
   });
   let stdout = "";
