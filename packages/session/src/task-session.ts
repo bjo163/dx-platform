@@ -2,4 +2,4 @@
 export {
   AgentSession,
   AgentSession as TaskSession,
-} from "agent-session";
+} from "./agent-session.js";

@@ -8,7 +8,7 @@
 // A single Renderer instance is shared across every turn of a conversation so
 // spinner state and per-tool timing survive between the model's replies.
 
-import { t } from "i18n";
+import { t } from "./i18n.js";
 
 const DIM = "\x1b[2m";
 const BOLD = "\x1b[1m";
@@ -31,7 +31,7 @@ function truncate(value, max = 120) {
   return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
 }
 
-function summarizeArgs(name, args = {}) {
+function summarizeArgs(name, args: Record<string, any> = {}) {
   if (!args || typeof args !== "object") {
     return "";
   }
@@ -56,7 +56,16 @@ function summarizeArgs(name, args = {}) {
 }
 
 export class Renderer {
-  constructor({ stream = process.stdout, providerLabel = "model" } = {}) {
+  frame: number;
+  handled: Set<any>;
+  isTTY: any;
+  lifecycleShown: Set<any>;
+  providerLabel: any;
+  spinner: { [key: string]: any } | null;
+  stream: any;
+  timer: any;
+  toolStart: Map<any, any>;
+  constructor({ stream = process.stdout, providerLabel = "model" }: any = {}) {
     this.stream = stream;
     this.providerLabel = providerLabel;
     this.isTTY = Boolean(stream.isTTY);
@@ -208,7 +217,7 @@ export class Renderer {
     return null;
   }
 
-  #resultLine(name, ok, message, elapsed, { unknown = false } = {}) {
+  #resultLine(name, ok, message, elapsed, { unknown = false }: any = {}) {
     const tail = elapsed != null ? ` ${DIM}(${elapsed}s)${RESET}` : "";
     if (ok) {
       this.println(`${this.#hdr()} ${GREEN}✓${RESET} ${name}${tail}`);
@@ -219,7 +228,7 @@ export class Renderer {
     this.println(`${this.#hdr()} ${mark}✗${RESET} ${name}${detail}${tail}`);
   }
 
-  #result(result = {}, { unknown = false } = {}) {
+  #result(result: Record<string, any> = {}, { unknown = false }: any = {}) {
     this.stopSpinner();
     const callId = result.callId;
     if (callId && this.handled.has(callId)) {

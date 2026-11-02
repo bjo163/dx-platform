@@ -13,6 +13,7 @@ export { hasCompleteAgentEnvelope } from "@wtagent/protocol/envelope";
 // profile lock. Its shape is derived from its own return statement so this
 // adapter never has to restate (and can never drift from) it.
 type CdpChrome = Awaited<ReturnType<typeof launchAndConnectCdpChrome>>;
+type StdinStream = typeof process.stdin;
 
 // Provider-independent classification of a conversation route. "provisional"
 // is never produced by the base implementation: it is a provider refinement of
@@ -214,7 +215,7 @@ export interface BaseWebAdapterOptions {
   providerName?: string;
   debug?: boolean;
   minimized?: boolean;
-  stdinStream?: typeof process.stdin;
+  stdinStream?: StdinStream | null;
   cancelOnEsc?: boolean;
 }
 
@@ -257,21 +258,21 @@ const CHALLENGE_BODY_PATTERN =
 const RESTORATION_STABLE_CHECKS = 12;
 const RESTORATION_STABLE_WINDOW_MS = (RESTORATION_STABLE_CHECKS - 1) * 250;
 
-function normalizedPathname(value) {
+function normalizedPathname(value: string | null | undefined) {
   const pathname = String(value || "/").replace(/\/+$/, "");
   return pathname || "/";
 }
 
-function normalizedConversationUrl(value) {
+function normalizedConversationUrl(value: string | URL | null | undefined) {
   try {
-    const parsed = value instanceof URL ? value : new URL(value);
+    const parsed = value instanceof URL ? value : new URL(String(value ?? ""));
     return `${parsed.origin}${normalizedPathname(parsed.pathname)}`;
   } catch {
     return null;
   }
 }
 
-export async function firstVisible(locators) {
+export async function firstVisible(locators: Locator[]) {
   for (const locator of locators) {
     const count = await locator.count().catch(() => 0);
     for (let index = 0; index < count; index += 1) {
@@ -284,19 +285,19 @@ export async function firstVisible(locators) {
   return null;
 }
 
-function deltaFrom(previous, current) {
+function deltaFrom(previous: string | null, current: string) {
   if (!previous) return current;
   if (current.startsWith(previous)) return current.slice(previous.length);
   return "";
 }
 
-function sameConversationUrl(left, right) {
+function sameConversationUrl(left: string | null | undefined, right: string | null | undefined) {
   const normalizedLeft = normalizedConversationUrl(left);
   return normalizedLeft != null
     && normalizedLeft === normalizedConversationUrl(right);
 }
 
-function comparableMessageText(value) {
+function comparableMessageText(value: unknown) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
@@ -305,7 +306,7 @@ const OUTBOUND_ID_PATTERN =
 const OUTBOUND_MARKER_PREFIX =
   "Opaque WTAgent transport correlation ID (do not repeat): ";
 
-function renderedMessageContains(rendered, expected, outboundId = null) {
+function renderedMessageContains(rendered: string, expected: string, outboundId: string | null = null) {
   const normalizedRendered = comparableMessageText(rendered);
   const normalizedExpected = comparableMessageText(expected);
   const reminderStart = normalizedExpected.lastIndexOf("<system_reminder>");
@@ -345,11 +346,11 @@ function renderedMessageContains(rendered, expected, outboundId = null) {
     && !trailing.includes("</system_reminder>");
 }
 
-export function isValidOutboundCorrelationId(value) {
+export function isValidOutboundCorrelationId(value: unknown) {
   return typeof value === "string" && OUTBOUND_ID_PATTERN.test(value);
 }
 
-export function renderedMessageContainsOutboundMarker(rendered, outboundId) {
+export function renderedMessageContainsOutboundMarker(rendered: string, outboundId: string | null) {
   if (!isValidOutboundCorrelationId(outboundId)) {
     return false;
   }
@@ -373,16 +374,68 @@ export function renderedMessageContainsOutboundMarker(rendered, outboundId) {
 // `this.#foo()` would never reach a subclass override. Only truly base-internal
 // helpers that no subclass overrides or calls stay `#private`.
 export class BaseWebAdapter {
+  diagnosticRoutes: any;
+  profileDir: string;
+  chromePath: string | null;
+  baseUrl: string;
+  providerName: string;
+  debug: boolean;
+  minimized: boolean;
+  stdinStream: StdinStream | null;
+  cancelOnEsc: boolean;
+  escCancelRequested: boolean;
+  context: BrowserContext | null;
+  cdpChrome: CdpChrome | null;
+  page: Page | null;
+  preservedPreferredUrl: string | null;
+  observedConversationUrl: string | null;
+  observedConversationAliases: Set<string>;
+  pendingFreshConversationAliases: Set<string>;
+  pendingFreshEmptyAliases: Map<string, { stableSince: number; verified: boolean; poisoned: boolean }>;
+  conversationIdentityListener: ((identity: ConversationIdentity) => void | Promise<void>) | null;
+  pageNavigationListener: ((frame: Frame) => void) | null;
+  lastObservedPageUrl: string | null;
+  pendingCanonicalUrl: string | null;
+  pendingCanonicalSignature: string | null;
+  pendingCanonicalStableSince: number;
+  pendingCanonicalVerificationQueue: Promise<unknown>;
+  conversationObservationArmed: boolean;
+  freshSendConfirmed: boolean;
+  navigationEpoch: number;
+  sendEpoch: number;
+  conversationScopeEpoch: number;
+  activeSendProof: SendProof | null;
+  activeTurnProof: ActiveTurnProof | null;
+  activeTurnConversationUrl: string | null;
+  allowInPlaceAssistantContinuation: boolean;
+  inPlaceAssistantGenerationObserved: boolean;
+  expectedRestorationAssistantId: string | null;
+  expectedRestorationUserId: string | null;
+  expectedAssistantCandidateId: string | null;
+  expectedAssistantCandidateTurn: number | null;
+  recoveredTurnTopologyRequired: boolean;
+  preferredTabAmbiguous: boolean;
+  assistantIdsBeforeSend: Set<string>;
+  assistantMaxTurnBeforeSend: number | null;
+  assistantCountBeforeSend: number;
+  sentUserTurn: number | null;
+  lastUserMessageId: string | null;
+  lastAssistantMessageId: string | null;
+  lastAssistantTurn: number | null;
+  lastAssistantTextBeforeSend: string = "";
+  lastSendStatus: string;
+  pendingSubmission: Promise<unknown> | null;
+
   constructor({
     profileDir,
-    chromePath,
+    chromePath = null,
     baseUrl,
     providerName = "Web",
     debug = false,
     minimized = false,
     stdinStream = process.stdin,
     cancelOnEsc = false,
-  }) {
+  }: BaseWebAdapterOptions) {
     this.profileDir = path.resolve(profileDir);
     this.chromePath = chromePath;
     this.baseUrl = baseUrl;
@@ -440,13 +493,13 @@ export class BaseWebAdapter {
   // required primitive unimplemented simply never finds its controls, which
   // surfaces as a clear "not found" adapter error rather than a silent guess.
 
-  conversationUrlPattern() {
+  conversationUrlPattern(): RegExp | null  {
     // RegExp tested against a URL pathname to tell a live conversation from the
     // provider's home/new-chat page. null means "no distinct conversation URL".
     return null;
   }
 
-  freshConversationUrlPattern() {
+  freshConversationUrlPattern(): RegExp | null  {
     // Optional extra provider routes that explicitly mean a blank new chat. The
     // baseUrl pathname is always accepted; arbitrary other same-origin routes are
     // not. For example, Claude exposes both / and /new.
@@ -458,11 +511,11 @@ export class BaseWebAdapter {
   // only as a locator for an already-open tab, not as a durable navigation URL.
   // Only the provider's explicit base route is fresh; an arbitrary same-origin
   // settings/project/error route is unknown and must never receive a prompt.
-  classifyConversationUrl(value) {
+  classifyConversationUrl(value: string | URL | null | undefined): ConversationUrlKind {
     let parsed;
     let base;
     try {
-      parsed = value instanceof URL ? value : new URL(value);
+      parsed = value instanceof URL ? value : new URL(String(value ?? ""));
       base = new URL(this.baseUrl);
     } catch {
       return "invalid";
@@ -484,27 +537,27 @@ export class BaseWebAdapter {
   // Existing attachment previews in a reused tab may belong to an abandoned
   // draft. Providers with uploads override this with structural chip locators;
   // the base refuses to send until no stale chips remain.
-  pendingAttachmentLocators() {
+  pendingAttachmentLocators(): Locator[]  {
     return [];
   }
 
-  composerLocators() {
+  composerLocators(): Locator[]  {
     return [];
   }
 
-  sendButtonLocators() {
+  sendButtonLocators(): Locator[]  {
     return [];
   }
 
-  stopButtonLocators() {
+  stopButtonLocators(): Locator[]  {
     return [];
   }
 
-  newConversationControls() {
+  newConversationControls(): Locator[]  {
     return [];
   }
 
-  loginControlLocators() {
+  loginControlLocators(): Locator[]  {
     return [];
   }
 
@@ -519,56 +572,56 @@ export class BaseWebAdapter {
   // DeepSeek's /sign_in, GLM's /auth). URL checks are locale-independent, so a
   // provider that redirects logged-out visitors to a login path should override
   // this; getAuthState() consults it before any text pattern. null = no signal.
-  authUrlPattern() {
+  authUrlPattern(): RegExp | null  {
     return null;
   }
 
   assistantMessages() {
-    return this.page.locator("[data-web-adapter-unset-assistant]");
+    return this.page!.locator("[data-web-adapter-unset-assistant]");
   }
 
   userMessages() {
-    return this.page.locator("[data-web-adapter-unset-user]");
+    return this.page!.locator("[data-web-adapter-unset-user]");
   }
 
   conversationMessages() {
-    return this.page.locator("[data-web-adapter-unset-message]");
+    return this.page!.locator("[data-web-adapter-unset-message]");
   }
 
   // Extract a provider's stable identity for one message node. `id` is a stable
   // per-message id when the DOM exposes one; `turn` is a monotonic ordinal for
   // the message's position in the thread. Either may be null.
-  async messageIdentity(_message) {
+  async messageIdentity(_message: Locator): Promise<any>   {
     return { id: null, turn: null };
   }
 
   // Full assistant text for one message node, preserving a complete
   // <agent_response> envelope even when the provider splits it across nodes.
-  async assistantText(message) {
+  async assistantText(message: Locator) {
     return await message.innerText().catch(() => "");
   }
 
   // Used only to correlate a post-submit bubble while the provider is assigning
   // a new conversation URL. Stable URL bindings remain the primary guard.
-  async userMessageText(message) {
+  async userMessageText(message: Locator) {
     return await message.innerText().catch(() => "");
   }
 
   // Virtualized providers can read identities and text in one DOM operation.
   // undefined uses legacy locators; null means a supported sample failed and
   // must be retried, never mixed with a different DOM revision.
-  async userMessageSnapshot() {
+  async userMessageSnapshot(): Promise<any>   {
     return undefined;
   }
 
   // Some providers unmount the end of collapsed long user messages. Reveal it
   // before sampling the transport marker; never infer a commit from the expand
   // action itself. The caller's send/recovery deadline still bounds this work.
-  async prepareOutboundConfirmation(_options = {}) {}
+  async prepareOutboundConfirmation(_options: Record<string, any> = {}) {}
 
   // Providers with a shared user/assistant turn order return one atomic snapshot.
   // null keeps legacy normal-send behavior but cannot support ambiguous recovery.
-  async orderedConversationSnapshot() {
+  async orderedConversationSnapshot(): Promise<any>   {
     return null;
   }
 
@@ -576,7 +629,7 @@ export class BaseWebAdapter {
   // from one atomic DOM snapshot while the generic completion loop is running.
   // The default is a no-op because providers without ordered snapshots never
   // enter pending-outbound reconciliation.
-  async assertRecoveredTurnTopology(_candidate = {}) {}
+  async assertRecoveredTurnTopology(_candidate: Record<string, any> = {}) {}
 
   // Providers that expose a single shared user/assistant order can require that
   // atomic view when binding a fresh send. This prevents separately queried role
@@ -589,7 +642,7 @@ export class BaseWebAdapter {
     return false;
   }
 
-  async reconcilePendingOutbound() {
+  async reconcilePendingOutbound(): Promise<any>   {
     throw new BrowserAdapterError(
       `${this.providerName} does not support pending outbound recovery.`,
       { code: "OUTBOUND_RECOVERY_UNSUPPORTED", recoverable: false },
@@ -598,7 +651,7 @@ export class BaseWebAdapter {
 
   // Returns a short human string when the message is a plan/usage-limit notice,
   // or null when it is an ordinary reply. Default: never a limit.
-  async findUsageLimitMarker(_message) {
+  async findUsageLimitMarker(_message: Locator): Promise<string | null>  {
     return null;
   }
 
@@ -607,12 +660,12 @@ export class BaseWebAdapter {
   // 重试 button) rather than a real answer, or null for ordinary replies.
   // Such cards must never be treated as a final plain answer — the runtime
   // nudges the model to regenerate instead. Default: never a failure card.
-  async findGenerationErrorMarker(_message) {
+  async findGenerationErrorMarker(_message: Locator) {
     return null;
   }
 
   // Best-effort composer file upload. Default: nothing attached.
-  async attachFiles(_files) {
+  async attachFiles(_files: unknown[]): Promise<{ attached: never[]; failed: any; } | { attached: any[]; failed: never[]; }>  {
     return { attached: [], failed: [] };
   }
 
@@ -623,23 +676,23 @@ export class BaseWebAdapter {
   // Put outbound text into the provider composer. Most sites accept
   // Locator.fill(); providers whose UI depends on native focus/pointer events
   // can override this primitive without duplicating sendMessage().
-  async fillComposer(composer, text) {
+  async fillComposer(composer: Locator, text: string) {
     try {
       await composer.fill(text);
     } catch {
       await this.dismissTransientOverlays();
       await composer.focus();
-      await this.page.keyboard.press(
+      await this.page!.keyboard.press(
         process.platform === "darwin" ? "Meta+A" : "Control+A",
       );
-      await this.page.keyboard.insertText(text);
+      await this.page!.keyboard.insertText(text);
     }
   }
 
   // Submit the already-filled composer. Providers that need a native pointer
   // sequence may override this while retaining the shared post-send identity
   // checks and one-shot retry.
-  async submitComposer(composer, { assertActive = () => {}, timeoutMs } = {}) {
+  async submitComposer(composer: Locator, { assertActive = () => {}, timeoutMs }: any = {}) {
     assertActive();
     const sendButton = await firstVisible(this.sendButtonLocators());
     assertActive();
@@ -664,14 +717,14 @@ export class BaseWebAdapter {
   // stop button is visible. Default false. Providers that hide generation
   // behind native tool cards (Kimi) override this so the turn loop does not
   // complete on a mid-tool failure and then try to send into a live reply.
-  async isAssistantGenerating(_message) {
+  async isAssistantGenerating(_message: Locator) {
     return false;
   }
 
   // Extra time the latest assistant text must stay unchanged before the turn
   // is accepted. Default 0. Used when a provider may still append a protocol
   // envelope after a native-tool card has already gone quiet.
-  async extraStableWindowMs(_message, _text) {
+  async extraStableWindowMs(_message: Locator, _text: string) {
     return 0;
   }
 
@@ -706,8 +759,8 @@ export class BaseWebAdapter {
     return performance.now();
   }
 
-  async waitForPoll(ms) {
-    await this.page.waitForTimeout(ms);
+  async waitForPoll(ms: number) {
+    await this.page!.waitForTimeout(ms);
   }
 
   #sendDeadlineError() {
@@ -733,7 +786,7 @@ export class BaseWebAdapter {
     };
   }
 
-  async #awaitWithinSendDeadline(promise, deadline) {
+  async #awaitWithinSendDeadline(promise: Promise<unknown>, deadline: number): Promise<any>  {
     const remaining = deadline - this.monotonicNow();
     if (remaining <= 0) {
       throw this.#sendDeadlineError();
@@ -769,7 +822,7 @@ export class BaseWebAdapter {
   // stable message id, then a turn high-water mark; fail closed when none is
   // available (never guess by count or text — see design doc §9.3). Providers
   // whose DOM lacks stable ids/turns may override this with a count baseline.
-  isNewAssistantIdentity({ id, turn }) {
+  isNewAssistantIdentity({ id, turn }: any): boolean  {
     if (this.sentUserTurn != null && turn != null) {
       return turn > this.sentUserTurn;
     }
@@ -802,7 +855,7 @@ export class BaseWebAdapter {
     assistantBaseline = null,
     assistantCandidateMessageId = null,
     assistantCandidateTurn = null,
-  }) {
+  }: any) {
     const normalizedUrl = normalizedConversationUrl(conversationUrl);
     const kind = normalizedUrl
       ? this.classifyConversationUrl(normalizedUrl)
@@ -830,12 +883,12 @@ export class BaseWebAdapter {
     this.assistantMaxTurnBeforeSend = Number.isSafeInteger(
       assistantBaseline?.maxTurn,
     )
-      ? assistantBaseline.maxTurn
+      ? assistantBaseline!.maxTurn
       : null;
     this.assistantCountBeforeSend = Number.isSafeInteger(
       assistantBaseline?.count,
     )
-      ? assistantBaseline.count
+      ? assistantBaseline!.count
       : baselineIds.length;
     this.lastAssistantTextBeforeSend = String(
       assistantBaseline?.lastText ?? "",
@@ -858,7 +911,7 @@ export class BaseWebAdapter {
     return this.#currentConversationIdentity();
   }
 
-  setConversationIdentityListener(listener) {
+  setConversationIdentityListener(listener: ((identity: ConversationIdentity) => void | Promise<void>) | null | undefined) {
     this.conversationIdentityListener = typeof listener === "function"
       ? listener
       : null;
@@ -901,7 +954,7 @@ export class BaseWebAdapter {
     };
   }
 
-  #isObservedConversationAlias(value) {
+  #isObservedConversationAlias(value: string | null) {
     const normalized = normalizedConversationUrl(value);
     return normalized != null && this.observedConversationAliases.has(normalized);
   }
@@ -942,11 +995,11 @@ export class BaseWebAdapter {
     return true;
   }
 
-  #captureActiveTurnProof(conversationUrl, {
+  #captureActiveTurnProof(conversationUrl: string | null, {
     outboundId = null,
     userMessageId = null,
     userTurn = null,
-  } = {}) {
+  }: any = {}) {
     const normalizedUrl = normalizedConversationUrl(conversationUrl);
     this.activeTurnProof = {
       page: this.page,
@@ -964,7 +1017,7 @@ export class BaseWebAdapter {
     this.activeTurnConversationUrl = normalizedUrl;
   }
 
-  #activeTurnProofIsIntact({ allowPendingCanonicalUrl = false } = {}) {
+  #activeTurnProofIsIntact({ allowPendingCanonicalUrl = false }: any = {}) {
     const proof = this.activeTurnProof;
     if (!proof) {
       return this.activeTurnConversationUrl == null;
@@ -995,7 +1048,7 @@ export class BaseWebAdapter {
     return true;
   }
 
-  async #validateRecoveredTurnBoundary(candidate = {}) {
+  async #validateRecoveredTurnBoundary(candidate: Record<string, any> = {}) {
     if (!this.recoveredTurnTopologyRequired) {
       return;
     }
@@ -1013,10 +1066,10 @@ export class BaseWebAdapter {
     assertProof();
   }
 
-  #recordActiveSendCandidate(value, {
+  #recordActiveSendCandidate(value: string | null, {
     previousUrl = null,
     allowCurrentNavigation = false,
-  } = {}) {
+  }: any = {}) {
     const proof = this.activeSendProof;
     if (!proof) {
       return true;
@@ -1041,7 +1094,7 @@ export class BaseWebAdapter {
     return true;
   }
 
-  #resetPendingCanonicalVerification({ clearCandidate = false } = {}) {
+  #resetPendingCanonicalVerification({ clearCandidate = false }: any = {}) {
     this.pendingCanonicalSignature = null;
     this.pendingCanonicalStableSince = 0;
     if (clearCandidate) {
@@ -1049,7 +1102,7 @@ export class BaseWebAdapter {
     }
   }
 
-  #stageCanonicalCandidate(value) {
+  #stageCanonicalCandidate(value: string | null) {
     const normalized = normalizedConversationUrl(value);
     if (!normalized) {
       return false;
@@ -1061,7 +1114,7 @@ export class BaseWebAdapter {
     return true;
   }
 
-  async #recordPendingFreshCandidateEmpty(value) {
+  async #recordPendingFreshCandidateEmpty(value: string | null) {
     const candidate = normalizedConversationUrl(value);
     if (
       !candidate
@@ -1102,17 +1155,17 @@ export class BaseWebAdapter {
     return state.verified;
   }
 
-  async #waitForStablePendingFreshCandidate(candidate, {
+  async #waitForStablePendingFreshCandidate(candidate: string | null, {
     deadline = this.monotonicNow() + this.sendConfirmationTimeoutMs(),
-  } = {}) {
+  }: any = {}) {
     while (this.monotonicNow() < deadline) {
       if (await this.#recordPendingFreshCandidateEmpty(candidate)) {
         return true;
       }
       if (
         !sameConversationUrl(this.page?.url?.(), candidate)
-        || !this.pendingFreshConversationAliases.has(candidate)
-        || this.pendingFreshEmptyAliases.get(candidate)?.poisoned
+        || !this.pendingFreshConversationAliases.has(candidate!)
+        || this.pendingFreshEmptyAliases.get(candidate!)?.poisoned
       ) {
         return false;
       }
@@ -1171,26 +1224,26 @@ export class BaseWebAdapter {
         const message = messages.nth(index);
         const identity = await this.messageIdentity(message);
         if (
-          this.activeTurnProof.userTurn != null
+          this.activeTurnProof!.userTurn != null
           && identity.turn != null
-          && identity.turn !== this.activeTurnProof.userTurn
+          && identity.turn !== this.activeTurnProof!.userTurn
         ) {
           continue;
         }
         const renderedText = await this.userMessageText(message);
         if (!renderedMessageContainsOutboundMarker(
           renderedText,
-          this.activeTurnProof.outboundId,
+          this.activeTurnProof!.outboundId,
         )) {
           continue;
         }
         currentSendUserMatched = true;
         currentSendMarker = identity.id
-          ?? `turn:${identity.turn ?? this.activeTurnProof.userTurn ?? "unknown"}`;
+          ?? `turn:${identity.turn ?? this.activeTurnProof!.userTurn ?? "unknown"}`;
         if (identity.id) {
           this.lastUserMessageId = identity.id;
           this.expectedRestorationUserId = identity.id;
-          this.activeTurnProof.userMessageId = identity.id;
+          this.activeTurnProof!.userMessageId = identity.id;
         }
         break;
       }
@@ -1248,7 +1301,7 @@ export class BaseWebAdapter {
     Promise.resolve(this.conversationIdentityListener?.(identity)).catch(() => {});
   }
 
-  #trustConversationUrl(value, { notify = false } = {}) {
+  #trustConversationUrl(value: string | null, { notify = false }: any = {}) {
     const normalized = normalizedConversationUrl(value);
     if (!normalized) {
       return false;
@@ -1268,7 +1321,7 @@ export class BaseWebAdapter {
     return true;
   }
 
-  #observeConversationNavigation(value, { navigationEvent = false } = {}) {
+  #observeConversationNavigation(value: string | null, { navigationEvent = false }: any = {}) {
     const normalized = normalizedConversationUrl(value);
     if (normalized) this.recordConversationNavigation(normalized);
     if (!normalized) {
@@ -1319,7 +1372,7 @@ export class BaseWebAdapter {
       && ["provisional", "restorable"].includes(kind);
     const pendingCanonicalTransition = navigationEvent
       && previousKind === "provisional"
-      && this.pendingFreshConversationAliases.has(previous)
+      && this.pendingFreshConversationAliases.has(previous!)
       && kind === "restorable";
     const validCanonicalTransition = navigationEvent
       && previousKind === "provisional"
@@ -1367,7 +1420,7 @@ export class BaseWebAdapter {
     return false;
   }
 
-  #beginConversationObservation(seedUrl, { arm = false, reset = false } = {}) {
+  #beginConversationObservation(seedUrl: string | null, { arm = false, reset = false }: any = {}) {
     if (reset) {
       this.conversationScopeEpoch += 1;
       this.activeTurnProof = null;
@@ -1394,14 +1447,14 @@ export class BaseWebAdapter {
     this.pageNavigationListener = (frame) => {
       try {
         if (
-          typeof this.page.mainFrame === "function"
-          && frame !== this.page.mainFrame()
+          typeof this.page!.mainFrame === "function"
+          && frame !== this.page!.mainFrame()
         ) {
           return;
         }
         this.navigationEpoch += 1;
         this.#observeConversationNavigation(
-          frame?.url?.() ?? this.page.url(),
+          frame?.url?.() ?? this.page!.url(),
           { navigationEvent: true },
         );
         void this.#verifyPendingCanonicalUrl().catch(() => null);
@@ -1412,10 +1465,10 @@ export class BaseWebAdapter {
     this.page.on("framenavigated", this.pageNavigationListener);
   }
 
-  async #assertTrustedPageForSend(expectedUrl, {
+  async #assertTrustedPageForSend(expectedUrl: string | null, {
     allowPendingFreshTransition = false,
-  } = {}) {
-    const currentUrl = normalizedConversationUrl(this.page.url());
+  }: any = {}) {
+    const currentUrl = normalizedConversationUrl(this.page!.url());
     const turnBindingTrusted = !this.activeTurnConversationUrl
       || this.#activeTurnProofIsIntact();
     const directlyTrusted = turnBindingTrusted
@@ -1431,7 +1484,7 @@ export class BaseWebAdapter {
       allowPendingFreshTransition
       && turnBindingTrusted
       && this.#activeSendProofIsIntact()
-      && this.pendingFreshConversationAliases.has(currentUrl)
+      && this.pendingFreshConversationAliases.has(currentUrl!)
       && await this.#waitForStablePendingFreshCandidate(currentUrl)
       && this.#activeSendProofIsIntact()
     ) {
@@ -1445,7 +1498,7 @@ export class BaseWebAdapter {
     );
   }
 
-  #isTrustedPageUrl(value) {
+  #isTrustedPageUrl(value: string | null) {
     const normalized = normalizedConversationUrl(value);
     const kind = normalized
       ? this.classifyConversationUrl(normalized)
@@ -1462,8 +1515,8 @@ export class BaseWebAdapter {
     );
   }
 
-  async #submittedPageState({ allowPendingFreshTransition = false } = {}) {
-    const currentUrl = normalizedConversationUrl(this.page.url());
+  async #submittedPageState({ allowPendingFreshTransition = false }: any = {}) {
+    const currentUrl = normalizedConversationUrl(this.page!.url());
     if (!this.#activeSendProofIsIntact()) {
       return { status: "untrusted", conversationUrl: currentUrl };
     }
@@ -1477,7 +1530,7 @@ export class BaseWebAdapter {
       sameConversationUrl(currentUrl, this.pendingCanonicalUrl)
       || (
         allowPendingFreshTransition
-        && this.pendingFreshConversationAliases.has(currentUrl)
+        && this.pendingFreshConversationAliases.has(currentUrl!)
       )
     ) {
       return { status: "candidate", conversationUrl: currentUrl };
@@ -1485,9 +1538,9 @@ export class BaseWebAdapter {
     return { status: "untrusted", conversationUrl: currentUrl };
   }
 
-  async #waitForCanonicalCandidate(candidate, {
+  async #waitForCanonicalCandidate(candidate: string | null, {
     deadline = this.monotonicNow() + this.sendConfirmationTimeoutMs(),
-  } = {}) {
+  }: any = {}) {
     while (this.monotonicNow() < deadline) {
       const state = await this.#awaitWithinSendDeadline(
         this.#submittedPageState(),
@@ -1516,13 +1569,13 @@ export class BaseWebAdapter {
 
   #confirmFreshConversationSend() {
     this.freshSendConfirmed = true;
-    const currentUrl = normalizedConversationUrl(this.page.url());
+    const currentUrl = normalizedConversationUrl(this.page!.url());
     const currentKind = currentUrl
       ? this.classifyConversationUrl(currentUrl)
       : "invalid";
     if (
       !["restorable", "provisional"].includes(currentKind)
-      || !this.pendingFreshConversationAliases.has(currentUrl)
+      || !this.pendingFreshConversationAliases.has(currentUrl!)
     ) {
       // Some providers keep the explicit fresh route until later in generation.
       // Leave observation armed; the confirmed user bubble now makes a later
@@ -1540,7 +1593,7 @@ export class BaseWebAdapter {
     }
   }
 
-  #dropPageState({ clearObservation = true } = {}) {
+  #dropPageState({ clearObservation = true }: any = {}) {
     if (this.activeSendProof) {
       this.activeSendProof.invalidated = true;
       this.activeSendProof = null;
@@ -1582,11 +1635,11 @@ export class BaseWebAdapter {
 
   // Kept overridable so lifecycle tests can supply a deterministic CDP
   // connection without launching a real browser.
-  async launchCdpChrome(options) {
+  async launchCdpChrome(options: Record<string, unknown>) {
     return await launchAndConnectCdpChrome(options);
   }
 
-  hasExactRecoveryTarget(targetId) {
+  hasExactRecoveryTarget(targetId: string | null) {
     return Boolean(
       targetId
       && this.cdpChrome?.exactTargetOnly === true
@@ -1598,7 +1651,7 @@ export class BaseWebAdapter {
 
   // Attach only the exact already-open Page used by an ambiguous outbound. This
   // recovery path never creates or navigates a target and never launches Chrome.
-  async launchRecoveryTarget(targetId) {
+  async launchRecoveryTarget(targetId: string | null) {
     if (typeof targetId !== "string" || targetId.length === 0) {
       throw new BrowserAdapterError(
         "Pending outbound recovery requires a saved browser target ID.",
@@ -1608,7 +1661,7 @@ export class BaseWebAdapter {
     if (this.context) {
       if (this.hasExactRecoveryTarget(targetId)) {
         return {
-          conversationUrl: this.page.url(),
+          conversationUrl: this.page!.url(),
           targetId,
         };
       }
@@ -1643,7 +1696,7 @@ export class BaseWebAdapter {
     }
 
     await ensureDirectory(this.profileDir);
-    let connection = null;
+    let connection: any = null;
     try {
       connection = await this.launchCdpChrome({
         profileDir: this.profileDir,
@@ -1665,12 +1718,12 @@ export class BaseWebAdapter {
       this.cdpChrome = connection;
       this.context = connection.context;
       this.page = connection.page;
-      this.page.setDefaultTimeout(15_000);
-      this.page.setDefaultNavigationTimeout(60_000);
+      this.page!.setDefaultTimeout(15_000);
+      this.page!.setDefaultNavigationTimeout(60_000);
       this.preservedPreferredUrl = null;
       this.preferredTabAmbiguous = false;
       return {
-        conversationUrl: this.page.url(),
+        conversationUrl: this.page!.url(),
         targetId,
       };
     } catch (error) {
@@ -1694,7 +1747,7 @@ export class BaseWebAdapter {
 
   // `preferredUrl` lets a reused Chrome pick an existing tab that already
   // shows the conversation (instead of opening a new tab per run).
-  async launch(preferredUrl = null, { preferredTargetId = null } = {}) {
+  async launch(preferredUrl: any = null, { preferredTargetId = null }: any = {}) {
     if (this.context) {
       // A later turn can still hold the same Page after its provisional URL was
       // replaced. Arm that page's known alias instead of navigating it to root.
@@ -1723,8 +1776,8 @@ export class BaseWebAdapter {
     });
     this.context = this.cdpChrome.context;
     this.page = this.cdpChrome.page;
-    this.page.setDefaultTimeout(15_000);
-    this.page.setDefaultNavigationTimeout(60_000);
+    this.page!.setDefaultTimeout(15_000);
+    this.page!.setDefaultNavigationTimeout(60_000);
 
     const preservedPreferredTab = Boolean(
       this.cdpChrome.preferredTargetMatched
@@ -1739,7 +1792,7 @@ export class BaseWebAdapter {
     if (
       preferredKind === "provisional"
       && !preservedPreferredTab
-      && (this.cdpChrome.existingPageUrls ?? []).some((value) =>
+      && (this.cdpChrome.existingPageUrls ?? []).some((value: string) =>
         ["restorable", "provisional"].includes(
           this.classifyConversationUrl(value),
         )
@@ -1763,7 +1816,7 @@ export class BaseWebAdapter {
     if (preservedPreferredTab) {
       this.#beginConversationObservation(this.preservedPreferredUrl);
     } else {
-      await this.page.goto(this.baseUrl, { waitUntil: "domcontentloaded" });
+      await this.page!.goto(this.baseUrl, { waitUntil: "domcontentloaded" });
     }
   }
 
@@ -1786,7 +1839,7 @@ export class BaseWebAdapter {
   // Playwright transport died mid-run (e.g. the Mac slept). launch() reuses
   // the saved CDP state, so Chrome is neither relaunched nor killed; an
   // existing tab on the preferred conversation is reused when available.
-  async reconnect(preferredUrl = null, { preferredTargetId = null } = {}) {
+  async reconnect(preferredUrl: any = null, { preferredTargetId = null }: any = {}) {
     // launch() acquires a new profile lock. Release this connection's ownership
     // first; if another CLI wins the lock, launch must respect that owner.
     await this.cdpChrome?.detach?.();
@@ -1817,7 +1870,7 @@ export class BaseWebAdapter {
     const authUrl = this.authUrlPattern();
     if (authUrl) {
       try {
-        if (authUrl.test(new URL(this.page.url()).pathname)) {
+        if (authUrl.test(new URL(this.page!.url()).pathname)) {
           return "unauthenticated";
         }
       } catch {
@@ -1828,7 +1881,7 @@ export class BaseWebAdapter {
       return "unauthenticated";
     }
 
-    const body = await this.page.locator("body").innerText().catch(() => "");
+    const body = await this.page!.locator("body").innerText().catch(() => "");
     if (this.authTextPattern().test(body)) {
       return "unauthenticated";
     }
@@ -1836,7 +1889,7 @@ export class BaseWebAdapter {
     return await this.#findComposer() ? "authenticated" : "unknown";
   }
 
-  async waitForManualLogin({ timeoutMs }) {
+  async waitForManualLogin({ timeoutMs }: any) {
     this.requirePage();
     const deadline = Date.now() + timeoutMs;
     let consecutiveAuthenticatedChecks = 0;
@@ -1851,7 +1904,7 @@ export class BaseWebAdapter {
       } else {
         consecutiveAuthenticatedChecks = 0;
       }
-      await this.page.waitForTimeout(1_000);
+      await this.page!.waitForTimeout(1_000);
     }
 
     throw new BrowserAdapterError(
@@ -1861,11 +1914,11 @@ export class BaseWebAdapter {
   }
 
   async startConversation(
-    conversationUrl = null,
+    conversationUrl: any = null,
     {
       expectedAssistantMessageId = null,
       expectedUserMessageId = null,
-    } = {},
+    }: any = {},
   ) {
     this.requirePage();
     this.expectedRestorationAssistantId = expectedAssistantMessageId;
@@ -1897,7 +1950,7 @@ export class BaseWebAdapter {
       );
     }
 
-    const currentUrl = normalizedConversationUrl(this.page.url());
+    const currentUrl = normalizedConversationUrl(this.page!.url());
     const provisionalTabMatched = Boolean(
       requestedUrl
       && requestedKind === "provisional"
@@ -1930,8 +1983,8 @@ export class BaseWebAdapter {
         : (requestedUrl ?? normalizedConversationUrl(this.baseUrl));
 
     try {
-      if (!sameConversationUrl(this.page.url(), target)) {
-        await this.page.goto(String(target), { waitUntil: "domcontentloaded" });
+      if (!sameConversationUrl(this.page!.url(), target)) {
+        await this.page!.goto(String(target), { waitUntil: "domcontentloaded" });
       }
       const composer = await this.#waitForComposer(30_000);
       if (!composer) {
@@ -1994,7 +2047,7 @@ export class BaseWebAdapter {
 
   async getConversationUrl() {
     this.requirePage();
-    return this.page.url();
+    return this.page!.url();
   }
 
   async getLastUserMessageId() {
@@ -2009,11 +2062,11 @@ export class BaseWebAdapter {
     return this.lastAssistantTurn;
   }
 
-  async captureAuxiliaryTurnCompletion({ timeoutMs = 30_000 } = {}) {
+  async captureAuxiliaryTurnCompletion({ timeoutMs = 30_000 }: any = {}) {
     this.requirePage();
     const deadline = this.monotonicNow() + Math.max(0, Number(timeoutMs) || 0);
-    let candidate = null;
-    let conversationUrl = null;
+    let candidate: any = null;
+    let conversationUrl: any = null;
     while (this.monotonicNow() <= deadline) {
       // A fresh provider chat may allocate its durable conversation URL only
       // after the generated image has rendered. Keep the exact page/frame/
@@ -2086,13 +2139,13 @@ export class BaseWebAdapter {
     return this.lastSendStatus;
   }
 
-  async sendMessage(text, {
+  async sendMessage(text: string, {
     files = [],
     maxBytes = null,
     outboundId = null,
     allowAssistantContinuation = false,
     requireAttachments = false,
-  } = {}) {
+  }: any = {}) {
     this.requirePage();
     if (this.pendingSubmission) {
       throw new BrowserAdapterError(
@@ -2131,7 +2184,7 @@ export class BaseWebAdapter {
       );
     }
 
-    let sendProof = null;
+    let sendProof: any = null;
     try {
     const sendIdentity = await this.getConversationIdentity();
     const urlBeforeSend = sendIdentity.conversationUrl;
@@ -2189,7 +2242,7 @@ export class BaseWebAdapter {
 
     // Attach any @file uploads before typing/sending. Upload is best-effort: a
     // failure is reported to the caller but does not block sending the text.
-    let attachment = null;
+    let attachment: any = null;
     if (files.length > 0) {
       attachment = await this.attachFiles(files);
       if (requireAttachments && (attachment?.failed?.length ?? 0) > 0) {
@@ -2208,7 +2261,7 @@ export class BaseWebAdapter {
     const assistantBaseline = await this.#captureMessageIdentities(
       assistantMessages,
     );
-    const userBaseline = await this.#captureMessageIdentities(
+    const userBaseline: any = await this.#captureMessageIdentities(
       this.userMessages(),
     );
     this.assistantIdsBeforeSend = assistantBaseline.ids;
@@ -2255,7 +2308,7 @@ export class BaseWebAdapter {
       if (
         !orderedBaseline
         || orderedBaseline.entries.length !== 0
-        || !sameConversationUrl(orderedBaseline.url, this.page.url())
+        || !sameConversationUrl(orderedBaseline.url, this.page!.url())
         || !this.#activeSendProofIsIntact()
       ) {
         await this.writeDiagnostics("conversation-changed-before-send");
@@ -2265,7 +2318,7 @@ export class BaseWebAdapter {
           { code: "CONVERSATION_CHANGED_BEFORE_SEND", recoverable: false },
         );
       }
-      sendProof.orderedBaseline = {
+      sendProof!.orderedBaseline = {
         url: orderedBaseline.url,
         entries: [],
       };
@@ -2274,32 +2327,32 @@ export class BaseWebAdapter {
     // From this point onward a transport failure cannot prove whether the
     // provider committed the message. Runtime must never resend it blindly. One
     // monotonic deadline includes the submission itself and every proof sample.
-    sendProof.submissionStarted = true;
-    sendProof.submittedAt = this.monotonicNow();
-    sendProof.deadline = sendProof.submittedAt
+    sendProof!.submissionStarted = true;
+    sendProof!.submittedAt = this.monotonicNow();
+    sendProof!.deadline = sendProof!.submittedAt
       + this.sendConfirmationTimeoutMs();
     this.lastSendStatus = "commit-unknown";
-    sendProof.stage = "submit";
+    sendProof!.stage = "submit";
     const assertActive = () => {
-      if (sendProof.invalidated || this.activeSendProof !== sendProof
-        || this.monotonicNow() >= sendProof.deadline) {
+      if (sendProof!.invalidated || this.activeSendProof !== sendProof
+        || this.monotonicNow() >= sendProof!.deadline) {
         throw this.#sendDeadlineError();
       }
     };
     const submission = Promise.resolve().then(() => this.submitComposer(composer, {
       assertActive,
-      timeoutMs: Math.max(1, Math.ceil(sendProof.deadline - this.monotonicNow())),
+      timeoutMs: Math.max(1, Math.ceil(sendProof!.deadline - this.monotonicNow())),
     }));
     this.pendingSubmission = submission;
     const settled = () => {
       if (this.pendingSubmission === submission) this.pendingSubmission = null;
     };
     submission.then(settled, settled);
-    await this.#awaitWithinSendDeadline(submission, sendProof.deadline);
+    await this.#awaitWithinSendDeadline(submission, sendProof!.deadline);
 
-    sendProof.stage = "user-message-confirmation";
+    sendProof!.stage = "user-message-confirmation";
     const sentMessage = await this.#waitForSentUserMessage(userBaseline, {
-      deadline: sendProof.deadline,
+      deadline: sendProof!.deadline,
       expectedText: text,
       outboundId,
       allowPendingFreshTransition: sendStartedFresh,
@@ -2319,22 +2372,22 @@ export class BaseWebAdapter {
     if (sendStartedFresh) {
       this.#confirmFreshConversationSend();
     } else {
-      this.#observeConversationNavigation(this.page.url());
+      this.#observeConversationNavigation(this.page!.url());
     }
 
-    sendProof.stage = "conversation-confirmation";
+    sendProof!.stage = "conversation-confirmation";
     let submittedPage = await this.#awaitWithinSendDeadline(
       this.#submittedPageState(),
-      sendProof.deadline,
+      sendProof!.deadline,
     );
     if (submittedPage.status === "candidate") {
       const verifiedUrl = await this.#waitForCanonicalCandidate(
         submittedPage.conversationUrl,
-        { deadline: sendProof.deadline },
+        { deadline: sendProof!.deadline },
       );
       submittedPage = verifiedUrl
         ? { status: "trusted", conversationUrl: verifiedUrl }
-        : { status: "untrusted", conversationUrl: this.page.url() };
+        : { status: "untrusted", conversationUrl: this.page!.url() };
     }
     if (submittedPage.status !== "trusted") {
       await this.writeDiagnostics("conversation-changed-after-submit");
@@ -2378,7 +2431,7 @@ export class BaseWebAdapter {
         // Invalidate before collecting diagnostics: delayed submit callbacks
         // must not enter a fallback action while this read-only capture runs.
         if (sendProof) sendProof.invalidated = true;
-        const diagnostics = await this.writeDiagnostics("send-commit-unknown", error.details).catch(() => null);
+        const diagnostics: any = await this.writeDiagnostics("send-commit-unknown", error.details).catch(() => null);
         if (diagnostics?.filename) {
           error.details.diagnosticFile = diagnostics.filename;
           error.details.dom = diagnostics.report.dom;
@@ -2408,7 +2461,7 @@ export class BaseWebAdapter {
     readNativeImages = null,
     readNativeMusic = null,
     onDelta,
-  }) {
+  }: any) {
     this.requirePage();
     const deadline = Date.now() + timeoutMs;
     const startedAt = Date.now();
@@ -2416,11 +2469,11 @@ export class BaseWebAdapter {
     let stableSince = 0;
     let sawAssistant = false;
     let emptySince = 0;
-    let emptyCandidate = null;
+    let emptyCandidate: any = null;
     let sawGenerationSignal = false;
     let lastGenerationSignalAt = 0;
     let unverifiedPageChecks = 0;
-    let nativeCandidate = null;
+    let nativeCandidate: any = null;
     let nativeStableSince = 0;
     const detachEscCancel = this.#attachEscCancel();
     const truncatedGraceMs = truncatedEnvelopeWindowMs
@@ -2457,7 +2510,7 @@ export class BaseWebAdapter {
                 },
               );
             }
-            await this.page.waitForTimeout(250);
+            await this.page!.waitForTimeout(250);
             continue;
           }
           if (pageState.status !== "trusted") {
@@ -2564,7 +2617,7 @@ export class BaseWebAdapter {
           }
 
           if (readNativeImages || readNativeMusic) {
-            const snapshot = await (readNativeMusic ?? readNativeImages)(lastMessage);
+            const snapshot = await (readNativeMusic ?? readNativeImages)!(lastMessage);
             const media = readNativeMusic ? snapshot.music : snapshot.images;
             if (snapshot.pending || media.length > 0) {
               emptySince = 0;
@@ -2583,7 +2636,7 @@ export class BaseWebAdapter {
                 this.lastAssistantTurn = candidateTurn;
                 return readNativeMusic ? { text, nativeMusic: media } : { text, nativeImages: media };
               }
-              await this.page.waitForTimeout(250);
+              await this.page!.waitForTimeout(250);
               continue;
             }
             nativeCandidate = null;
@@ -2659,8 +2712,8 @@ export class BaseWebAdapter {
               )
             )
           ) {
-            const limitMarker = await this.findUsageLimitMarker(lastMessage);
-            const generationError = await this.findGenerationErrorMarker(lastMessage);
+            const limitMarker = await this.findUsageLimitMarker(lastMessage!);
+            const generationError = await this.findGenerationErrorMarker(lastMessage!);
             await this.#validateRecoveredTurnBoundary({
               assistantPresent: true,
               assistantMessageId: candidateId,
@@ -2743,7 +2796,7 @@ export class BaseWebAdapter {
           );
         }
 
-        await this.page.waitForTimeout(sawAssistant ? 250 : 500);
+        await this.page!.waitForTimeout(sawAssistant ? 250 : 500);
       }
 
       await this.writeDiagnostics("turn-timeout");
@@ -2769,16 +2822,16 @@ export class BaseWebAdapter {
   }
 
   async #isFreshConversation() {
-    return this.classifyConversationUrl(this.page.url()) === "fresh"
+    return this.classifyConversationUrl(this.page!.url()) === "fresh"
       && await this.conversationMessages().count().catch(() => -1) === 0;
   }
 
-  async #waitForStableFreshConversation({ attempts = 60 } = {}) {
-    let previousSignature = null;
+  async #waitForStableFreshConversation({ attempts = 60 }: any = {}) {
+    let previousSignature: any = null;
     let stableChecks = 0;
     for (let attempt = 0; attempt < attempts; attempt += 1) {
       this.#throwIfCancelRequested();
-      const currentUrl = normalizedConversationUrl(this.page.url());
+      const currentUrl = normalizedConversationUrl(this.page!.url());
       const kind = currentUrl
         ? this.classifyConversationUrl(currentUrl)
         : "invalid";
@@ -2794,7 +2847,7 @@ export class BaseWebAdapter {
       if (stableChecks >= RESTORATION_STABLE_CHECKS) {
         return currentUrl;
       }
-      await this.page.waitForTimeout(250);
+      await this.page!.waitForTimeout(250);
     }
     return null;
   }
@@ -2803,20 +2856,20 @@ export class BaseWebAdapter {
     const control = await firstVisible(this.newConversationControls());
     if (control) {
       await control.click().catch(() => null);
-      await this.page.waitForTimeout(500);
+      await this.page!.waitForTimeout(500);
     }
     if (!await this.#isFreshConversation()) {
-      await this.page.goto(this.baseUrl, { waitUntil: "domcontentloaded" });
+      await this.page!.goto(this.baseUrl, { waitUntil: "domcontentloaded" });
     }
   }
 
-  async #waitForComposer(timeoutMs) {
+  async #waitForComposer(timeoutMs: number) {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
       this.#throwIfCancelRequested();
       const composer = await this.#findComposer();
       if (composer) return composer;
-      await this.page.waitForTimeout(500);
+      await this.page!.waitForTimeout(500);
     }
     return null;
   }
@@ -2835,14 +2888,14 @@ export class BaseWebAdapter {
       if (!stopVisible && !assistantGenerating) {
         return;
       }
-      await this.page.waitForTimeout(250);
+      await this.page!.waitForTimeout(250);
     }
   }
 
-  async #captureMessageIdentities(messages) {
+  async #captureMessageIdentities(messages: Locator) {
     const count = await messages.count().catch(() => 0);
-    const ids = new Set();
-    let maxTurn = null;
+    const ids = new Set<string>();
+    let maxTurn: any = null;
     for (let index = 0; index < count; index += 1) {
       const identity = await this.messageIdentity(messages.nth(index));
       if (identity.id) {
@@ -2857,7 +2910,7 @@ export class BaseWebAdapter {
     return { count, ids, maxTurn };
   }
 
-  #validatedOrderedConversationSnapshot(snapshot) {
+  #validatedOrderedConversationSnapshot(snapshot: OrderedConversationSnapshot | null) {
     if (!snapshot || !Array.isArray(snapshot.entries)) {
       return null;
     }
@@ -2866,9 +2919,9 @@ export class BaseWebAdapter {
       return null;
     }
 
-    const ids = new Set();
+    const ids = new Set<string>();
     const turns = new Set();
-    const entries = [];
+    const entries: any[] = [];
     let previousDomIndex = -1;
     let previousTurn = -1;
     for (const entry of snapshot.entries) {
@@ -2903,12 +2956,12 @@ export class BaseWebAdapter {
     return { url, entries };
   }
 
-  #freshUserFromOrderedSnapshot(snapshot, {
+  #freshUserFromOrderedSnapshot(snapshot: OrderedConversationSnapshot | null, {
     baseline,
     pageState,
     expectedText,
     outboundId,
-  }) {
+  }: any) {
     const proof = this.activeSendProof;
     if (!proof || !this.#activeSendProofIsIntact()) {
       return null;
@@ -3002,7 +3055,7 @@ export class BaseWebAdapter {
     };
   }
 
-  async #waitBeforeSendDeadline(deadline, ms = 100) {
+  async #waitBeforeSendDeadline(deadline: number, ms = 100) {
     const remaining = deadline - this.monotonicNow();
     if (remaining <= 0) {
       return false;
@@ -3023,19 +3076,19 @@ export class BaseWebAdapter {
     );
   }
 
-  async #waitForSentUserMessage(baseline, {
+  async #waitForSentUserMessage(baseline: MessageIdentities | null, {
     deadline = this.monotonicNow() + this.sendConfirmationTimeoutMs(),
     expectedText = "",
     outboundId = null,
     allowPendingFreshTransition = false,
     hasPreTransitionMarker = false,
-  } = {}) {
+  }: any = {}) {
     let candidateBubbleSignature = null;
     let candidateBubbleStableSince = 0;
     const requireFreshCorrelation = allowPendingFreshTransition;
     const requireOrderedSnapshot = requireFreshCorrelation
       && this.requiresOrderedConversationSnapshotForFreshSend();
-    const withinDeadline = (promise) => this.#awaitWithinSendDeadline(
+    const withinDeadline = (promise: Promise<unknown>) => this.#awaitWithinSendDeadline(
       promise,
       deadline,
     );
@@ -3064,8 +3117,8 @@ export class BaseWebAdapter {
       if (outboundId != null) {
         await withinDeadline(this.prepareOutboundConfirmation({ outboundId, deadline }));
       }
-      let candidate = null;
-      let orderedSnapshot = null;
+      let candidate: any = null;
+      let orderedSnapshot: any = null;
       if (requireOrderedSnapshot) {
         orderedSnapshot = await withinDeadline(
           this.orderedConversationSnapshot().catch(() => null),
@@ -3086,19 +3139,19 @@ export class BaseWebAdapter {
         }
         const messages = snapshot === undefined ? this.userMessages() : null;
         const count = snapshot?.length
-          ?? await withinDeadline(messages.count().catch(() => 0));
+          ?? await withinDeadline(messages!.count().catch(() => 0));
         if (this.activeSendProof) {
           this.activeSendProof.sample = { userMessageCount: count, markerMatched: false };
         }
         for (let index = count - 1; index >= 0; index -= 1) {
           const message = messages?.nth(index);
           const identity = snapshot?.[index] ?? await withinDeadline(
-            this.messageIdentity(message),
+            this.messageIdentity(message!),
           );
           const newByTurn = identity.turn != null
-            && (baseline.maxTurn == null || identity.turn > baseline.maxTurn);
+            && (baseline!.maxTurn == null || identity.turn > baseline!.maxTurn);
           const newById = Boolean(
-            identity.id && !baseline.ids.has(identity.id),
+            identity.id && !baseline!.ids.has(identity.id),
           );
           if (!newByTurn && !newById) {
             continue;
@@ -3111,7 +3164,7 @@ export class BaseWebAdapter {
               continue;
             }
             const renderedText = snapshot?.[index].renderedText ?? await withinDeadline(
-              this.userMessageText(message),
+              this.userMessageText(message!),
             );
             const markerMatched = renderedMessageContains(renderedText, expectedText, outboundId);
             if (this.activeSendProof) {
@@ -3135,7 +3188,7 @@ export class BaseWebAdapter {
                 this.conversationMessages().count().catch(() => -1),
               );
               if (
-                baseline.count !== 0
+                baseline!.count !== 0
                 || count !== 1
                 || totalMessages < 1
                 || totalMessages > 2
@@ -3256,22 +3309,22 @@ export class BaseWebAdapter {
     expectedUrl = null,
     allowCanonicalTransition = false,
     attempts = 60,
-  } = {}) {
-    let previousSignature = null;
+  }: any = {}) {
+    let previousSignature: any = null;
     let stableChecks = 0;
     let scrolledToBottom = 0;
     const normalizedExpected = normalizedConversationUrl(expectedUrl);
 
     if (
       allowCanonicalTransition
-      && sameConversationUrl(this.page.url(), normalizedExpected)
+      && sameConversationUrl(this.page!.url(), normalizedExpected)
     ) {
       this.#beginConversationObservation(normalizedExpected);
     }
 
     for (let attempt = 0; attempt < attempts; attempt += 1) {
       this.#throwIfCancelRequested();
-      const currentUrl = normalizedConversationUrl(this.page.url());
+      const currentUrl = normalizedConversationUrl(this.page!.url());
       const currentKind = currentUrl
         ? this.classifyConversationUrl(currentUrl)
         : "invalid";
@@ -3377,7 +3430,7 @@ export class BaseWebAdapter {
         }
       }
 
-      await this.page.waitForTimeout(250);
+      await this.page!.waitForTimeout(250);
     }
 
     await this.writeDiagnostics("conversation-history-mismatch");
@@ -3419,7 +3472,7 @@ export class BaseWebAdapter {
     emitKeypressEvents(stream);
     const previousRaw = stream.isRaw;
     stream.setRawMode(true);
-    const onKeypress = (_chunk, key) => {
+    const onKeypress = (_chunk: unknown, key: Readonly<{ name?: string; sequence?: string; ctrl?: boolean; shift?: boolean; meta?: boolean }>) => {
       if (key?.name === "escape") {
         this.escCancelRequested = true;
       } else if (key?.ctrl && key?.name === "c") {
@@ -3469,14 +3522,14 @@ export class BaseWebAdapter {
   async throwIfBlockedPage() {
     let pageUrl = "";
     try {
-      pageUrl = this.page.url();
+      pageUrl = this.page!.url();
     } catch {
       // Fall through to the DOM checks below.
     }
     const challengeUrl = pageUrl.includes("challenges.cloudflare.com")
       || pageUrl.includes("/cdn-cgi/");
 
-    const title = await this.page.title().catch(() => "");
+    const title = await this.page!.title().catch(() => "");
     const titleTokens = new Set(title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean));
     const challengeTitle =
       (titleTokens.has("cloudflare") && titleTokens.has("attention")) ||
@@ -3485,11 +3538,11 @@ export class BaseWebAdapter {
       (titleTokens.has("just") && titleTokens.has("moment"));
 
     const challengeElement = await firstVisible([
-      this.page.locator('iframe[src*="challenges.cloudflare.com"]'),
-      this.page.locator('input[name="cf-turnstile-response"]'),
-      this.page.locator('#challenge-stage'),
-      this.page.locator('form[action*="/cdn-cgi/challenge-platform/"]'),
-      this.page.locator('[data-testid="challenge-stage"]'),
+      this.page!.locator('iframe[src*="challenges.cloudflare.com"]'),
+      this.page!.locator('input[name="cf-turnstile-response"]'),
+      this.page!.locator('#challenge-stage'),
+      this.page!.locator('form[action*="/cdn-cgi/challenge-platform/"]'),
+      this.page!.locator('[data-testid="challenge-stage"]'),
     ]);
 
     if (!challengeUrl && !challengeTitle && !challengeElement) {
@@ -3497,8 +3550,8 @@ export class BaseWebAdapter {
       // composer proves this is the normal chat UI, not an interstitial.
       const composer = await this.#findComposer();
       if (!composer) {
-        const body = typeof this.page.evaluate === "function"
-          ? await this.page
+        const body = typeof this.page!.evaluate === "function"
+          ? await this.page!
             .evaluate(() => (document.body.textContent ?? "").slice(0, 1500))
             .catch(() => "")
           : "";
@@ -3520,9 +3573,9 @@ export class BaseWebAdapter {
     return false;
   }
 
-  recordConversationNavigation(_url) {}
+  recordConversationNavigation(_url: string) {}
 
-  async structuralDiagnostics() {
+  async structuralDiagnostics(): Promise<any>   {
     return null;
   }
 
@@ -3539,14 +3592,14 @@ export class BaseWebAdapter {
     }
   }
 
-  async writeDiagnostics(label, details = null) {
+  async writeDiagnostics(label: string, details: any = null) {
     if (!this.page || (!this.debug && !this.hasStructuralDiagnostics())) return;
     const page = this.page;
     const proof = this.activeSendProof;
     const stamp = Date.now();
     // Capture the stage before awaiting CDP. Never log prompts, correlation IDs,
     // raw URLs, or arbitrary provider error text in the default JSON report.
-    const report = {
+    const report: any = {
       schemaVersion: 1,
       provider: this.providerName,
       label,

@@ -307,11 +307,15 @@ export async function readChatMessage(read) {
 // instead). Enter submits, ↑/↓ walk history, ←/→/Home/End move the cursor,
 // Ctrl+C / Ctrl+D cancel.
 export class ShellChatInput {
+  history: any[];
+  historySize: any;
+  inputStream: any;
+  outputStream: any;
   constructor({
     inputStream = process.stdin,
     outputStream = process.stdout,
     historySize = 100,
-  } = {}) {
+  }: any = {}) {
     this.inputStream = inputStream;
     this.outputStream = outputStream;
     this.historySize = historySize;
@@ -360,7 +364,7 @@ export class ShellChatInput {
         || 80,
     );
 
-    let buffer = []; // grapheme clusters; "\n" entries are real line breaks
+    let buffer: any[] = []; // grapheme clusters; "\n" entries are real line breaks
     let cursor = 0;
     let historyIndex = this.history.length;
     let draft = "";
@@ -668,8 +672,8 @@ export class ShellChatInput {
       const width = columns();
       const promptWidth = displayWidth(prompt);
 
-      const rendered = [];
-      const ranges = []; // { start, end } flat char indices per rendered line
+      const rendered: any[] = [];
+      const ranges: any[] = []; // { start, end } flat char indices per rendered line
       let current = "";
       let currentWidth = 0;
       let rangeStart = 0;
@@ -807,7 +811,7 @@ async function promptWithCleanExit(config, {
   prompt,
   inputStream = process.stdin,
   outputStream = process.stdout,
-}) {
+}: any) {
   if (inputStream.readableEnded) {
     return null;
   }
@@ -842,7 +846,7 @@ async function promptWithCleanExit(config, {
   }
 }
 
-export async function promptForText(config, options = {}) {
+export async function promptForText(config, options: Record<string, any> = {}) {
   return await promptWithCleanExit(config, {
     ...options,
     prompt: options.prompt ?? input,
@@ -851,10 +855,10 @@ export async function promptForText(config, options = {}) {
 
 // A non-permission startup pause: Enter and expiry both continue. Keep this
 // separate from text/approval prompts, which must never accept on a timer.
-export async function promptForContinue({ message, countdown, timeoutMs = 5_000 }, {
+export async function promptForContinue({ message, countdown, timeoutMs = 5_000 }: any, {
   inputStream = process.stdin,
   outputStream = process.stdout,
-} = {}) {
+}: any = {}) {
   if (inputStream.readableEnded || inputStream.destroyed) return null;
   return await new Promise((resolve, reject) => {
     const previousRaw = Boolean(inputStream.isRaw);
@@ -875,7 +879,7 @@ export async function promptForContinue({ message, countdown, timeoutMs = 5_000 
         outputStream.write(`${text}\n`);
       }
     };
-    const finish = (value, error) => {
+    const finish = (value: any, error?: any) => {
       if (settled) return;
       settled = true;
       clearInterval(timer);
@@ -917,14 +921,14 @@ export async function promptForContinue({ message, countdown, timeoutMs = 5_000 
   });
 }
 
-export async function promptForSelect(config, options = {}) {
+export async function promptForSelect(config, options: Record<string, any> = {}) {
   return await promptWithCleanExit(config, {
     ...options,
     prompt: options.prompt ?? select,
   });
 }
 
-export async function promptForConfirm(config, options = {}) {
+export async function promptForConfirm(config, options: Record<string, any> = {}) {
   return await promptWithCleanExit(config, {
     ...options,
     prompt: options.prompt ?? confirm,

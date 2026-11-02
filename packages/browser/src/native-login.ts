@@ -7,7 +7,7 @@ export async function launchNativeLoginBrowser({
   profileDir,
   chromePath,
   url = "https://chatgpt.com/",
-}) {
+}: any) {
   await ensureDirectory(profileDir);
   const executablePath = discoverChromeExecutable(chromePath);
   const child = spawn(
@@ -35,7 +35,7 @@ export async function launchNativeLoginBrowser({
     pid: child.pid,
     async close() {
       await killProcessTree(child.pid);
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         if (child.exitCode != null || child.signalCode != null) {
           resolve();
           return;

@@ -1,7 +1,7 @@
-import { BaseWebAdapter, firstVisible } from "base-web-adapter";
+import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
 import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
 
-export { isConnectionLostError } from "base-web-adapter";
+export { isConnectionLostError } from "./base-web-adapter.js";
 
 const DEEPSEEK_URL = "https://chat.deepseek.com/";
 
@@ -22,7 +22,7 @@ const DEEPSEEK_URL = "https://chat.deepseek.com/";
 // treats "no stop button" as simply not-generating, and the reply's stable
 // window + turn boundary still complete the turn correctly).
 export class DeepSeekWebAdapter extends BaseWebAdapter {
-  constructor(options = {}) {
+  constructor(options: any = {}) {
     super({
       ...options,
       baseUrl: options.baseUrl ?? DEEPSEEK_URL,
@@ -36,10 +36,10 @@ export class DeepSeekWebAdapter extends BaseWebAdapter {
 
   composerLocators() {
     return [
-      this.page.locator('textarea[name="search"]'),
-      this.page.locator('textarea[placeholder*="发送消息"]'),
-      this.page.locator('textarea[placeholder*="Message" i]'),
-      this.page.locator('main textarea'),
+      this.page!.locator('textarea[name="search"]'),
+      this.page!.locator('textarea[placeholder*="发送消息"]'),
+      this.page!.locator('textarea[placeholder*="Message" i]'),
+      this.page!.locator('main textarea'),
     ];
   }
 
@@ -48,7 +48,7 @@ export class DeepSeekWebAdapter extends BaseWebAdapter {
   // future labeled control is used if present.
   sendButtonLocators() {
     return [
-      this.page.getByRole("button", { name: /send|发送/i }),
+      this.page!.getByRole("button", { name: /send|发送/i }),
     ];
   }
 
@@ -60,7 +60,7 @@ export class DeepSeekWebAdapter extends BaseWebAdapter {
   // ships a labeled control.
   stopButtonLocators() {
     return [
-      this.page.getByRole("button", { name: /stop|停止/i }),
+      this.page!.getByRole("button", { name: /stop|停止/i }),
     ];
   }
 
@@ -77,16 +77,16 @@ export class DeepSeekWebAdapter extends BaseWebAdapter {
 
   newConversationControls() {
     return [
-      this.page.getByRole("button", { name: /新对话|开启新对话|new chat/i }),
-      this.page.getByRole("link", { name: /新对话|开启新对话|new chat/i }),
-      this.page.locator('[data-testid="new-chat"]'),
+      this.page!.getByRole("button", { name: /新对话|开启新对话|new chat/i }),
+      this.page!.getByRole("link", { name: /新对话|开启新对话|new chat/i }),
+      this.page!.locator('[data-testid="new-chat"]'),
     ];
   }
 
   loginControlLocators() {
     return [
-      this.page.getByRole("button", { name: /^(登录|log in|sign in)$/i }),
-      this.page.getByRole("button", { name: /密码登录|验证码登录|password|verification code/i }),
+      this.page!.getByRole("button", { name: /^(登录|log in|sign in)$/i }),
+      this.page!.getByRole("button", { name: /密码登录|验证码登录|password|verification code/i }),
     ];
   }
 
@@ -106,21 +106,21 @@ export class DeepSeekWebAdapter extends BaseWebAdapter {
     // Deep Thinking first mounts a think-only row
     // (`.ds-think-content`) with no answer node. Count that as an assistant
     // turn or the 5-minute dead-request window fires mid-thought.
-    return this.page.locator(
+    return this.page!.locator(
       '[data-virtual-list-item-key]:has(.ds-assistant-message-main-content), '
       + '[data-virtual-list-item-key]:has(.ds-think-content)',
     );
   }
 
   userMessages() {
-    return this.page.locator(
+    return this.page!.locator(
       '[data-virtual-list-item-key]:not(:has(.ds-assistant-message-main-content))'
       + ':not(:has(.ds-think-content))',
     );
   }
 
   conversationMessages() {
-    return this.page.locator("[data-virtual-list-item-key]");
+    return this.page!.locator("[data-virtual-list-item-key]");
   }
 
   // DeepSeek's `data-virtual-list-item-key` is a virtual-list rendering index,
@@ -152,7 +152,7 @@ export class DeepSeekWebAdapter extends BaseWebAdapter {
   // it is immune to the volatile virtual-list key. It never accepts a
   // pre-existing reply (guarding against stale answers) because the count only
   // rises when DeepSeek appends a new assistant turn.
-  isNewAssistantIdentity({ turn, text }) {
+  isNewAssistantIdentity({ turn, text }: any) {
     if (turn != null && turn > (this.assistantCountBeforeSend ?? 0)) {
       return true;
     }
@@ -221,7 +221,7 @@ export class DeepSeekWebAdapter extends BaseWebAdapter {
   // DeepSeek's thread is virtualized; scroll the list container so the latest
   // reply mounts when resuming an existing conversation.
   async scrollConversationToBottom() {
-    await this.page.evaluate?.(() => {
+    await this.page!.evaluate?.(() => {
       const list = document.querySelector(".ds-virtual-list");
       if (list) {
         list.scrollTop = list.scrollHeight;

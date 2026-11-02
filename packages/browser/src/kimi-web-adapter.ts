@@ -1,7 +1,7 @@
-import { BaseWebAdapter, firstVisible, hasCompleteAgentEnvelope } from "base-web-adapter";
+import { BaseWebAdapter, firstVisible, hasCompleteAgentEnvelope } from "./base-web-adapter.js";
 import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
 
-export { isConnectionLostError } from "base-web-adapter";
+export { isConnectionLostError } from "./base-web-adapter.js";
 
 const KIMI_URL = "https://www.kimi.com/";
 
@@ -22,7 +22,7 @@ const KIMI_URL = "https://www.kimi.com/";
 // Model choice is intentionally left to the user on kimi.com; the adapter does
 // not inspect or change the site's current model selection.
 export class KimiWebAdapter extends BaseWebAdapter {
-  constructor(options = {}) {
+  constructor(options: any = {}) {
     super({
       ...options,
       baseUrl: options.baseUrl ?? KIMI_URL,
@@ -36,10 +36,10 @@ export class KimiWebAdapter extends BaseWebAdapter {
 
   composerLocators() {
     return [
-      this.page.locator(".chat-input-editor"),
-      this.page.locator('div[contenteditable="true"][data-lexical-editor="true"]'),
-      this.page.locator('main div[contenteditable="true"]'),
-      this.page.locator('textarea'),
+      this.page!.locator(".chat-input-editor"),
+      this.page!.locator('div[contenteditable="true"][data-lexical-editor="true"]'),
+      this.page!.locator('main div[contenteditable="true"]'),
+      this.page!.locator('textarea'),
     ];
   }
 
@@ -49,8 +49,8 @@ export class KimiWebAdapter extends BaseWebAdapter {
     // the class-based disable, so the base's Enter fallback is the reliable
     // path — these are best-effort only.
     return [
-      this.page.locator(".send-button-container:not(.disabled)"),
-      this.page.getByRole("button", { name: /send|发送/i }),
+      this.page!.locator(".send-button-container:not(.disabled)"),
+      this.page!.getByRole("button", { name: /send|发送/i }),
     ];
   }
 
@@ -58,20 +58,20 @@ export class KimiWebAdapter extends BaseWebAdapter {
   // proven by a stop control, so the wider dead-request grace applies (below).
   stopButtonLocators() {
     return [
-      this.page.getByRole("button", { name: /stop|停止|中断/i }),
+      this.page!.getByRole("button", { name: /stop|停止|中断/i }),
     ];
   }
 
   newConversationControls() {
     return [
-      this.page.getByRole("button", { name: /新建会话|新对话|new chat/i }),
-      this.page.getByRole("link", { name: /新建会话|新对话|new chat/i }),
+      this.page!.getByRole("button", { name: /新建会话|新对话|new chat/i }),
+      this.page!.getByRole("link", { name: /新建会话|新对话|new chat/i }),
     ];
   }
 
   loginControlLocators() {
     return [
-      this.page.getByRole("button", { name: /^(登录|log in|sign in)$/i }),
+      this.page!.getByRole("button", { name: /^(登录|log in|sign in)$/i }),
     ];
   }
 
@@ -80,15 +80,15 @@ export class KimiWebAdapter extends BaseWebAdapter {
   }
 
   assistantMessages() {
-    return this.page.locator(".chat-content-item-assistant");
+    return this.page!.locator(".chat-content-item-assistant");
   }
 
   userMessages() {
-    return this.page.locator(".chat-content-item-user");
+    return this.page!.locator(".chat-content-item-user");
   }
 
   conversationMessages() {
-    return this.page.locator(".chat-content-item");
+    return this.page!.locator(".chat-content-item");
   }
 
   // Kimi tags every message with a stable UUID in data-archer-id — a genuine
@@ -109,7 +109,7 @@ export class KimiWebAdapter extends BaseWebAdapter {
       ".markdown:not(.thinking-container .markdown):not(.toolcall-container .markdown)",
     );
     if (await answer.count().catch(() => 0)) {
-      const chunks = [];
+      const chunks: any[] = [];
       const seen = new Set();
       const count = await answer.count();
       for (let index = 0; index < count; index += 1) {

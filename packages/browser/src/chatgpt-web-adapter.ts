@@ -5,14 +5,14 @@ import {
   hasCompleteAgentEnvelope,
   isValidOutboundCorrelationId,
   renderedMessageContainsOutboundMarker,
-} from "base-web-adapter";
+} from "./base-web-adapter.js";
 import { BrowserAdapterError } from "@wtagent/shared/errors";
 import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
 
 // Re-exported so existing importers (the runtime and browser-adapter tests)
 // keep importing it from here even though it now lives on the provider-agnostic
 // base module.
-export { isConnectionLostError } from "base-web-adapter";
+export { isConnectionLostError } from "./base-web-adapter.js";
 
 import {
   CHATGPT_DOM,
@@ -20,7 +20,7 @@ import {
   summarizeChatGPTDom,
   readChatGPTMessageIdentity,
   readChatGPTAssistantText,
-} from "chatgpt-dom";
+} from "./chatgpt-dom.js";
 
 const CHATGPT_URL = "https://chatgpt.com/";
 
@@ -41,7 +41,7 @@ function validatedOrderedSnapshot(snapshot) {
   }
   const ids = new Set();
   const turns = new Set();
-  const entries = [];
+  const entries: any[] = [];
   let previousDomIndex = -1;
   let previousTurn = -1;
   for (const entry of snapshot.entries) {
@@ -74,7 +74,7 @@ function validatedOrderedSnapshot(snapshot) {
   return { url, entries };
 }
 
-function sameIdentity(entry, { id, turn }) {
+function sameIdentity(entry, { id, turn }: any) {
   return entry?.id === id && entry?.turn === turn;
 }
 
@@ -84,7 +84,10 @@ function sameIdentity(entry, { id, turn }) {
 // reconnect and the turn-completion loop — is inherited from BaseWebAdapter.
 // Model choice is intentionally left to the user in the ChatGPT website.
 export class ChatGPTWebAdapter extends BaseWebAdapter {
-  constructor(options = {}) {
+  declare diagnosticRoutes: any;
+  lastDiagnosticUrl: any;
+  lastDomReport: any;
+  constructor(options: any = {}) {
     super({
       ...options,
       baseUrl: options.baseUrl ?? CHATGPT_URL,
@@ -115,7 +118,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
       await this.collectStructuralDiagnostics();
       return result;
     } catch (error) {
-      const diagnostic = await this.writeDiagnostics("conversation-start-failed", { stage: "conversation-start" }).catch(() => null);
+      const diagnostic: any = await this.writeDiagnostics("conversation-start-failed", { stage: "conversation-start" }).catch(() => null);
       if (diagnostic?.filename) {
         error.details = { ...error.details, diagnosticFile: diagnostic.filename, dom: diagnostic.report.dom };
       }
@@ -136,7 +139,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
   }
 
   async structuralDiagnostics() {
-    const snapshot = await this.page.evaluate(readChatGPTDom, {
+    const snapshot = await this.page!.evaluate(readChatGPTDom, {
       selector: CHATGPT_DOM.messages, registry: CHATGPT_DOM,
     });
     const report = summarizeChatGPTDom(snapshot);
@@ -146,7 +149,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
 
   pendingAttachmentLocators() {
     return [
-      this.page.locator(
+      this.page!.locator(
         'form [data-testid$="-file-thumbnail"], '
           + 'form [data-testid^="file-thumbnail"], '
           + 'form button[aria-label*="remove file" i], '
@@ -156,18 +159,18 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
   }
 
   composerLocators() {
-    return CHATGPT_DOM.composers.map(({ selector }) => this.page.locator(selector));
+    return CHATGPT_DOM.composers.map(({ selector }: any) => this.page!.locator(selector));
   }
 
   sendButtonLocators() {
     return [
-      this.page.locator(CHATGPT_DOM.send),
-      this.page.locator(CHATGPT_DOM.sendModern),
-      this.page.getByRole("button", { name: /^(send|发送|傳送|送信|보내기|enviar|envoyer|senden)$/i }),
+      this.page!.locator(CHATGPT_DOM.send),
+      this.page!.locator(CHATGPT_DOM.sendModern),
+      this.page!.getByRole("button", { name: /^(send|发送|傳送|送信|보내기|enviar|envoyer|senden)$/i }),
     ];
   }
 
-  async submitComposer(_composer, { assertActive = () => {}, timeoutMs = this.sendConfirmationTimeoutMs() } = {}) {
+  async submitComposer(_composer, { assertActive = () => {}, timeoutMs = this.sendConfirmationTimeoutMs() }: any = {}) {
     // ProseMirror can expose the filled text before React enables/mounts Send.
     // Enter during that interval may be ignored or edit the draft. Wait for
     // the real control and make exactly one click; a failed click is ambiguous
@@ -196,8 +199,8 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
 
   stopButtonLocators() {
     return [
-      this.page.locator(CHATGPT_DOM.stop),
-      this.page.getByRole("button", {
+      this.page!.locator(CHATGPT_DOM.stop),
+      this.page!.getByRole("button", {
         name: /stop generating|stop|停止生成|停止/i,
       }),
     ];
@@ -205,22 +208,22 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
 
   newConversationControls() {
     return [
-      this.page.locator('[data-testid="create-new-chat-button"]'),
-      this.page.getByRole("button", { name: /^(new chat|新聊天|新对话)$/i }),
-      this.page.getByRole("link", { name: /^(new chat|新聊天|新对话)$/i }),
-      this.page.locator('a[href="/"]'),
+      this.page!.locator('[data-testid="create-new-chat-button"]'),
+      this.page!.getByRole("button", { name: /^(new chat|新聊天|新对话)$/i }),
+      this.page!.getByRole("link", { name: /^(new chat|新聊天|新对话)$/i }),
+      this.page!.locator('a[href="/"]'),
     ];
   }
 
   loginControlLocators() {
     return [
-      this.page.getByRole("button", {
+      this.page!.getByRole("button", {
         // ChatGPT ships many locales; cover the common ones for the login
         // control. The /auth/ URL check below is the locale-independent
         // primary signal — these patterns only improve guest-shell detection.
         name: /^(log in|sign in|登录|ログイン|로그인|se connecter|anmelden|iniciar sesión|entrar|accedi)$/i,
       }),
-      this.page.getByRole("link", {
+      this.page!.getByRole("link", {
         name: /^(log in|sign in|登录|ログイン|로그인|se connecter|anmelden|iniciar sesión|entrar|accedi)$/i,
       }),
     ];
@@ -242,13 +245,13 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     // keeps a failed request from being read as an envelope-less reply and
     // burned through the protocol-error retry loop; the turn instead sees "no
     // reply" and recovers with the continuation nudge.
-    const legacy = this.page.locator(CHATGPT_DOM.assistant.legacy);
-    return legacy.or ? legacy.or(this.page.locator(CHATGPT_DOM.assistant.modern)) : legacy;
+    const legacy = this.page!.locator(CHATGPT_DOM.assistant.legacy);
+    return legacy.or ? legacy.or(this.page!.locator(CHATGPT_DOM.assistant.modern)) : legacy;
   }
 
   userMessages() {
-    const legacy = this.page.locator(CHATGPT_DOM.user.legacy);
-    return legacy.or ? legacy.or(this.page.locator(CHATGPT_DOM.user.modern)) : legacy;
+    const legacy = this.page!.locator(CHATGPT_DOM.user.legacy);
+    return legacy.or ? legacy.or(this.page!.locator(CHATGPT_DOM.user.modern)) : legacy;
   }
 
   async userMessageSnapshot() {
@@ -265,7 +268,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     )).catch(() => null);
   }
 
-  async prepareOutboundConfirmation({ outboundId, deadline } = {}) {
+  async prepareOutboundConfirmation({ outboundId, deadline }: any = {}) {
     if (!isValidOutboundCorrelationId(outboundId)) return;
     // ChatGPT's Show more control can truncate the actual DOM text at 10,000
     // characters, omitting our final nonce even after the model has replied.
@@ -282,8 +285,8 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
   }
 
   conversationMessages() {
-    const legacy = this.page.locator(CHATGPT_DOM.conversationLegacy);
-    return legacy.or ? legacy.or(this.page.locator(`${CHATGPT_DOM.user.modern}, ${CHATGPT_DOM.assistant.modern}`)) : legacy;
+    const legacy = this.page!.locator(CHATGPT_DOM.conversationLegacy);
+    return legacy.or ? legacy.or(this.page!.locator(`${CHATGPT_DOM.user.modern}, ${CHATGPT_DOM.assistant.modern}`)) : legacy;
   }
 
   requiresOrderedConversationSnapshotForFreshSend() {
@@ -303,7 +306,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     assistantPresent = false,
     assistantMessageId = null,
     assistantTurn = null,
-  } = {}) {
+  }: any = {}) {
     if (!this.recoveredTurnTopologyRequired) {
       return;
     }
@@ -394,7 +397,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     return true;
   }
 
-  #pendingOutboundUncertain(message, details = {}) {
+  #pendingOutboundUncertain(message, details: Record<string, any> = {}) {
     return new BrowserAdapterError(message, {
       code: "OUTBOUND_COMMIT_UNCERTAIN",
       recoverable: false,
@@ -402,7 +405,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     });
   }
 
-  #assertRecoveryTarget({ page, mainFrame, targetId, initialUrl, navigated }) {
+  #assertRecoveryTarget({ page, mainFrame, targetId, initialUrl, navigated }: any) {
     if (
       navigated
       || this.page !== page
@@ -422,7 +425,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     );
   }
 
-  async #awaitWithinRecoveryDeadline(operation, deadline) {
+  async #awaitWithinRecoveryDeadline(operation: any, deadline: number): Promise<any> {
     const remaining = deadline - this.monotonicNow();
     if (remaining <= 0) {
       throw this.#recoveryDeadlineError();
@@ -463,7 +466,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     requiresEmptyPrefix,
     expectedPreOutboundIds,
     expectedWaitingAssistant,
-  }) {
+  }: any) {
     if (snapshot.url !== initialUrl) {
       throw this.#pendingOutboundUncertain(
         "ChatGPT returned a mixed-URL conversation snapshot during recovery.",
@@ -552,7 +555,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
   async #assistantLocatorFor(entry) {
     const messages = this.assistantMessages();
     const count = await messages.count().catch(() => 0);
-    let found = null;
+    let found: any = null;
     for (let index = 0; index < count; index += 1) {
       const message = messages.nth(index);
       const identity = await this.messageIdentity(message);
@@ -567,11 +570,11 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     return found;
   }
 
-  async reconcilePendingOutbound(options = {}) {
+  async reconcilePendingOutbound(options: Record<string, any> = {}) {
     try {
       return await this.#reconcilePendingOutbound(options);
     } catch (error) {
-      const diagnostic = await this.writeDiagnostics("pending-outbound-recovery-failed", { stage: "recovery" }).catch(() => null);
+      const diagnostic: any = await this.writeDiagnostics("pending-outbound-recovery-failed", { stage: "recovery" }).catch(() => null);
       if (diagnostic?.filename) {
         error.details = { ...error.details, diagnosticFile: diagnostic.filename, dom: diagnostic.report.dom };
       }
@@ -587,7 +590,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     priorHandoff = null,
     timeoutMs = this.sendConfirmationTimeoutMs(),
     stableWindowMs = this.restorationCorrelationWindowMs(),
-  } = {}) {
+  }: any = {}) {
     this.requirePage();
     const outboundId = pendingOutbound?.outboundId
       ?? priorHandoff?.sourceOutboundId
@@ -609,10 +612,10 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     }
 
     const page = this.page;
-    const mainFrame = typeof page.mainFrame === "function"
-      ? page.mainFrame()
+    const mainFrame = typeof page!.mainFrame === "function"
+      ? page!.mainFrame()
       : null;
-    const initialUrl = normalizedConversationUrl(page.url());
+    const initialUrl = normalizedConversationUrl(page!.url());
     const initialKind = initialUrl
       ? this.classifyConversationUrl(initialUrl)
       : "invalid";
@@ -628,12 +631,12 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
       if (
         !mainFrame
         || frame === mainFrame
-        || (typeof page.mainFrame === "function" && frame === page.mainFrame())
+        || (typeof page!.mainFrame === "function" && frame === page!.mainFrame())
       ) {
         navigated = true;
       }
     };
-    page.on?.("framenavigated", navigationListener);
+    page!.on?.("framenavigated", navigationListener);
 
     const outboundKind = pendingOutbound?.kind
       ?? priorHandoff?.outboundKind
@@ -667,9 +670,9 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
       }
       : null;
     const deadline = this.monotonicNow() + timeoutMs;
-    let stableSignature = null;
+    let stableSignature: any = null;
     let stableSince = 0;
-    let observedUser = null;
+    let observedUser: any = null;
     let observedAssistant = expectedWaitingAssistant ?? expectedAssistant ?? null;
 
     try {
@@ -747,10 +750,10 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
           continue;
         }
         let status = "waiting";
-        let rawResponse = null;
-        let responseHash = null;
+        let rawResponse: any = null;
+        let responseHash: any = null;
         if (assistant) {
-          const locator = await this.#awaitWithinRecoveryDeadline(
+          const locator: any = await this.#awaitWithinRecoveryDeadline(
             () => this.#assistantLocatorFor(assistant),
             deadline,
           );
@@ -959,7 +962,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
         "ChatGPT could not stably reconcile the pending outbound on its exact target.",
       );
     } finally {
-      page.off?.("framenavigated", navigationListener);
+      page!.off?.("framenavigated", navigationListener);
     }
   }
 
@@ -984,7 +987,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
   // truncated. The id baseline alone would make that continuation invisible
   // to the turn loop forever, so a baseline message whose text has GROWN
   // since the send-time snapshot also counts as the new reply.
-  isNewAssistantIdentity({ id, turn, text }) {
+  isNewAssistantIdentity({ id, turn, text }: any) {
     if (super.isNewAssistantIdentity({ id, turn })) {
       return true;
     }
@@ -1060,8 +1063,8 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     }
 
     const input = await firstVisible([
-      this.page.locator("#upload-files"),
-    ]) ?? this.page.locator('main input[type="file"]').first();
+      this.page!.locator("#upload-files"),
+    ]) ?? this.page!.locator('main input[type="file"]').first();
 
     try {
       await input.setInputFiles(paths, { timeout: 15_000 });
@@ -1076,7 +1079,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     // Wait for the composer to register the upload(s) so we do not send before
     // ChatGPT has ingested them. Uploaded files render as previews/chips; poll
     // for any thumbnail/remove-file control, with a bounded timeout.
-    await this.page.locator(
+    await this.page!.locator(
       '[data-testid$="-file-thumbnail"], [data-testid*="attachment"], '
       + 'button[aria-label*="Remove" i], button[aria-label*="删除"]',
     ).first().waitFor({ state: "visible", timeout: 20_000 }).catch(() => null);
@@ -1085,13 +1088,13 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
   }
 
   async dismissTransientOverlays() {
-    const beacon = this.page.locator("#modal-beacon");
+    const beacon = this.page!.locator("#modal-beacon");
     if (!await beacon.isVisible().catch(() => false)) {
       return;
     }
 
-    await this.page.keyboard.press("Escape").catch(() => null);
-    await this.page.waitForTimeout(250);
+    await this.page!.keyboard.press("Escape").catch(() => null);
+    await this.page!.waitForTimeout(250);
     if (!await beacon.isVisible().catch(() => false)) {
       return;
     }
@@ -1106,7 +1109,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
     ]);
     if (dismiss) {
       await dismiss.click().catch(() => null);
-      await this.page.waitForTimeout(250);
+      await this.page!.waitForTimeout(250);
     }
 
     if (await beacon.isVisible().catch(() => false)) {
@@ -1122,7 +1125,7 @@ export class ChatGPTWebAdapter extends BaseWebAdapter {
   // Scrolls the thread container to the bottom so the latest replies mount.
   // Best-effort — any failure is swallowed.
   async scrollConversationToBottom() {
-    await this.page.evaluate?.((selector) => {
+    await this.page!.evaluate?.((selector) => {
       const message = document.querySelector(selector);
       if (!message) {
         return;

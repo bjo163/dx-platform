@@ -1,12 +1,12 @@
 import { fetchJson, NETWORK_TIMEOUT_MS } from "@wtagent/shared/fetch-json";
 import { getPackageVersion } from "@wtagent/shared/package-info";
-import { NoticeStore, getNoticeStorePath } from "notice-store";
+import { NoticeStore, getNoticeStorePath } from "./notice-store.js";
 import {
   MANUAL_INSTALL_COMMAND,
   fetchLatestVersion,
   installLatest,
   isRemoteNewer,
-} from "self-update";
+} from "./self-update.js";
 
 export const NOTICES_URL =
   "https://raw.githubusercontent.com/XiXian42/wtagent/main/notices.json";
@@ -40,7 +40,7 @@ function normalizeTimes(value) {
 
 export function parseNoticeDocument(document) {
   const raw = Array.isArray(document?.notices) ? document.notices : [];
-  const notices = [];
+  const notices: any[] = [];
   const seen = new Set();
   for (const entry of raw) {
     if (!entry || typeof entry !== "object") {
@@ -82,7 +82,7 @@ export async function fetchNoticeDocument({
   fetchImpl,
   timeoutMs = NOTICE_TIMEOUT_MS,
   url = NOTICES_URL,
-} = {}) {
+}: any = {}) {
   const document = await fetchJson(url, { fetchImpl, timeoutMs });
   return document && typeof document === "object" ? document : null;
 }
@@ -101,7 +101,7 @@ export async function runStartupChecks({
     console.error(text);
   },
   now,
-} = {}) {
+}: any = {}) {
   if (!interactive) {
     return "continue";
   }

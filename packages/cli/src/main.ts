@@ -22,7 +22,7 @@ import {
   getTasksDir,
 } from "@wtagent/platform/paths";
 import { discoverChromeExecutable } from "@wtagent/platform/chrome-discovery";
-import { isProcessAlive } from "@wtagent/browser/cdp-state";
+import { inspectCdpProfileState, isProcessAlive } from "@wtagent/browser/cdp-state";
 import {
   assertNativeRuntimeSupported,
   collectDoctorReport,
@@ -39,7 +39,7 @@ import { resolveLimits } from "@wtagent/shared/limits";
 import { BrowserAdapterError } from "@wtagent/shared/errors";
 import { EXPORTERS } from "@wtagent/session/session-export";
 import { getPackageVersion } from "@wtagent/shared/package-info";
-import { extractAtMentions } from "at-files";
+import { extractAtMentions } from "./at-files.js";
 import {
   classifyChatInput,
   promptForConfirm,
@@ -48,11 +48,11 @@ import {
   promptForSelect,
   readChatMessage,
   ShellChatInput,
-} from "prompt-input";
-import { createRenderer } from "render-events";
-import { t } from "i18n";
-import { runSelfUpdate } from "self-update";
-import { runStartupChecks } from "startup-notices";
+} from "./prompt-input.js";
+import { createRenderer } from "./render-events.js";
+import { t } from "./i18n.js";
+import { runSelfUpdate } from "./self-update.js";
+import { runStartupChecks } from "./startup-notices.js";
 
 // Resolves the app data dir, the provider's dedicated Chrome profile dir, and
 // the sessions dirs. `providerId` selects which profile directory is used
@@ -189,7 +189,7 @@ async function runDoctor(options) {
   const report = await collectDoctorReport({
     paths,
     chromePath: options.chromePath,
-  });
+  }, { inspectProfile: inspectCdpProfileState });
 
   for (const item of report.items) {
     const status = item.status.toUpperCase().padEnd(8);
@@ -213,7 +213,21 @@ async function runDoctor(options) {
 // the session, and each later turn reuses the same open Chrome tab and session
 // state via runtime.run({ resume: true }).
 class ConversationRunner {
-  constructor({ session, options, interactive = false }) {
+  adapter: any;
+  approvalStore: ApprovalStore;
+  closed: boolean;
+  interactive: any;
+  interrupted: boolean;
+  limits: any;
+  nativeImageReceiver: any;
+  nativeMusicReceiver: any;
+  options: any;
+  paths: any;
+  processManager: ProcessManager;
+  provider: any;
+  renderer: any;
+  session: any;
+  constructor({ session, options, interactive = false }: any) {
     this.session = session;
     this.options = options;
     // A conversation belongs to exactly one provider (recorded at creation).
@@ -265,7 +279,7 @@ class ConversationRunner {
       limits: this.limits,
       postAuthSetup: (
         this.interactive
-          ? async ({ adapter }) => {
+          ? async ({ adapter }: any) => {
             this.renderer.stopSpinner();
             await adapter.restoreWindow?.();
             try {
@@ -285,7 +299,7 @@ class ConversationRunner {
           }
           : null
       ),
-      approval: async ({ toolCall, reasons }) => {
+      approval: async ({ toolCall, reasons }: any) => {
         this.renderer.stopSpinner();
         console.log(
           `\n${"\x1b[33m"}${t("approval.required", { tool: toolCall.name })}${"\x1b[0m"}`,
@@ -338,7 +352,7 @@ class ConversationRunner {
     files = [],
     inPlaceRecovery = false,
     mode = null,
-  }) {
+  }: any) {
     const runtime = this.#buildRuntime();
     try {
       const result = await runtime.run({
@@ -403,7 +417,7 @@ class ConversationRunner {
   // browser is kept alive so the page state can be inspected: the saved CDP
   // state lets the next `wtagent resume` reuse the same window, and a later
   // launch reaps it if it has died in the meantime.
-  async close({ keepBrowser = false } = {}) {
+  async close({ keepBrowser = false }: any = {}) {
     if (this.closed) {
       return;
     }
@@ -497,11 +511,11 @@ export async function executeSession({
   files = [],
   chatInput = null,
   mode = null,
-}, {
+}: any, {
   interactive = !options.once && process.stdin.isTTY && process.stdout.isTTY,
   createRunner = (config) => new ConversationRunner(config),
   readNextMessage = promptForNextMessage,
-} = {}) {
+}: any = {}) {
   const paths = resolveRuntimePaths(options);
   await ensureDirectory(paths.sessionsDir);
   const runner = createRunner({ session, options, interactive });
@@ -673,7 +687,7 @@ function printResumeHint(sessionId) {
 async function promptForNextMessage(
   runner,
   chatInput,
-  { resolveAttachments = true } = {},
+  { resolveAttachments = true }: any = {},
 ) {
   for (;;) {
     const answer = chatInput
@@ -728,7 +742,7 @@ function isInteractiveSession(options) {
   return !options.once && process.stdin.isTTY && process.stdout.isTTY;
 }
 
-async function promptForUpdate({ currentVersion, latest }) {
+async function promptForUpdate({ currentVersion, latest }: any) {
   return await promptForConfirm({
     message: t("update.prompt", { currentVersion, latest }),
     default: true,
@@ -778,7 +792,7 @@ async function runAgent(taskParts, options) {
   let task = taskParts.join(" ").trim();
   if (!task) {
     const initialMessage = interactive
-      ? await readChatMessage(() => chatInput.read())
+      ? await readChatMessage(() => chatInput!.read())
       : await promptForText({
         message: t("task.prompt"),
         validate: (value) => value.trim() ? true : t("task.required"),
@@ -790,7 +804,7 @@ async function runAgent(taskParts, options) {
     }
     task = initialMessage.trim();
   } else if (interactive) {
-    chatInput.remember(task);
+    chatInput!.remember(task);
   }
 
   const paths = resolveRuntimePaths(options, provider.id);
@@ -807,7 +821,7 @@ async function runAgent(taskParts, options) {
   // Resolve @file attachments in the opening task, if any. The task itself is
   // already stored by AgentSession.create; here we only resolve the files to
   // attach on the first turn (run() records them on the opening user item).
-  let files = [];
+  let files: any[] = [];
   if (task) {
     const { files: found, missing } = await extractAtMentions(task, projectRoot);
     files = found;
@@ -893,7 +907,7 @@ async function runResume(sessionId, instructionParts, options) {
     return null;
   }
 
-  let files = [];
+  let files: any[] = [];
   if (instruction) {
     const projectRoot = session.state.projectRoot;
     const { files: found, missing } = await extractAtMentions(instruction, projectRoot);
@@ -1016,7 +1030,7 @@ const program = new Command()
 program
   .command("update")
   .description(t("command.update"))
-  .action(async () => runUpdate());
+  .action(async () => { await runUpdate(); });
 
 program
   .command("doctor")

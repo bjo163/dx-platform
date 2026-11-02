@@ -40,8 +40,8 @@ export function developerMessage(text) {
 // A user message. `attachments` records any @file uploads that accompanied the
 // message on the web transport (name + local path), so exporters can note them
 // even though the uploaded bytes live only in the web conversation.
-export function userMessage(text, { attachments = [] } = {}) {
-  const item = {
+export function userMessage(text, { attachments = [] }: any = {}) {
+  const item: any = {
     type: "message",
     role: "user",
     content: inputText(text),
@@ -68,7 +68,7 @@ export function assistantMessage(text) {
   };
 }
 
-export function functionCall({ name, args, callId }) {
+export function functionCall({ name, args, callId }: any) {
   return {
     type: "function_call",
     name: String(name ?? ""),
@@ -77,7 +77,7 @@ export function functionCall({ name, args, callId }) {
   };
 }
 
-export function functionCallOutput({ callId, output }) {
+export function functionCallOutput({ callId, output }: any) {
   return {
     type: "function_call_output",
     call_id: String(callId ?? ""),
@@ -89,7 +89,7 @@ export function functionCallOutput({ callId, output }) {
 // text Codex/CC expect for a tool output, keeping the machine-readable JSON but
 // avoiding the XML envelope used only for the web transport.
 export function toolResultOutput(result) {
-  const lines = [];
+  const lines: any[] = [];
   lines.push(`status: ${result.ok ? "ok" : "error"}`);
   if (result.message) {
     lines.push(result.message);
@@ -116,7 +116,7 @@ export function sessionMeta({
   baseInstructions,
   task,
   mode,
-}) {
+}: any) {
   return {
     id: sessionId,
     session_id: sessionId,

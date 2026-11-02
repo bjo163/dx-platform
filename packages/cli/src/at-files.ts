@@ -30,7 +30,7 @@ const MENTION = /(^|\s)@(?:"([^"]+)"|'([^']+)'|([^\s"']+))/g;
 //   missing:  [{ requested, reason }]        tokens that did not resolve to a file
 export async function extractAtMentions(text, projectRoot) {
   const source = String(text ?? "");
-  const mentions = [];
+  const mentions: any[] = [];
   for (const match of source.matchAll(MENTION)) {
     const requested = match[2] ?? match[3] ?? match[4] ?? "";
     if (requested) {
@@ -38,8 +38,8 @@ export async function extractAtMentions(text, projectRoot) {
     }
   }
 
-  const files = [];
-  const missing = [];
+  const files: any[] = [];
+  const missing: any[] = [];
   const seen = new Set();
   for (const mention of mentions) {
     if (seen.has(mention.requested)) {

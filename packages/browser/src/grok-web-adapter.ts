@@ -1,13 +1,13 @@
-import { BaseWebAdapter, firstVisible } from "base-web-adapter";
+import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
 import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
-import { readRenderedBlocks } from "rendered-text";
+import { readRenderedBlocks } from "./rendered-text.js";
 
-export { isConnectionLostError } from "base-web-adapter";
+export { isConnectionLostError } from "./base-web-adapter.js";
 
 const GROK_URL = "https://grok.com/";
 
 export class GrokWebAdapter extends BaseWebAdapter {
-  constructor(options = {}) {
+  constructor(options: any = {}) {
     super({
       ...options,
       baseUrl: options.baseUrl ?? GROK_URL,
@@ -25,40 +25,40 @@ export class GrokWebAdapter extends BaseWebAdapter {
       // hydration. Keep both variants in one live locator so a composer found
       // just before that replacement does not become an empty stale selector
       // by the time sendMessage fills it.
-      this.page.locator('main textarea, main [role="textbox"]').first(),
-      this.page.locator("textarea[aria-label]").first(),
-      this.page.locator('[role="textbox"]').first(),
+      this.page!.locator('main textarea, main [role="textbox"]').first(),
+      this.page!.locator("textarea[aria-label]").first(),
+      this.page!.locator('[role="textbox"]').first(),
     ];
   }
 
   sendButtonLocators() {
     return [
-      this.page.locator('button[aria-label*="send" i]'),
-      this.page.locator('button[aria-label*="发送"]'),
-      this.page.locator('button[type="submit"]'),
+      this.page!.locator('button[aria-label*="send" i]'),
+      this.page!.locator('button[aria-label*="发送"]'),
+      this.page!.locator('button[type="submit"]'),
     ];
   }
 
   stopButtonLocators() {
     return [
-      this.page.locator('button[aria-label*="停止模型响应"]'),
-      this.page.locator('button[aria-label*="stop" i]'),
+      this.page!.locator('button[aria-label*="停止模型响应"]'),
+      this.page!.locator('button[aria-label*="stop" i]'),
     ];
   }
 
   newConversationControls() {
     return [
-      this.page.locator('[data-testid="new-chat"]'),
-      this.page.locator('a[href="/"]'),
+      this.page!.locator('[data-testid="new-chat"]'),
+      this.page!.locator('a[href="/"]'),
     ];
   }
 
   loginControlLocators() {
     return [
-      this.page.getByRole("button", {
+      this.page!.getByRole("button", {
         name: /^(log in|sign in|登录|登入|ログイン|로그인)$/i,
       }),
-      this.page.getByRole("link", {
+      this.page!.getByRole("link", {
         name: /^(log in|sign in|登录|登入|ログイン|로그인)$/i,
       }),
     ];
@@ -73,17 +73,17 @@ export class GrokWebAdapter extends BaseWebAdapter {
   }
 
   assistantMessages() {
-    return this.page.locator('[data-testid="assistant-message"]');
+    return this.page!.locator('[data-testid="assistant-message"]');
   }
 
   userMessages() {
-    return this.page.locator(
+    return this.page!.locator(
       '[data-testid="user-message"], [role="article"][aria-label="You"]',
     );
   }
 
   conversationMessages() {
-    return this.page.locator(
+    return this.page!.locator(
       '[data-testid="user-message"], [data-testid="assistant-message"], '
         + '[role="article"][aria-label="You"]',
     );
@@ -125,7 +125,7 @@ export class GrokWebAdapter extends BaseWebAdapter {
     };
   }
 
-  isNewAssistantIdentity({ turn, text }) {
+  isNewAssistantIdentity({ turn, text }: any) {
     if (turn != null && turn > (this.assistantCountBeforeSend ?? 0)) {
       return true;
     }
@@ -154,7 +154,7 @@ export class GrokWebAdapter extends BaseWebAdapter {
     if (!isUsageLimitNotice(text)) return null;
     const control = await firstVisible([
       message.getByRole("button", { name: /retry|try again|upgrade|重试|升级/i }),
-      this.page.getByRole("button", { name: /retry|try again|upgrade|重试|升级/i }),
+      this.page!.getByRole("button", { name: /retry|try again|upgrade|重试|升级/i }),
     ]);
     return control ? text.trim().slice(0, 120) : null;
   }
@@ -166,7 +166,7 @@ export class GrokWebAdapter extends BaseWebAdapter {
     }
     const control = await firstVisible([
       message.getByRole("button", { name: /retry|try again|重试|重新生成/i }),
-      this.page.getByRole("button", { name: /retry|try again|重试|重新生成/i }),
+      this.page!.getByRole("button", { name: /retry|try again|重试|重新生成/i }),
     ]);
     return control ? text.trim().slice(0, 120) : null;
   }

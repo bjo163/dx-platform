@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { ArtifactStore } from "@wtagent/artifacts/artifact-store";
-import { inspectMusicBuffer } from "./music-artifact.js";
+import { inspectMusicBuffer } from "@wtagent/artifacts/music-artifact";
 import type { MusicArtifact, MusicReceiverContext } from "@wtagent/types";
 
 // Structural view of the provider surfaces this receiver drives: the download

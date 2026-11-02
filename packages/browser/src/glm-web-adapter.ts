@@ -1,7 +1,7 @@
-import { BaseWebAdapter, firstVisible } from "base-web-adapter";
+import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
 import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
 
-export { isConnectionLostError } from "base-web-adapter";
+export { isConnectionLostError } from "./base-web-adapter.js";
 
 const GLM_URL = "https://chat.z.ai/";
 
@@ -22,7 +22,7 @@ const GLM_URL = "https://chat.z.ai/";
 //     window so the user can pass the check (wtagent's own CDP launch is not
 //     fingerprinted the way headless automation is)
 export class GLMWebAdapter extends BaseWebAdapter {
-  constructor(options = {}) {
+  constructor(options: any = {}) {
     super({
       ...options,
       baseUrl: options.baseUrl ?? GLM_URL,
@@ -36,36 +36,36 @@ export class GLMWebAdapter extends BaseWebAdapter {
 
   composerLocators() {
     return [
-      this.page.locator("#chat-input"),
-      this.page.locator('textarea[placeholder*="帮您"]'),
-      this.page.locator("main textarea"),
+      this.page!.locator("#chat-input"),
+      this.page!.locator('textarea[placeholder*="帮您"]'),
+      this.page!.locator("main textarea"),
     ];
   }
 
   sendButtonLocators() {
     return [
-      this.page.locator("#send-message-button"),
-      this.page.getByRole("button", { name: /send|发送/i }),
+      this.page!.locator("#send-message-button"),
+      this.page!.getByRole("button", { name: /send|发送/i }),
     ];
   }
 
   stopButtonLocators() {
     return [
-      this.page.locator("#stop-response-button"),
-      this.page.getByRole("button", { name: /stop|停止|中断/i }),
+      this.page!.locator("#stop-response-button"),
+      this.page!.getByRole("button", { name: /stop|停止|中断/i }),
     ];
   }
 
   newConversationControls() {
     return [
-      this.page.locator("#sidebar-new-chat-button"),
-      this.page.getByRole("button", { name: /新聊天|新建聊天|新对话|new chat/i }),
+      this.page!.locator("#sidebar-new-chat-button"),
+      this.page!.getByRole("button", { name: /新聊天|新建聊天|新对话|new chat/i }),
     ];
   }
 
   loginControlLocators() {
     return [
-      this.page.getByRole("button", { name: /^登录$|^log in$|^sign in$/i }),
+      this.page!.getByRole("button", { name: /^登录$|^log in$|^sign in$/i }),
     ];
   }
 
@@ -80,19 +80,19 @@ export class GLMWebAdapter extends BaseWebAdapter {
 
   assistantMessages() {
     // Assistant message rows: a stable-id message that is NOT the user row.
-    return this.page.locator(
+    return this.page!.locator(
       '#messages-container [id^="message-"]:not([id$="-start"]):not(.user-message)',
     );
   }
 
   userMessages() {
-    return this.page.locator(
+    return this.page!.locator(
       '#messages-container [id^="message-"]:not([id$="-start"]).user-message',
     );
   }
 
   conversationMessages() {
-    return this.page.locator(
+    return this.page!.locator(
       '#messages-container [id^="message-"]:not([id$="-start"])',
     );
   }

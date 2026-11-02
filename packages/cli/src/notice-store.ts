@@ -16,11 +16,11 @@ function isDateString(value) {
 }
 
 function normalizeItems(items) {
-  const normalized = {};
+  const normalized: Record<string, any> = {};
   if (!items || typeof items !== "object" || Array.isArray(items)) {
     return normalized;
   }
-  for (const [id, item] of Object.entries(items)) {
+  for (const [id, item] of Object.entries<any>(items)) {
     if (!id || !item || typeof item !== "object") {
       continue;
     }
@@ -55,7 +55,11 @@ export function getNoticeStorePath(appDataDir) {
 
 // Persists the once-a-day update prompt and per-id notice impressions.
 export class NoticeStore {
-  constructor({ filePath, now = () => new Date() }) {
+  data: any;
+  filePath: any;
+  loaded: boolean;
+  now: any;
+  constructor({ filePath, now = () => new Date() }: any) {
     this.filePath = filePath;
     this.now = now;
     this.data = normalizeData(null);

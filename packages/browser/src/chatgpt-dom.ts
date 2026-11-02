@@ -3,7 +3,7 @@
 const legacyUser = '[data-message-author-role="user"]';
 const legacyAssistant = '[data-message-author-role="assistant"]:not([id^="request-placeholder-"])';
 const modern = (role) => `[data-chatgpt-search-unit-key$=":${role}"]:not([id^="request-placeholder-"]):not(:has([data-message-author-role])):not([data-message-author-role] *)`;
-export const CHATGPT_DOM = {
+export const CHATGPT_DOM: any = {
   user: { legacy: legacyUser, modern: modern("user") },
   assistant: { legacy: legacyAssistant, modern: modern("assistant") },
   conversationLegacy: '[data-message-author-role="user"], [data-message-author-role="assistant"]',
@@ -57,7 +57,7 @@ export function readChatGPTDom(input) {
     }
     return { domIndex, role, id, turn, renderedText };
   });
-  const snapshot = { url: globalThis.location?.href ?? null, entries, structure };
+  const snapshot: any = { url: globalThis.location?.href ?? null, entries, structure };
   if (options?.registry) {
     const visible = (element) => element.getClientRects().length > 0
       && getComputedStyle(element).visibility !== "hidden";
@@ -67,10 +67,10 @@ export function readChatGPTDom(input) {
     )].filter(visible);
     snapshot.capabilities = {
       readyState: document.readyState,
-      composers: options.registry.composers.filter(({ selector }) => count(selector) > 0).map(({ name }) => name),
+      composers: options.registry.composers.filter(({ selector }: any) => count(selector) > 0).map(({ name }: any) => name),
       sendButton: sendControls.length > 0,
-      sendButtonEnabled: sendControls.some((element) => !element.disabled && element.getAttribute('aria-disabled') !== 'true'),
-      composerHasText: options.registry.composers.some(({ selector }) => (
+      sendButtonEnabled: sendControls.some((element: any) => !element.disabled && element.getAttribute('aria-disabled') !== 'true'),
+      composerHasText: options.registry.composers.some(({ selector }: any) => (
         [...document.querySelectorAll(selector)].some((element) => visible(element)
           && String(element.value ?? element.innerText ?? element.textContent ?? '').trim().length > 0)
       )),
@@ -78,7 +78,7 @@ export function readChatGPTDom(input) {
       placeholderCount: document.querySelectorAll('[id^="request-placeholder-"]').length,
       // Unknown suffixes are evidence of a renderer change, not valid messages.
       unknownSearchUnits: [...document.querySelectorAll('[data-chatgpt-search-unit-key]')]
-        .filter((element) => !/^fallback-turn-\d+:\d+:(user|assistant)$/.test(element.getAttribute("data-chatgpt-search-unit-key"))).length,
+        .filter((element) => !/^fallback-turn-\d+:\d+:(user|assistant)$/.test(element.getAttribute("data-chatgpt-search-unit-key")!)).length,
     };
   }
   return snapshot;
@@ -89,7 +89,7 @@ export function readChatGPTDom(input) {
 export function summarizeChatGPTDom(snapshot) {
   if (!snapshot || !Array.isArray(snapshot.entries)) return { status: "unavailable" };
   const entries = snapshot.entries;
-  const issues = [];
+  const issues: any[] = [];
   const countMissing = (test) => entries.filter(test).length;
   const missing = {
     role: countMissing((entry) => !["user", "assistant"].includes(entry.role)),

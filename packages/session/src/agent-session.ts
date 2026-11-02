@@ -24,7 +24,7 @@ function stateRevision(state) {
 }
 
 function sessionStateConflict(message) {
-  const error = new Error(message);
+  const error: any = new Error(message);
   error.code = "SESSION_STATE_CONFLICT";
   return error;
 }
@@ -43,9 +43,9 @@ function processIsAlive(pid) {
 
 const STATE_LOCK_MUTEX_PREFIX = "WTAGENT_STATE_LOCK_V1 ";
 
-async function openPersistenceLockServer({ port = 0, token }) {
+async function openPersistenceLockServer({ port = 0, token }: any) {
   let responseToken = token;
-  const server = net.createServer((socket) => {
+  const server: any = net.createServer((socket) => {
     socket.end(`${STATE_LOCK_MUTEX_PREFIX}${responseToken}\n`);
   });
   server.unref();
@@ -74,7 +74,7 @@ async function openPersistenceLockServer({ port = 0, token }) {
         return;
       }
       closed = true;
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         server.close(() => resolve());
         server.closeAllConnections?.();
       });
@@ -97,19 +97,19 @@ function persistenceLockMutexPorts(directory) {
 async function acquirePersistenceLockMutex(
   directory,
   token,
-  { timeoutMs = 2_000 } = {},
+  { timeoutMs = 2_000 }: any = {},
 ) {
   const mutexPorts = persistenceLockMutexPorts(directory);
   const majority = Math.floor(mutexPorts.length / 2) + 1;
   const deadline = Date.now() + timeoutMs;
-  let lastError = null;
+  let lastError: any = null;
 
   while (Date.now() < deadline) {
     const offset = Math.floor(Math.random() * mutexPorts.length);
     const orderedPorts = mutexPorts.map(
       (_, index) => mutexPorts[(index + offset) % mutexPorts.length],
     );
-    const servers = [];
+    const servers: any[] = [];
     try {
       for (const port of orderedPorts) {
         try {
@@ -146,7 +146,7 @@ async function acquirePersistenceLockMutex(
     await new Promise((resolve) => setTimeout(resolve, 5 + Math.floor(Math.random() * 11)));
   }
 
-  const error = new Error(
+  const error: any = new Error(
     `Could not acquire the WTAgent session lock mutex: ${lastError?.message ?? "timeout"}`,
   );
   error.code = "SESSION_STATE_LOCKED";
@@ -157,7 +157,7 @@ async function writePersistenceLockCandidate(candidatePath, {
   token,
   mutexPorts,
   heldMutexPorts,
-}) {
+}: any) {
   const handle = await fs.open(
     candidatePath,
     fsConstants.O_WRONLY
@@ -197,7 +197,7 @@ async function readPersistenceLock(filePath) {
 
 async function acquirePersistenceLock(
   directory,
-  { timeoutMs = 2_000 } = {},
+  { timeoutMs = 2_000 }: any = {},
 ) {
   const filePath = path.join(directory, STATE_LOCK_FILE);
   const token = randomUUID();
@@ -238,7 +238,7 @@ async function acquirePersistenceLock(
           if (!stillExists) {
             continue;
           }
-          const lockError = new Error(
+          const lockError: any = new Error(
             `The WTAgent session lock at ${filePath} is malformed; refusing to replace it without a verifiable owner.`,
           );
           lockError.code = "SESSION_STATE_LOCKED";
@@ -252,7 +252,7 @@ async function acquirePersistenceLock(
           && existing.token.length > 0
           && Number.isFinite(Date.parse(existing.createdAt ?? ""));
         if (!validExisting) {
-          const lockError = new Error(
+          const lockError: any = new Error(
             `The WTAgent session lock at ${filePath} has no verifiable owner.`,
           );
           lockError.code = "SESSION_STATE_LOCKED";
@@ -289,7 +289,7 @@ async function acquirePersistenceLock(
 
     const current = await readPersistenceLock(filePath);
     if (current?.token !== token) {
-      const error = new Error(
+      const error: any = new Error(
         `Could not acquire the WTAgent session lock at ${filePath}.`,
       );
       error.code = "SESSION_STATE_LOCKED";
@@ -383,7 +383,7 @@ async function resolveSessionDirectory(sessionsDir, sessionId) {
   return { root, directory };
 }
 
-async function assertSafeFile(filePath, { allowMissing = false } = {}) {
+async function assertSafeFile(filePath, { allowMissing = false }: any = {}) {
   try {
     const stats = await fs.lstat(filePath);
     if (stats.isSymbolicLink()) {
@@ -479,7 +479,7 @@ async function truncateOwnerOnly(filePath, length) {
 async function readJsonlRecords(filePath, {
   allowMissing = false,
   repairTrailing = false,
-} = {}) {
+}: any = {}) {
   let bytes;
   try {
     await assertSafeFile(filePath);
@@ -494,7 +494,7 @@ async function readJsonlRecords(filePath, {
   const raw = bytes.toString("utf8");
   const terminalNewline = bytes.length === 0 || bytes.at(-1) === 0x0a;
   const lines = raw.split(/\r?\n/);
-  const records = [];
+  const records: any[] = [];
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     if (!line.trim()) {
@@ -547,13 +547,20 @@ function sessionMetaRecord(state) {
 }
 
 export class AgentSession {
+  directory: any;
+  persistedRevision: any;
+  persistenceQueue: any;
+  sessionIdentifier: any;
+  sessionsDir: any;
+  state: any;
+  stateFileName: any;
   constructor({
     sessionsDir,
     directory,
     state,
     stateFileName = "session.json",
     persistedRevision = stateRevision(state),
-  }) {
+  }: any) {
     this.sessionsDir = sessionsDir;
     this.directory = directory;
     this.state = state;
@@ -563,7 +570,7 @@ export class AgentSession {
     this.persistenceQueue = Promise.resolve();
   }
 
-  static async create({ sessionsDir, tasksDir, task, projectRoot, mode, provider = "chatgpt", generationType = "agent" }) {
+  static async create({ sessionsDir, tasksDir, task, projectRoot, mode, provider = "chatgpt", generationType = "agent" }: any) {
     const root = await ensureSessionsRoot(sessionsDir ?? tasksDir);
     const sessionId = `session_${new Date().toISOString().replaceAll(/[-:.TZ]/g, "").slice(0, 14)}_${randomUUID().slice(0, 8)}`;
     const directory = path.join(root, sessionId);
@@ -620,7 +627,7 @@ export class AgentSession {
     return session;
   }
 
-  static async load({ sessionsDir, tasksDir, sessionId, taskId }) {
+  static async load({ sessionsDir, tasksDir, sessionId, taskId }: any) {
     const identifier = sessionId ?? taskId;
     const rootDirectory = sessionsDir ?? tasksDir;
     if (!/^[a-zA-Z0-9_-]+$/.test(identifier)) {
@@ -680,7 +687,7 @@ export class AgentSession {
     });
   }
 
-  static async list({ sessionsDir, tasksDir, limit = 20 }) {
+  static async list({ sessionsDir, tasksDir, limit = 20 }: any) {
     const rootDirectory = sessionsDir ?? tasksDir;
     const entries = await fs.readdir(rootDirectory, { withFileTypes: true })
       .catch((error) => {
@@ -689,7 +696,7 @@ export class AgentSession {
         }
         throw error;
       });
-    const states = [];
+    const states: any[] = [];
 
     for (const entry of entries) {
       if (!entry.isDirectory() || !/^[a-zA-Z0-9_-]+$/.test(entry.name)) {
@@ -823,7 +830,7 @@ export class AgentSession {
     );
   }
 
-  async appendEvent(type, payload = {}) {
+  async appendEvent(type, payload: Record<string, any> = {}) {
     await this.validateDirectory();
     const event = {
       type,
@@ -896,7 +903,7 @@ export class AgentSession {
     }
   }
 
-  async #appendTranscriptItemLocked(item, { kind = "response_item" } = {}) {
+  async #appendTranscriptItemLocked(item, { kind = "response_item" }: any = {}) {
     await this.validateDirectory();
     const transcriptPath = this.#transcriptPath();
     const state = await readJsonlRecords(transcriptPath, {
@@ -918,7 +925,7 @@ export class AgentSession {
   async #appendTranscriptItemOnceLocked(item, {
     idempotencyKey,
     kind = "response_item",
-  }) {
+  }: any) {
     this.#validateTranscriptIdempotencyKey(idempotencyKey);
     await this.validateDirectory();
     const transcriptPath = this.#transcriptPath();
@@ -961,7 +968,7 @@ export class AgentSession {
   async appendTranscriptItem(item, {
     kind = "response_item",
     idempotencyKey = null,
-  } = {}) {
+  }: any = {}) {
     if (idempotencyKey != null) {
       return await this.appendTranscriptItemOnce(item, {
         kind,
@@ -976,7 +983,7 @@ export class AgentSession {
   async appendTranscriptItemOnce(item, {
     idempotencyKey,
     kind = "response_item",
-  } = {}) {
+  }: any = {}) {
     this.#validateTranscriptIdempotencyKey(idempotencyKey);
     return await this.#queueTranscriptOperation(
       () => this.#appendTranscriptItemOnceLocked(item, {
@@ -995,7 +1002,7 @@ export class AgentSession {
       allowMissing: true,
     });
 
-    const items = [];
+    const items: any[] = [];
     let storedMeta = null;
     for (const record of records) {
       if (record.type === "session_meta") {
@@ -1020,12 +1027,12 @@ export class AgentSession {
   }
 
   // Reads the conversation rollout as { meta, items } for portable exporters.
-  async readTranscript({ allowTrailingPartial = false } = {}) {
+  async readTranscript({ allowTrailingPartial = false }: any = {}) {
     const transcript = await this.#queueTranscriptOperation(
       () => this.#readTranscriptLocked(),
     );
     if (transcript.trailingPartial && !allowTrailingPartial) {
-      const error = new Error(
+      const error: any = new Error(
         "The canonical transcript ends with an incomplete JSONL record from an interrupted write.",
       );
       error.code = "TRANSCRIPT_INCOMPLETE";
@@ -1034,7 +1041,7 @@ export class AgentSession {
     return transcript;
   }
 
-  #transcriptMeta(storedMeta = null) {
+  #transcriptMeta(storedMeta: any = null) {
     return {
       sessionId: storedMeta?.id
         ?? storedMeta?.session_id
@@ -1047,7 +1054,7 @@ export class AgentSession {
     };
   }
 
-  async commitPendingOutboundHandoff({ outboundId, handoff = {} }) {
+  async commitPendingOutboundHandoff({ outboundId, handoff = {} }: any) {
     if (typeof outboundId !== "string" || outboundId.length === 0) {
       throw new Error("A pending outbound ID is required for assistant handoff.");
     }
@@ -1136,7 +1143,7 @@ export class AgentSession {
     });
   }
 
-  async commitPendingAuxiliaryTurn({ outboundId, turn = {} }) {
+  async commitPendingAuxiliaryTurn({ outboundId, turn = {} }: any) {
     if (typeof outboundId !== "string" || outboundId.length === 0) {
       throw new Error("A pending outbound ID is required for an auxiliary turn.");
     }
@@ -1175,7 +1182,7 @@ export class AgentSession {
     outboundId,
     assistantMessageId = null,
     assistantTurn = null,
-  }) {
+  }: any) {
     return await this.#mutateState((nextState) => {
       const current = nextState.pendingAuxiliaryTurn;
       if (!current || current.outboundId !== outboundId) {
@@ -1193,7 +1200,7 @@ export class AgentSession {
     });
   }
 
-  async refreshPendingAssistantTurn(handoffId, patch = {}) {
+  async refreshPendingAssistantTurn(handoffId, patch: Record<string, any> = {}) {
     const requested = structuredClone(patch);
     const protectedKeys = new Set([
       "version",
@@ -1252,7 +1259,7 @@ export class AgentSession {
     nativeImages = [],
     nativeMusic = [],
     completedAt = new Date().toISOString(),
-  }) {
+  }: any) {
     if (typeof rawResponse !== "string") {
       throw new Error("A raw assistant response is required for completion.");
     }
@@ -1312,7 +1319,7 @@ export class AgentSession {
     });
   }
 
-  async clearPendingAssistantTurn(handoffId, patch = {}) {
+  async clearPendingAssistantTurn(handoffId, patch: Record<string, any> = {}) {
     const requested = structuredClone(patch);
     const protectedKeys = new Set([
       "pendingAssistantTurn",
@@ -1368,7 +1375,7 @@ export class AgentSession {
     });
   }
 
-  async recordToolResult(fingerprint, result, { identity = null } = {}) {
+  async recordToolResult(fingerprint, result, { identity = null }: any = {}) {
     const storedResult = structuredClone(result);
     const storedIdentity = identity ? structuredClone(identity) : null;
     await this.#mutateState((nextState) => {
@@ -1437,8 +1444,8 @@ export class AgentSession {
     await this.update({ pendingToolResult: null });
   }
 
-  async appendInstruction(instruction, { files = [] } = {}) {
-    const item = {
+  async appendInstruction(instruction, { files = [] }: any = {}) {
+    const item: any = {
       instruction,
       createdAt: new Date().toISOString(),
     };
@@ -1457,7 +1464,7 @@ export class AgentSession {
 
   async recoverInterruptedSideEffects() {
     await this.#mutateState((nextState) => {
-      for (const [operationKey, entry] of Object.entries(
+      for (const [operationKey, entry] of Object.entries<any>(
         nextState.sideEffectTools,
       )) {
         if (entry.status !== "running") {

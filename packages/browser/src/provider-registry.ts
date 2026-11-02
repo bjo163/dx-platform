@@ -1,10 +1,10 @@
-import { ChatGPTWebAdapter } from "chatgpt-web-adapter";
-import { ClaudeWebAdapter } from "claude-web-adapter";
-import { DeepSeekWebAdapter } from "deepseek-web-adapter";
-import { GeminiWebAdapter } from "gemini-web-adapter";
-import { GrokWebAdapter } from "grok-web-adapter";
-import { KimiWebAdapter } from "kimi-web-adapter";
-import { GLMWebAdapter } from "glm-web-adapter";
+import { ChatGPTWebAdapter } from "./chatgpt-web-adapter.js";
+import { ClaudeWebAdapter } from "./claude-web-adapter.js";
+import { DeepSeekWebAdapter } from "./deepseek-web-adapter.js";
+import { GeminiWebAdapter } from "./gemini-web-adapter.js";
+import { GrokWebAdapter } from "./grok-web-adapter.js";
+import { KimiWebAdapter } from "./kimi-web-adapter.js";
+import { GLMWebAdapter } from "./glm-web-adapter.js";
 import { getProfileDir } from "@wtagent/platform/paths";
 
 // Single source of truth for the web-AI providers WTAgent can drive. The CLI,
@@ -146,7 +146,7 @@ export function resolveProvider(providerId = DEFAULT_PROVIDER) {
 // Builds the adapter instance for a provider. `provider` may be an id or a
 // provider record. All remaining options are forwarded to the adapter
 // constructor (profileDir, chromePath, debug, minimized, cancelOnEsc).
-export function createWebAdapter({ provider, ...adapterOptions }) {
+export function createWebAdapter({ provider, ...adapterOptions }: any) {
   const record = typeof provider === "string"
     ? resolveProvider(provider)
     : (provider?.adapter ? provider : resolveProvider(provider?.id));

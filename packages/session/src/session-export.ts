@@ -13,7 +13,7 @@
 
 import { randomUUID } from "node:crypto";
 import { stripSystemMarkers } from "@wtagent/protocol/markers";
-import { isDeveloper, messageText } from "canonical-transcript";
+import { isDeveloper, messageText } from "./canonical-transcript.js";
 
 function jsonl(records) {
   return records.map((record) => JSON.stringify(record)).join("\n") + "\n";
@@ -46,13 +46,13 @@ function withAttachmentNote(text, item) {
 // Produces `{timestamp, type, payload}` records: a leading `session_meta`, then
 // one `response_item` per transcript item. WTAgent's transport-only developer
 // scaffold is omitted entirely; it must not become Codex instructions.
-export function toCodexRollout(transcript, { now } = {}) {
+export function toCodexRollout(transcript, { now }: any = {}) {
   const meta = transcript.meta ?? {};
   const items = transcript.items ?? [];
   const stamp = now ?? firstTimestamp(items, meta.createdAt) ?? null;
   const sessionId = meta.sessionId ?? randomUUID();
 
-  const records = [];
+  const records: any[] = [];
   records.push({
     timestamp: stamp,
     type: "session_meta",
@@ -103,15 +103,15 @@ export function toCodexRollout(transcript, { now } = {}) {
 // Produces uuid/parentUuid-linked records with Anthropic Messages content.
 // function_call -> assistant message with a tool_use block.
 // function_call_output -> user message with a tool_result block.
-export function toClaudeCodeSession(transcript, { sessionId, now } = {}) {
+export function toClaudeCodeSession(transcript, { sessionId, now }: any = {}) {
   const meta = transcript.meta ?? {};
   const items = transcript.items ?? [];
   const session = sessionId ?? meta.sessionId ?? randomUUID();
   const cwd = meta.cwd ?? null;
   const stamp = now ?? firstTimestamp(items, meta.createdAt) ?? null;
 
-  const records = [];
-  let parentUuid = null;
+  const records: any[] = [];
+  let parentUuid: any = null;
 
   const push = (partial, timestamp) => {
     const uuid = randomUUID();
@@ -160,7 +160,7 @@ export function toClaudeCodeSession(transcript, { sessionId, now } = {}) {
         },
       }, ts);
     } else if (item.type === "function_call") {
-      let input = {};
+      let input: Record<string, any> = {};
       try {
         input = JSON.parse(item.arguments || "{}");
       } catch {

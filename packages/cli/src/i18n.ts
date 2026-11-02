@@ -940,7 +940,7 @@ function systemLocale() {
   return "en";
 }
 
-function interpolate(template, variables = {}) {
+function interpolate(template, variables: Record<string, any> = {}) {
   return String(template).replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) => (
     Object.prototype.hasOwnProperty.call(variables, key)
       ? String(variables[key])
@@ -948,15 +948,15 @@ function interpolate(template, variables = {}) {
   ));
 }
 
-export function resolveLocale(value = null) {
+export function resolveLocale(value: any = null) {
   return normalizeLocaleTag(value) ?? (value == null ? systemLocale() : "en");
 }
 
-export function createI18n(locale = null) {
+export function createI18n(locale: any = null) {
   const resolvedLocale = resolveLocale(locale);
   return Object.freeze({
     locale: resolvedLocale,
-    t(key, variables = {}) {
+    t(key, variables: Record<string, any> = {}) {
       const localized = MESSAGES[resolvedLocale]?.[key];
       const fallback = MESSAGES.en[key];
       return interpolate(localized ?? fallback ?? key, variables);

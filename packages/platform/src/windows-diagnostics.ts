@@ -9,7 +9,6 @@ import { discoverChromeExecutable } from "./chrome-discovery.js";
 import { resolveLaunchPlan } from "./command-launcher.js";
 import type { DiscoverChromeOptions } from "./chrome-discovery.js";
 import type { ResolvedLaunchPlan, ResolveLaunchPlanOptions } from "./command-launcher.js";
-import { inspectCdpProfileState } from "@wtagent/browser/cdp-state";
 import { getPackageInfo } from "@wtagent/shared/package-info";
 
 const execFileAsync = promisify(execFile);
@@ -497,7 +496,10 @@ export async function collectDoctorReport({
   osRelease = os.release(),
   discoverChrome = discoverChromeExecutable,
   execFileImpl = execFileAsync,
-  inspectProfile = inspectCdpProfileState,
+  inspectProfile = async (): Promise<ProfileStateResult> => ({
+    status: "info",
+    detail: "No CDP profile inspector was supplied, so the profile state was not probed.",
+  }),
   access = fs.access,
   stat = fs.stat,
   findExecutable = (name) => findExecutableOnPath(name, {

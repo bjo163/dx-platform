@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { replaceFileAtomic } from "@wtagent/shared/atomic-write";
-import { inspectMusicBuffer } from "@wtagent/audio/music-artifact";
+import { inspectMusicBuffer } from "./music-artifact.js";
 import {
   resolveCanonicalWriteTarget,
   resolveToolPath,

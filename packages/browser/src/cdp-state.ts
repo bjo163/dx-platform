@@ -75,7 +75,7 @@ export function isProcessAlive(pid) {
 export async function waitForProcessExit(
   pid,
   timeoutMs,
-  { isAlive = isProcessAlive } = {},
+  { isAlive = isProcessAlive }: any = {},
 ) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -147,7 +147,7 @@ function profileDirsMatch(left, right, platform = process.platform) {
 async function probeCandidate(candidate, profileDir, {
   isAlive = isProcessAlive,
   fetchVersion = fetchCdpVersion,
-} = {}) {
+}: any = {}) {
   const normalized = normalizeCandidate(candidate, profileDir);
   if (!normalized || !isAlive(normalized.pid)) {
     return null;
@@ -190,7 +190,7 @@ export async function saveCdpState(profileDir, state) {
   return value;
 }
 
-export async function removeCdpState(profileDir, expected = null) {
+export async function removeCdpState(profileDir, expected: any = null) {
   const filePath = statePath(path.resolve(profileDir));
   if (expected) {
     const current = await readJson(filePath);
@@ -289,7 +289,7 @@ async function singletonOwnerPid(profileDir) {
 export async function processMatchesCdpState(state, {
   listProcesses = readProcessTable,
   platform = process.platform,
-} = {}) {
+}: any = {}) {
   const pathApi = platform === "win32" ? path.win32 : path.posix;
   const profileDir = pathApi.resolve(state.profileDir);
   const port = Number(state.port);
@@ -326,7 +326,7 @@ export async function discoverReusableCdpState(profileDir, {
   fetchVersion = fetchCdpVersion,
   listProcesses = readProcessTable,
   platform = process.platform,
-} = {}) {
+}: any = {}) {
   const resolvedProfile = path.resolve(profileDir);
   const requireVerifiedProcessTable = platform === "win32";
   const saved = await readCdpState(resolvedProfile);
@@ -386,7 +386,7 @@ export async function discoverReusableCdpState(profileDir, {
   }
 
   const ownerPid = await singletonOwnerPid(resolvedProfile);
-  const singleton = healthy.find((candidate) => candidate.pid === ownerPid);
+  const singleton = healthy.find((candidate) => candidate!.pid === ownerPid);
   if (singleton) {
     return await saveCdpState(resolvedProfile, singleton);
   }
@@ -411,7 +411,7 @@ export async function reapStaleProfileChrome(profileDir, {
   listProcesses = readProcessTable,
   killTree = null,
   platform = process.platform,
-} = {}) {
+}: any = {}) {
   const resolvedProfile = path.resolve(profileDir);
   let processes;
   try {
@@ -443,7 +443,7 @@ export async function reapStaleProfileChrome(profileDir, {
     return { killed: [] };
   }
 
-  const killed = [];
+  const killed: any[] = [];
   for (const holder of holders) {
     if (isAlive(holder.pid) && typeof killTree === "function") {
       await killTree(holder.pid).catch(() => {});
@@ -470,9 +470,9 @@ export async function inspectCdpProfileState(profileDir, {
   fetchVersion = fetchCdpVersion,
   listProcesses = readProcessTable,
   platform = process.platform,
-} = {}) {
+}: any = {}): Promise<{ status: "pass" | "degraded"; detail: string }> {
   const resolvedProfile = path.resolve(profileDir);
-  const diagnostics = [];
+  const diagnostics: any[] = [];
 
   const lock = await readJson(lockPath(resolvedProfile));
   if (lock?.pid) {
@@ -545,7 +545,7 @@ export async function inspectCdpProfileState(profileDir, {
 // live lock-holder pid from a recycled one: a process that started after the
 // lock file was written cannot own it. Returns null when it cannot be
 // determined (unknown process, platform tool unavailable).
-export async function processStartTimeMs(pid, { execFileImpl = execFileAsync } = {}) {
+export async function processStartTimeMs(pid, { execFileImpl = execFileAsync }: any = {}) {
   if (process.platform === "win32") {
     const { stdout } = await execFileImpl(
       "powershell.exe",
@@ -576,7 +576,7 @@ export async function acquireCdpProfileLock(profileDir, {
   ownerPid = process.pid,
   isAlive = isProcessAlive,
   processStartTime = processStartTimeMs,
-} = {}) {
+}: any = {}) {
   const resolvedProfile = path.resolve(profileDir);
   const filePath = lockPath(resolvedProfile);
   const token = randomUUID();
@@ -625,7 +625,7 @@ export async function acquireCdpProfileLock(profileDir, {
           && startedAt != null
           && startedAt > lockCreatedAt + 2_000;
         if (!recycled) {
-          const error = new Error(
+          const error: any = new Error(
             `Another WTAgent session (pid=${existing.pid}) is already using `
             + `${resolvedProfile}.`,
           );

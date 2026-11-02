@@ -1,7 +1,7 @@
-import { BaseWebAdapter, firstVisible } from "base-web-adapter";
+import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
 import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
 
-export { isConnectionLostError } from "base-web-adapter";
+export { isConnectionLostError } from "./base-web-adapter.js";
 
 const CLAUDE_URL = "https://claude.ai/";
 
@@ -10,7 +10,7 @@ const CLAUDE_URL = "https://claude.ai/";
 // data-testid / ARIA attributes. Tailwind class names are used only where the
 // live app currently exposes no semantic message-role attribute.
 export class ClaudeWebAdapter extends BaseWebAdapter {
-  constructor(options = {}) {
+  constructor(options: any = {}) {
     super({
       ...options,
       baseUrl: options.baseUrl ?? CLAUDE_URL,
@@ -28,7 +28,7 @@ export class ClaudeWebAdapter extends BaseWebAdapter {
 
   pendingAttachmentLocators() {
     return [
-      this.page.locator(
+      this.page!.locator(
         'form [data-testid="file-thumbnail"], '
           + 'form button[aria-label*="remove file" i]',
       ),
@@ -37,40 +37,40 @@ export class ClaudeWebAdapter extends BaseWebAdapter {
 
   composerLocators() {
     return [
-      this.page.locator('[data-testid="chat-input"]'),
-      this.page.locator('.ProseMirror[contenteditable="true"]'),
-      this.page.locator('main div[contenteditable="true"]'),
-      this.page.locator('main textarea'),
+      this.page!.locator('[data-testid="chat-input"]'),
+      this.page!.locator('.ProseMirror[contenteditable="true"]'),
+      this.page!.locator('main div[contenteditable="true"]'),
+      this.page!.locator('main textarea'),
     ];
   }
 
   sendButtonLocators() {
     return [
-      this.page.locator('[data-testid="chat-input-send"]'),
-      this.page.locator('main button[aria-label*="send" i]'),
+      this.page!.locator('[data-testid="chat-input-send"]'),
+      this.page!.locator('main button[aria-label*="send" i]'),
     ];
   }
 
   stopButtonLocators() {
     return [
-      this.page.locator('[data-testid="chat-input-stop"]'),
-      this.page.locator('main button[aria-label*="stop" i]'),
+      this.page!.locator('[data-testid="chat-input-stop"]'),
+      this.page!.locator('main button[aria-label*="stop" i]'),
     ];
   }
 
   newConversationControls() {
     return [
-      this.page.locator('a[href="/new"]'),
-      this.page.getByRole("button", { name: /^(new chat|new conversation|新对话|新聊天)$/i }),
-      this.page.getByRole("link", { name: /^(new chat|new conversation|新对话|新聊天)$/i }),
+      this.page!.locator('a[href="/new"]'),
+      this.page!.getByRole("button", { name: /^(new chat|new conversation|新对话|新聊天)$/i }),
+      this.page!.getByRole("link", { name: /^(new chat|new conversation|新对话|新聊天)$/i }),
     ];
   }
 
   loginControlLocators() {
     return [
-      this.page.locator('[data-testid="email"]'),
-      this.page.locator('[data-testid="login-with-google"]'),
-      this.page.locator('[data-testid="continue"]'),
+      this.page!.locator('[data-testid="email"]'),
+      this.page!.locator('[data-testid="login-with-google"]'),
+      this.page!.locator('[data-testid="continue"]'),
     ];
   }
 
@@ -89,17 +89,17 @@ export class ClaudeWebAdapter extends BaseWebAdapter {
   // ("true" while generating, "false" after completion), making that node a
   // language-independent assistant-row selector as well as a completion signal.
   assistantMessages() {
-    return this.page.locator(
+    return this.page!.locator(
       '[data-testid="transcript-row"] [data-is-streaming]',
     );
   }
 
   userMessages() {
-    return this.page.locator('[data-testid="user-message"]');
+    return this.page!.locator('[data-testid="user-message"]');
   }
 
   conversationMessages() {
-    return this.page.locator(
+    return this.page!.locator(
       '[data-testid="user-message"], '
         + '[data-testid="transcript-row"] [data-is-streaming]',
     );
@@ -116,7 +116,7 @@ export class ClaudeWebAdapter extends BaseWebAdapter {
     return { id: null, turn: await scope.count().catch(() => 0) };
   }
 
-  isNewAssistantIdentity({ turn, text }) {
+  isNewAssistantIdentity({ turn, text }: any) {
     if (turn != null && turn > (this.assistantCountBeforeSend ?? 0)) {
       return true;
     }
@@ -166,7 +166,7 @@ export class ClaudeWebAdapter extends BaseWebAdapter {
       return { attached: [], failed: [] };
     }
 
-    const input = this.page.locator('[data-testid="file-upload"]').first();
+    const input = this.page!.locator('[data-testid="file-upload"]').first();
     try {
       await input.setInputFiles(paths, { timeout: 15_000 });
     } catch (error) {
@@ -178,7 +178,7 @@ export class ClaudeWebAdapter extends BaseWebAdapter {
     }
 
     // Wait for Claude to mount an attachment chip before sending the text.
-    await this.page.locator(
+    await this.page!.locator(
       '[data-testid="file-thumbnail"], [data-testid*="attachment" i], '
         + 'button[aria-label*="remove" i]',
     ).first().waitFor({ state: "visible", timeout: 20_000 }).catch(() => null);

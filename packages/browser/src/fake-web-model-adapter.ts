@@ -1,5 +1,30 @@
 export class FakeWebModelAdapter {
-  constructor(responses = []) {
+  conversationIdentityListener: any;
+  conversationUrl: string;
+  lastAssistantMessageId: any;
+  lastAssistantTurn: any;
+  lastLaunchOptions: any;
+  lastLaunchUrl: any;
+  lastSendStatus: string;
+  lastUserMessageId: any;
+  launched: boolean;
+  mode: any;
+  pendingOutboundRecoverySupported: boolean;
+  profileDir: string;
+  reconciliationCalls: any[];
+  reconciliationOutcome: ((...args: any[]) => any) | null;
+  recoveryTargetCalls: any[];
+  responseNumber: number;
+  responses: any[];
+  sentAttachments: any[];
+  sentMessages: any[];
+  sentOutboundIds: any[];
+  startConversationCalls: any[];
+  startConversationOptions: any[];
+  startConversationOutcome: ((...args: any[]) => any) | null;
+  targetId: string;
+  windowStateCalls: any[];
+  constructor(responses: any[] = []) {
     this.responses = [...responses];
     this.sentMessages = [];
     this.profileDir = "fake-profile";
@@ -26,7 +51,7 @@ export class FakeWebModelAdapter {
     this.windowStateCalls = [];
   }
 
-  async launch(preferredUrl = null, options = {}) {
+  async launch(preferredUrl: any = null, options: Record<string, any> = {}) {
     this.launched = true;
     this.lastLaunchUrl = preferredUrl;
     this.lastLaunchOptions = options;
@@ -40,7 +65,7 @@ export class FakeWebModelAdapter {
     this.launched = true;
     this.recoveryTargetCalls.push(targetId);
     if (!targetId || targetId !== this.targetId) {
-      const error = new Error("The fake recovery target is unavailable.");
+      const error: any = new Error("The fake recovery target is unavailable.");
       error.code = "RECOVERY_TARGET_UNAVAILABLE";
       throw error;
     }
@@ -50,13 +75,13 @@ export class FakeWebModelAdapter {
     };
   }
 
-  async reconcilePendingOutbound(options = {}) {
+  async reconcilePendingOutbound(options: Record<string, any> = {}) {
     this.reconciliationCalls.push(options);
     const outcome = typeof this.reconciliationOutcome === "function"
       ? await this.reconciliationOutcome(options)
       : this.reconciliationOutcome;
     if (!outcome) {
-      const error = new Error("The fake pending outbound remains uncertain.");
+      const error: any = new Error("The fake pending outbound remains uncertain.");
       error.code = "OUTBOUND_COMMIT_UNCERTAIN";
       throw error;
     }
@@ -131,7 +156,7 @@ export class FakeWebModelAdapter {
 
   async waitForManualLogin() {}
 
-  async startConversation(conversationUrl = null, options = {}) {
+  async startConversation(conversationUrl: any = null, options: Record<string, any> = {}) {
     this.startConversationCalls.push(conversationUrl);
     this.startConversationOptions.push(options);
     if (conversationUrl) {
@@ -173,7 +198,7 @@ export class FakeWebModelAdapter {
     files = [],
     outboundId = null,
     requireAttachments = false,
-  } = {}) {
+  }: any = {}) {
     const priorUserMessageId = this.lastUserMessageId;
     const priorAssistantMessageId = this.lastAssistantMessageId;
     this.lastSendStatus = "commit-unknown";
@@ -205,7 +230,7 @@ export class FakeWebModelAdapter {
     };
   }
 
-  async waitForTurnComplete({ onDelta } = {}) {
+  async waitForTurnComplete({ onDelta }: any = {}) {
     if (this.responses.length === 0) {
       throw new Error("Fake adapter has no more responses.");
     }

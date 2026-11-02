@@ -82,7 +82,7 @@ function deriveToolIdentity({
   turn,
   toolCall,
   turnNumber,
-}) {
+}: any) {
   const args = canonicalArgs(toolCall.args);
   const messageIdentity = assistantMessageId
     ? `message:${assistantMessageId}`
@@ -114,7 +114,7 @@ function deriveToolIdentity({
   };
 }
 
-function unknownCompletionResult(toolCall, message = null) {
+function unknownCompletionResult(toolCall, message: any = null) {
   return {
     callId: toolCall.id,
     name: toolCall.name,
@@ -150,6 +150,18 @@ function policyRejectedResult(toolCall, message) {
 }
 
 export class AgentRuntime {
+  adapter: any;
+  approval: any;
+  conversationIdentityQueue: any;
+  deferConversationIdentityPersistence: boolean;
+  limits: any;
+  nativeImageReceiver: any;
+  nativeMusicReceiver: any;
+  onEvent: any;
+  policy: any;
+  postAuthSetup: any;
+  registry: any;
+  session: any;
   constructor({
     adapter,
     registry,
@@ -161,7 +173,7 @@ export class AgentRuntime {
     nativeImageReceiver = null,
     nativeMusicReceiver = null,
     limits = DEFAULT_LIMITS,
-  }) {
+  }: any) {
     this.adapter = adapter;
     this.registry = registry;
     this.policy = policy;
@@ -179,7 +191,7 @@ export class AgentRuntime {
     );
   }
 
-  async emit(type, payload = {}) {
+  async emit(type, payload: Record<string, any> = {}) {
     const event = await this.session.appendEvent(type, payload);
     await this.onEvent?.(event);
     return event;
@@ -210,7 +222,7 @@ export class AgentRuntime {
     transcriptItems = [],
     runtimeTurn = null,
     pendingToolAcknowledgement = null,
-  } = {}) {
+  }: any = {}) {
     this.#assertProviderReadyForMessage();
     await this.nativeMusicReceiver?.prepare();
     const outboundId = randomUUID();
@@ -286,7 +298,7 @@ export class AgentRuntime {
     }
   }
 
-  async #persistConversationIdentity(identity, { allowFresh = false } = {}) {
+  async #persistConversationIdentity(identity, { allowFresh = false }: any = {}) {
     const conversationUrl = identity?.conversationUrl ?? null;
     const kind = identity?.kind
       ?? (conversationUrl && this.adapter.classifyConversationUrl?.(conversationUrl));
@@ -304,7 +316,7 @@ export class AgentRuntime {
       && identity.targetId
       ? identity.targetId
       : null;
-    const patch = {};
+    const patch: Record<string, any> = {};
     if (conversationUrl !== this.session.state.conversationUrl) {
       patch.conversationUrl = conversationUrl;
     }
@@ -324,7 +336,7 @@ export class AgentRuntime {
     };
   }
 
-  #queueConversationIdentity(identity, options = {}) {
+  #queueConversationIdentity(identity, options: Record<string, any> = {}) {
     if (this.deferConversationIdentityPersistence) {
       return Promise.resolve(null);
     }
@@ -349,8 +361,8 @@ export class AgentRuntime {
 
   async #refreshPendingOutboundIdentity(
     outboundId,
-    identity = null,
-    { required = false } = {},
+    identity: any = null,
+    { required = false }: any = {},
   ) {
     return await this.#queueSessionOperation(async () => {
       const current = this.session.state.pendingOutbound;
@@ -396,7 +408,7 @@ export class AgentRuntime {
     suppressErrors = false,
     allowFresh = false,
     identity = null,
-  } = {}) {
+  }: any = {}) {
     // Observe and persist inside one queue entry. If a navigation callback fires
     // while observation awaits the adapter, it queues after this operation and
     // remains authoritative instead of being overwritten by a stale snapshot.
@@ -442,7 +454,7 @@ export class AgentRuntime {
     allowAssistantContinuation,
     requireAttachments,
     outboundId,
-  }) {
+  }: any) {
     try {
       return await this.adapter.sendMessage(message, {
         files,
@@ -494,7 +506,7 @@ export class AgentRuntime {
   async #reconnectAndRestore({
     allowFresh = false,
     checkpointIdentity = null,
-  } = {}) {
+  }: any = {}) {
     // Navigation callbacks must not persist a replacement root target without
     // the pending record that causally owns it. Suppress them until the caller's
     // checkpoint writes both identities in one Session transition.
@@ -536,9 +548,9 @@ export class AgentRuntime {
     }
   }
 
-  async #freshRebuildBlockers({ instruction = null } = {}) {
+  async #freshRebuildBlockers({ instruction = null }: any = {}) {
     const state = this.session.state;
-    const blockers = [];
+    const blockers: any[] = [];
     if (state.pendingOutbound != null) {
       blockers.push("unconfirmed outbound message");
     }
@@ -612,7 +624,7 @@ export class AgentRuntime {
     return { blockers, transcript, rebuildInstruction };
   }
 
-  buildToolResultMessage(result, { suffix = "" } = {}) {
+  buildToolResultMessage(result, { suffix = "" }: any = {}) {
     const limit = this.limits.maxBrowserToolResultBytes;
     const nonResultBytes = utf8ByteLength(appendSystemReminder(suffix,
       this.nativeImageReceiver ? NATIVE_IMAGE_SYSTEM_REMINDER : DEFAULT_SYSTEM_REMINDER))
@@ -629,7 +641,7 @@ export class AgentRuntime {
   async sendToolResult(result, {
     suffix = "",
     runtimeTurn = null,
-  } = {}) {
+  }: any = {}) {
     return await this.sendMessage(
       this.buildToolResultMessage(result, { suffix }),
       {
@@ -655,7 +667,7 @@ export class AgentRuntime {
     files = [],
     timeoutMs = this.limits.modelTurnTimeoutMs,
     waitForCompletion,
-  }) {
+  }: any) {
     if (typeof waitForCompletion !== "function") {
       throw new TypeError("An auxiliary turn requires a completion callback.");
     }
@@ -847,7 +859,7 @@ export class AgentRuntime {
     return refreshed;
   }
 
-  async #recoverPendingConversation({ pendingOutbound, pendingAssistantTurn }) {
+  async #recoverPendingConversation({ pendingOutbound, pendingAssistantTurn }: any) {
     const outboundId = pendingOutbound?.outboundId
       ?? pendingAssistantTurn?.sourceOutboundId
       ?? null;
@@ -992,7 +1004,7 @@ export class AgentRuntime {
     instruction = null,
     files = [],
     inPlaceRecovery = false,
-  } = {}) {
+  }: any = {}) {
     const {
       task,
       projectRoot,
@@ -1068,7 +1080,7 @@ export class AgentRuntime {
     const modelTurnTimeoutMs = this.limits.modelTurnTimeoutMs;
     let pendingToolResult;
     let awaitingPendingAcknowledgement = false;
-    let replayGuard = null;
+    let replayGuard: any = null;
     let protocolErrors = 0;
     const baseTurn = resume ? Number(this.session.state.turn || 0) : 0;
 
@@ -1280,7 +1292,7 @@ export class AgentRuntime {
     let initialKind;
     // The web transport gets `.web` (XML/marked text). The portable rollout
     // records only confirmed user messages; WTAgent scaffolding stays transport-only.
-    let initialTranscript = [];
+    let initialTranscript: any[] = [];
     if (!legacyAssistantRecoveryAtStart) {
     if (this.nativeMusicReceiver) {
       if (inPlaceRecovery) throw new Error("Music generation is not automatically repeated; resume the pending turn without a new instruction.");
@@ -1387,8 +1399,8 @@ export class AgentRuntime {
         : baseTurn + step;
       await this.session.update({ turn: turnNumber, phase: "waiting_model" });
       let raw;
-      let nativeImages = [];
-      let nativeMusic = [];
+      let nativeImages: any[] = [];
+      let nativeMusic: any[] = [];
       let emptyAssistantRetries = 0;
       let connectionRetries = 0;
       for (;;) {
@@ -1636,7 +1648,7 @@ export class AgentRuntime {
         await this.#appendHandoffTranscript(activeHandoff, "assistant", assistantMessage(message));
         await this.emit("model.native_images", { turn: turnNumber, artifacts });
         await this.emit("model.progress", { turn: turnNumber, message });
-        const receipt = artifacts.map(({ localPath, mimeType, width, height, size, sha256 }) => (
+        const receipt = artifacts.map(({ localPath, mimeType, width, height, size, sha256 }: any) => (
           { localPath, mimeType, width, height, size, sha256 }
         ));
         await this.sendMessage(

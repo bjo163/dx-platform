@@ -62,7 +62,7 @@ export async function fetchLatestVersion({
   fetchImpl,
   timeoutMs = UPDATE_CHECK_TIMEOUT_MS,
   packageName = getPackageName(),
-} = {}) {
+}: any = {}) {
   const document = await fetchJson(npmRegistryLatestUrl(packageName), {
     fetchImpl,
     timeoutMs,
@@ -77,7 +77,7 @@ export async function installLatest({
   planCommandImpl = (program, argv) => resolveLaunchPlan({ program, argv }),
   timeoutMs = INSTALL_TIMEOUT_MS,
   stdio = "inherit",
-} = {}) {
+}: any = {}) {
   const plan = planCommandImpl("npm", [
     "install",
     "-g",
@@ -128,7 +128,7 @@ export async function runSelfUpdate({
   write = console.log,
   writeError = console.error,
   currentVersion = getPackageVersion(),
-} = {}) {
+}: any = {}) {
   const latest = await fetchLatest({ timeoutMs: UPDATE_COMMAND_TIMEOUT_MS });
   if (!latest) {
     writeError("Could not check npm for the latest WTAgent version.");

@@ -11,7 +11,7 @@ import {
   removeCdpState,
   saveCdpState,
   waitForProcessExit,
-} from "cdp-state";
+} from "./cdp-state.js";
 
 async function reservePort() {
   return await new Promise((resolve, reject) => {
@@ -20,7 +20,7 @@ async function reservePort() {
     server.once("error", reject);
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
-      const port = typeof address === "object" ? address.port : null;
+      const port = typeof address === "object" ? address!.port : null;
       server.close((error) => {
         if (error) {
           reject(error);
@@ -52,6 +52,8 @@ async function settleWithin(promise, timeoutMs) {
 // WS handshake but never finishes protocol init, so an unbounded connect hangs
 // for the full Playwright default (30s) before failing.
 class CdpTimeoutError extends Error {
+  code: string;
+  name: string;
   constructor(message) {
     super(message);
     this.name = "CdpTimeoutError";
@@ -59,8 +61,8 @@ class CdpTimeoutError extends Error {
   }
 }
 
-function recoveryTargetUnavailable(message, cause = null) {
-  const error = new Error(message, cause ? { cause } : undefined);
+function recoveryTargetUnavailable(message, cause: any = null) {
+  const error: any = new Error(message, cause ? { cause } : undefined);
   error.code = "RECOVERY_TARGET_UNAVAILABLE";
   return error;
 }
@@ -83,7 +85,7 @@ async function waitForCdp({
   endpoint,
   child,
   timeoutMs = 15_000,
-}) {
+}: any) {
   const deadline = Date.now() + timeoutMs;
   let lastError;
 
@@ -122,7 +124,7 @@ async function waitForCdp({
 // connecting. Existing tabs and conversations are left untouched.
 export async function ensureCdpPageTarget(
   endpoint,
-  { fetchImpl = fetch, timeoutMs = 1_500 } = {},
+  { fetchImpl = fetch, timeoutMs = 1_500 }: any = {},
 ) {
   let targets;
   try {
@@ -198,11 +200,11 @@ function sameOriginPath(left, right) {
   }
 }
 
-async function getPageTargetId(context, page, { timeoutMs = 1_500 } = {}) {
+async function getPageTargetId(context, page, { timeoutMs = 1_500 }: any = {}) {
   if (!page || typeof context?.newCDPSession !== "function") {
     return null;
   }
-  let session = null;
+  let session: any = null;
   const probe = (async () => {
     session = await context.newCDPSession(page).catch(() => null);
     if (!session) {
@@ -241,7 +243,7 @@ export async function launchAndConnectCdpChrome({
   preferredUrl = null,
   preferredTargetId = null,
   exactTargetOnly = false,
-}, {
+}: any, {
   acquireProfileLock = acquireCdpProfileLock,
   connectOverCDP = (endpoint) => chromium.connectOverCDP(endpoint),
   discoverReusable = discoverReusableCdpState,
@@ -258,7 +260,7 @@ export async function launchAndConnectCdpChrome({
   waitForReady = waitForCdp,
   connectTimeoutMs = 20_000,
   transportCloseTimeoutMs = 1_500,
-} = {}) {
+}: any = {}) {
   if (
     exactTargetOnly
     && (
@@ -271,10 +273,10 @@ export async function launchAndConnectCdpChrome({
     );
   }
   const releaseProfileLock = await acquireProfileLock(profileDir);
-  let child = null;
-  let state = null;
-  let browser = null;
-  let closePromise = null;
+  let child: any = null;
+  let state: any = null;
+  let browser: any = null;
+  let closePromise: any = null;
   let reused = false;
 
   async function findReusable() {
@@ -334,7 +336,7 @@ export async function launchAndConnectCdpChrome({
       try {
         const version = await waitForReady({ endpoint, child });
         state = await saveState(profileDir, {
-          pid: child.pid,
+          pid: child!.pid,
           port,
           endpoint,
           profileDir,
@@ -346,7 +348,7 @@ export async function launchAndConnectCdpChrome({
         // profile and then exit successfully. Re-scan after that handoff and
         // adopt the verified live CDP instance instead of reporting a false
         // launch failure.
-        if (child.exitCode === 0 && child.signalCode == null) {
+        if (child!.exitCode === 0 && child!.signalCode == null) {
           state = await findReusable();
           if (state) {
             reused = true;
@@ -364,16 +366,16 @@ export async function launchAndConnectCdpChrome({
     let context;
     try {
       if (reused && !exactTargetOnly) {
-        await ensurePageTarget(state.endpoint);
+        await ensurePageTarget(state!.endpoint);
       }
       const connectPromise = Promise.resolve().then(() => (
-        connectOverCDP(state.endpoint)
+        connectOverCDP(state!.endpoint)
       ));
       try {
         browser = await withTimeout(
           connectPromise,
           connectTimeoutMs,
-          `Timed out connecting to Chrome CDP at ${state.endpoint} after ${connectTimeoutMs}ms.`,
+          `Timed out connecting to Chrome CDP at ${state!.endpoint} after ${connectTimeoutMs}ms.`,
         );
       } catch (error) {
         if (error instanceof CdpTimeoutError) {
@@ -390,7 +392,7 @@ export async function launchAndConnectCdpChrome({
       const contexts = await withTimeout(
         Promise.resolve().then(() => browser.contexts()),
         connectTimeoutMs,
-        `Timed out reading Chrome browser context at ${state.endpoint}.`,
+        `Timed out reading Chrome browser context at ${state!.endpoint}.`,
       );
       context = contexts[0];
     } catch (error) {
@@ -454,9 +456,9 @@ export async function launchAndConnectCdpChrome({
     let preferredTabMatched = false;
     let preferredTargetMatched = false;
     let preferredTabAmbiguous = false;
-    let targetId = null;
+    let targetId: string | null = null;
     if (exactTargetOnly) {
-      const matchingTargets = [];
+      const matchingTargets: any[] = [];
       for (const candidate of pages) {
         const candidateTargetId = await probeTargetId(candidate);
         if (candidateTargetId === preferredTargetId) {
@@ -511,9 +513,9 @@ export async function launchAndConnectCdpChrome({
       browser,
       context,
       child,
-      endpoint: state.endpoint,
+      endpoint: state!.endpoint,
       page,
-      pid: state.pid,
+      pid: state!.pid,
       reused,
       targetId,
       existingPageUrls,
@@ -590,21 +592,21 @@ export async function launchAndConnectCdpChrome({
                 500,
               );
             }
-            exited = await waitForExit(state.pid, 3_000);
+            exited = await waitForExit(state!.pid, 3_000);
             await settleWithin(
               Promise.resolve().then(() => browser.close()),
               transportCloseTimeoutMs,
             );
 
             if (!exited) {
-              const childStillOwnsPid = child?.pid === state.pid
-                && child.exitCode == null
-                && child.signalCode == null;
+              const childStillOwnsPid = child?.pid === state!.pid
+                && child!.exitCode == null
+                && child!.signalCode == null;
               const safeToKill = childStillOwnsPid
                 || await matchesState(state);
               if (safeToKill) {
-                await killTree(state.pid);
-                exited = await waitForExit(state.pid, 3_000);
+                await killTree(state!.pid);
+                exited = await waitForExit(state!.pid, 3_000);
               }
             }
 
@@ -613,7 +615,7 @@ export async function launchAndConnectCdpChrome({
               return;
             }
             throw new Error(
-              `Chrome pid=${state.pid} did not exit; its verified CDP state `
+              `Chrome pid=${state!.pid} did not exit; its verified CDP state `
               + "was kept so the next WTAgent run can reuse it.",
             );
           } finally {

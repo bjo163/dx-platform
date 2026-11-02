@@ -5,6 +5,10 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+      // Ported from the JavaScript original: these two are the residual of that
+      // port, not new design choices. Re-enable per package as it is retyped.
+      "noImplicitAny": false,
+      "useUnknownInCatchVariables": false,
     "noEmitOnError": true,
     "declaration": true,
     "declarationMap": true,
