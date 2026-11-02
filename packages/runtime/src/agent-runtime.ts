@@ -167,8 +167,11 @@ export class AgentRuntime {
   onEvent: any;
   policy: any;
   postAuthSetup: any;
+  random: () => number;
   registry: any;
   session: any;
+  #turnBytesUsed: number = 0;
+  #turnRetryCount: number = 0;
   constructor({
     adapter,
     registry,
@@ -180,6 +183,7 @@ export class AgentRuntime {
     nativeImageReceiver = null,
     nativeMusicReceiver = null,
     limits = DEFAULT_LIMITS,
+    random = Math.random,
   }: any) {
     this.adapter = adapter;
     this.registry = registry;
@@ -191,6 +195,7 @@ export class AgentRuntime {
     this.nativeImageReceiver = nativeImageReceiver;
     this.nativeMusicReceiver = nativeMusicReceiver;
     this.limits = limits;
+    this.random = random;
     this.conversationIdentityQueue = Promise.resolve();
     this.deferConversationIdentityPersistence = false;
     this.adapter.setConversationIdentityListener?.((identity) =>
@@ -202,6 +207,73 @@ export class AgentRuntime {
     const event = await this.session.appendEvent(type, payload);
     await this.onEvent?.(event);
     return event;
+  }
+
+  #resetTurnBudget() {
+    this.#turnBytesUsed = 0;
+    this.#turnRetryCount = 0;
+  }
+
+  #trackBytes(bytes: number) {
+    this.#turnBytesUsed += bytes;
+    if (this.#turnBytesUsed > this.limits.maxBytesPerTurn) {
+      throw new BrowserAdapterError(
+        `Per-turn budget exceeded: ${this.#turnBytesUsed} bytes (limit: ${this.limits.maxBytesPerTurn}).`,
+        {
+          code: "TURN_BUDGET_EXCEEDED",
+          recoverable: false,
+          details: {
+            bytesUsed: this.#turnBytesUsed,
+            limit: this.limits.maxBytesPerTurn,
+          },
+        },
+      );
+    }
+  }
+
+  #assertItemBudget(bytes, limit, code, label) {
+    if (bytes > limit) {
+      throw new BrowserAdapterError(
+        `${label} is ${bytes} bytes, over the ${limit}-byte per-message budget.`,
+        { code, recoverable: false, details: { bytes, limit } },
+      );
+    }
+  }
+
+  // Exponential growth clamped to the ceiling, then shifted by jitter so
+  // several sessions recovering from the same provider outage do not retry in
+  // lockstep and re-trigger it.
+  #retryDelayMs(attempt) {
+    const { retryBackoffBaseMs, retryBackoffMaxMs, retryJitterMs } = this.limits;
+    const clamped = Math.min(retryBackoffBaseMs * 2 ** attempt, retryBackoffMaxMs);
+    const jitter = retryJitterMs > 0 ? this.random() * retryJitterMs : 0;
+    return Math.round(Math.min(clamped + jitter, retryBackoffMaxMs));
+  }
+
+  async #applyRetryBackoff(kind) {
+    const attempt = this.#turnRetryCount;
+    this.#turnRetryCount += 1;
+    if (this.#turnRetryCount > this.limits.maxRetryAttempts) {
+      throw new BrowserAdapterError(
+        `Turn retry budget exhausted after ${attempt} attempts.`,
+        {
+          code: "RETRY_LIMIT_EXCEEDED",
+          recoverable: false,
+          details: { kind, attempts: attempt, maxRetryAttempts: this.limits.maxRetryAttempts },
+        },
+      );
+    }
+    const delayMs = this.#retryDelayMs(attempt);
+    await this.emit("retry.backoff", {
+      kind,
+      attempt: this.#turnRetryCount,
+      maxRetryAttempts: this.limits.maxRetryAttempts,
+      delayMs,
+    });
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+    return delayMs;
   }
 
   #assertProviderReadyForMessage() {
@@ -679,8 +751,10 @@ export class AgentRuntime {
     suffix = "",
     runtimeTurn = null,
   }: any = {}) {
+    const resultMessage = this.buildToolResultMessage(result, { suffix });
+    this.#trackBytes(utf8ByteLength(resultMessage));
     return await this.sendMessage(
-      this.buildToolResultMessage(result, { suffix }),
+      resultMessage,
       {
         maxBytes: this.limits.maxBrowserToolResultBytes,
         outboundKind: "tool_result",
@@ -1425,6 +1499,10 @@ export class AgentRuntime {
     }
 
     for (let step = 1; ; step += 1) {
+      // The budget is per turn, so a long multi-tool run is not charged for the
+      // text it has already shipped.
+      this.#resetTurnBudget();
+
       let activeHandoff = this.session.state.pendingAssistantTurn;
       if (!activeHandoff) {
         throw new BrowserAdapterError(
@@ -1490,6 +1568,7 @@ export class AgentRuntime {
               throw error;
             }
             connectionRetries += 1;
+            await this.#applyRetryBackoff("connection_lost");
             if (supportsStrictRecovery) {
               await this.adapter.detach?.();
               activeHandoff = await this.#recoverPendingConversation({
@@ -1571,6 +1650,11 @@ export class AgentRuntime {
             deadRequest,
             generationFailed,
           });
+          await this.#applyRetryBackoff(deadRequest
+            ? "dead_request"
+            : generationFailed
+              ? "generation_failed"
+              : "empty_response");
           // Do not resend the original request or tool result: both are already
           // present in ChatGPT's conversation. This transport-only continuation
           // also cannot re-execute a local tool by itself.
@@ -1785,6 +1869,7 @@ export class AgentRuntime {
             `Protocol failed ${protocolErrors} consecutive times: ${error.message}`,
           );
         }
+        await this.#applyRetryBackoff("protocol_correction");
         await this.sendMessage(serializeProtocolError(error), {
           allowAssistantContinuation: true,
           outboundKind: "protocol_correction",
@@ -1796,6 +1881,14 @@ export class AgentRuntime {
       // Record the assistant's turn in the canonical transcript. The raw XML is
       // the web rendering; the transcript keeps the plain progress message.
       if (finalMessage?.trim()) {
+        const finalMessageBytes = utf8ByteLength(finalMessage);
+        this.#assertItemBudget(
+          finalMessageBytes,
+          this.limits.maxAssistantMessageBytes,
+          "ASSISTANT_MESSAGE_BYTES_EXCEEDED",
+          "The assistant message",
+        );
+        this.#trackBytes(finalMessageBytes);
         await this.#appendHandoffTranscript(
           activeHandoff,
           "assistant",

@@ -415,6 +415,15 @@ export class Renderer {
         // reply, so bring the processing spinner back.
         this.beginProcessing();
         break;
+      case "retry.backoff":
+        // Without this the pause between continuations looks like a hang.
+        if (payload.delayMs > 0) {
+          this.stopSpinner();
+          this.note(t("renderer.retryIn", {
+            seconds: Math.max(1, Math.round(payload.delayMs / 1000)),
+          }));
+        }
+        break;
       default:
         break;
     }

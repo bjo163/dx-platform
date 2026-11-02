@@ -17,6 +17,14 @@ export const DEFAULT_LIMITS = Object.freeze({
   maxBrowserToolResultBytes: 24 * 1024,
   maxDirectoryEntries: 500,
   maxSearchResults: 200,
+  // Per-turn budgets (enforced by AgentRuntime)
+  maxBytesPerTurn: 256 * 1024, // 256KB of assistant + tool-result text per turn
+  maxAssistantMessageBytes: 64 * 1024, // 64KB per assistant message
+  // Retry policy
+  maxRetryAttempts: 3,
+  retryBackoffBaseMs: 500,
+  retryBackoffMaxMs: 10_000,
+  retryJitterMs: 250,
 });
 
 export interface Limits {
@@ -35,6 +43,14 @@ export interface Limits {
   maxDirectoryEntries: number;
   maxSearchResults: number;
   modelTurnTimeoutExplicit?: boolean;
+  // Per-turn budgets (enforced by AgentRuntime)
+  maxBytesPerTurn: number;
+  maxAssistantMessageBytes: number;
+  // Retry policy
+  maxRetryAttempts: number;
+  retryBackoffBaseMs: number;
+  retryBackoffMaxMs: number;
+  retryJitterMs: number;
 }
 
 // Model response timing is provider/model agnostic. Users who need a longer

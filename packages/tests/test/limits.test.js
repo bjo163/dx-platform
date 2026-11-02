@@ -23,6 +23,28 @@ test("tool transport limits use the bounded browser-safe defaults", () => {
   assert.equal(DEFAULT_LIMITS.maxBrowserToolResultBytes, 24 * 1024);
 });
 
+test("per-turn budgets cap one turn, not one run", () => {
+  assert.equal(DEFAULT_LIMITS.maxBytesPerTurn, 256 * 1024);
+  assert.equal(DEFAULT_LIMITS.maxAssistantMessageBytes, 64 * 1024);
+  // A single tool result already fits the browser cap, so the turn budget must
+  // allow several exchanges before it becomes the binding constraint.
+  assert.ok(
+    DEFAULT_LIMITS.maxBytesPerTurn > 8 * DEFAULT_LIMITS.maxBrowserToolResultBytes,
+  );
+});
+
+test("retry backoff grows but stays bounded", () => {
+  assert.equal(DEFAULT_LIMITS.maxRetryAttempts, 3);
+  assert.equal(DEFAULT_LIMITS.retryBackoffBaseMs, 500);
+  assert.equal(DEFAULT_LIMITS.retryBackoffMaxMs, 10_000);
+  assert.equal(DEFAULT_LIMITS.retryJitterMs, 250);
+  assert.ok(DEFAULT_LIMITS.retryJitterMs < DEFAULT_LIMITS.retryBackoffMaxMs);
+  // resolveLimits spreads the defaults, so CLI overrides keep the budgets.
+  const limits = resolveLimits({ modelTurnTimeoutMs: "720000" });
+  assert.equal(limits.maxBytesPerTurn, DEFAULT_LIMITS.maxBytesPerTurn);
+  assert.equal(limits.maxRetryAttempts, DEFAULT_LIMITS.maxRetryAttempts);
+});
+
 test("model turn timeout accepts a positive integer CLI value", () => {
   const limits = resolveLimits({
     modelTurnTimeoutMs: "720000",

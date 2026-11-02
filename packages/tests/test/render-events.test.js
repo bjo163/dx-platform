@@ -69,3 +69,14 @@ test("renders bounded empty-response recovery and preserved-session guidance", (
   assert.doesNotMatch(stream.output(), /ChatGPT/);
   assert.match(stream.output(), /session and Chrome window remain open/i);
 });
+
+test("names the backoff pause so a retry does not look like a hang", () => {
+  const stream = captureStream();
+  const renderer = new Renderer({ stream });
+
+  renderer.handle({ type: "retry.backoff", payload: { kind: "empty_response", delayMs: 1500 } });
+  renderer.handle({ type: "retry.backoff", payload: { kind: "protocol_correction", delayMs: 0 } });
+
+  assert.match(stream.output(), /Retrying in 2s…/);
+  assert.equal(stream.output().match(/Retrying in/g)?.length, 1);
+});

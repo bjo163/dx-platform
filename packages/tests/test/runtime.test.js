@@ -256,6 +256,15 @@ function emptyAssistantResponse() {
   );
 }
 
+// Recovery retries wait out an exponential backoff before sending the next
+// continuation. Tests that drive those retries opt out of the sleeps so the
+// suite does not spend its wall-clock budget waiting on real timers.
+const noBackoffLimits = {
+  ...DEFAULT_LIMITS,
+  retryBackoffBaseMs: 0,
+  retryJitterMs: 0,
+};
+
 test("asks ChatGPT to continue after empty replies without resending the task", async (t) => {
   const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
   const projectRoot = path.join(base, "project");
@@ -283,6 +292,7 @@ test("asks ChatGPT to continue after empty replies without resending the task", 
     session,
     approval: async () => false,
     onEvent: (event) => events.push(event),
+    limits: noBackoffLimits,
   });
 
   const result = await runtime.run();
@@ -336,6 +346,7 @@ test("stops after three empty-response continuations and preserves a pending too
     policy: new PolicyEngine(),
     session,
     approval: async () => false,
+    limits: noBackoffLimits,
   });
 
   await assert.rejects(
@@ -484,6 +495,7 @@ test("runtime never invokes provider model selection", async (t) => {
     session,
     approval: async () => false,
     onEvent: (event) => events.push(event),
+    limits: noBackoffLimits,
   });
 
   const result = await runtime.run();
@@ -3099,6 +3111,7 @@ test("asks ChatGPT to continue after a silently dead request", async (t) => {
     session,
     approval: async () => false,
     onEvent: (event) => events.push(event),
+    limits: noBackoffLimits,
   });
 
   const result = await runtime.run();
@@ -3499,6 +3512,7 @@ test("stops immediately when ChatGPT reports a usage limit instead of retrying t
     session,
     approval: async () => false,
     onEvent: (event) => events.push(event),
+    limits: noBackoffLimits,
   });
 
   await assert.rejects(
@@ -3541,6 +3555,7 @@ test("emits the limit event when the adapter detects a usage-limit card", async 
     session,
     approval: async () => false,
     onEvent: (event) => events.push(event),
+    limits: noBackoffLimits,
   });
 
   await assert.rejects(
@@ -3768,6 +3783,7 @@ test("recovers after a provider-side generation failure", async (t) => {
     policy: new PolicyEngine(),
     session,
     approval: async () => false,
+    limits: noBackoffLimits,
   });
 
   const result = await runtime.run();
