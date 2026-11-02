@@ -34,6 +34,10 @@ const parser = new XMLParser({
   trimValues: false,
 });
 
+// Protocol tag names are assembled rather than written literally so that
+// scanning this file cannot mistake its own source for a model envelope.
+const TAG_TOOL_CALL = "<" + "tool_call>";
+const MAX_TOOL_CALLS_PER_TURN = 8;
 function stripSingleCodeFence(text: string): string {
   const trimmed = String(text ?? "").trim();
   const match = trimmed.match(/^```(?:xml)?\s*([\s\S]*?)\s*```$/i);
@@ -447,36 +451,46 @@ export function parseAgentResponse(rawText: string): ParsedAgentResponse {
   const done = parseDone(fields.done);
   const message = scalarText(fields.message);
   const rawToolCall = fields.tool_call;
+  // Repeated request elements parse to an array, a single one to an object.
+  // Both shapes become one ordered list that the runtime executes serially.
+  const rawToolCalls = rawToolCall == null || rawToolCall === ""
+    ? []
+    : Array.isArray(rawToolCall)
+      ? rawToolCall
+      : [rawToolCall];
 
-  if (Array.isArray(rawToolCall)) {
-    throw new ProtocolError("V1 allows at most one <tool_call> per turn.");
+  if (rawToolCalls.length > MAX_TOOL_CALLS_PER_TURN) {
+    throw new ProtocolError(
+      "A turn may request at most " + MAX_TOOL_CALLS_PER_TURN
+      + " tools, but this one requested " + rawToolCalls.length + ".",
+    );
   }
 
-  let toolCall: AgentToolCall | null = null;
-  if (rawToolCall != null && rawToolCall !== "") {
-    if (typeof rawToolCall !== "object") {
-      throw new ProtocolError("<tool_call> must contain a name and args.");
+  const toolCalls: AgentToolCall[] = rawToolCalls.map((entry, index) => {
+    if (typeof entry !== "object" || entry === null) {
+      throw new ProtocolError(TAG_TOOL_CALL + " must contain a name and args.");
     }
-
-    const call = rawToolCall as Record<string, unknown>;
+    const call = entry as Record<string, unknown>;
     const name = String(call.name ?? "").trim();
     if (!name) {
-      throw new ProtocolError("<tool_call> is missing the name attribute.");
+      throw new ProtocolError(
+        rawToolCalls.length > 1
+          ? "Tool request " + (index + 1) + " is missing the name attribute."
+          : TAG_TOOL_CALL + " is missing the name attribute.",
+      );
     }
-
-    const normalizedArgs = normalizeXmlValue(
-      call.args ?? call.arguments ?? {},
-    );
-    toolCall = {
+    const normalizedArgs = normalizeXmlValue(call.args ?? call.arguments ?? {});
+    return {
       id: String(call.id ?? "").trim() || null,
       name,
       args: typeof normalizedArgs === "string" && !normalizedArgs.trim()
         ? {}
         : normalizedArgs as Record<string, unknown>,
     };
-  }
+  });
+  const toolCall = toolCalls[0] ?? null;
 
-  if (done && toolCall) {
+  if (done && toolCalls.length > 0) {
     throw new ProtocolError(
       "A completed response cannot also request a tool. Use done=false.",
     );
@@ -485,6 +499,7 @@ export function parseAgentResponse(rawText: string): ParsedAgentResponse {
   return {
     done,
     message,
+    toolCalls,
     toolCall,
     raw: envelope,
   };
@@ -614,6 +629,45 @@ export function serializeToolResult(
   return xml;
 }
 
+// Several results from one turn travel as a single message: the model reads
+// every result inside one root, in the order it asked for them, so a batched
+// turn costs one round trip instead of one per tool.
+export function serializeToolResults(
+  results: ProtocolToolResult[],
+  { maxBytes = Infinity }: { maxBytes?: number } = {},
+): string {
+  if (!Array.isArray(results) || results.length === 0) {
+    throw new TypeError("A tool result batch needs at least one result.");
+  }
+  if (results.length === 1) {
+    return serializeToolResult(results[0], { maxBytes });
+  }
+
+  const openRoot = (count: number) => "<" + `tool_results count=\"${count}\"` + ">";
+  const wrap = (parts: string[]) => [
+    openRoot(parts.length),
+    ...parts.map((part) => "\n" + part),
+    "</" + "tool_results>",
+  ].join("");
+
+  if (!Number.isFinite(maxBytes)) {
+    return wrap(results.map((result) => serializeToolResult(result)));
+  }
+
+  const overhead = utf8ByteLength(wrap([]));
+  let perResult = Math.floor((maxBytes - overhead) / results.length);
+  for (let pass = 0; pass < 8; pass += 1) {
+    const budget = Math.max(512, perResult);
+    const xml = wrap(
+      results.map((result) => serializeToolResult(result, { maxBytes: budget })),
+    );
+    if (utf8ByteLength(xml) <= maxBytes) return xml;
+    perResult = Math.floor(perResult * 0.75);
+  }
+  throw new RangeError(
+    "Unable to fit " + results.length + " tool results within " + maxBytes + " bytes.",
+  );
+}
 export function serializeProtocolError(error: unknown): string {
   // Structural XML failures need more than the raw parser message. The two
   // recurring causes: (a) raw code placed directly inside the envelope — bare

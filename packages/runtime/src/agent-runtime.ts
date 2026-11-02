@@ -5,6 +5,7 @@ import {
   parseAgentResponse,
   serializeProtocolError,
   serializeToolResult,
+  serializeToolResults,
 } from "@wtagent/protocol/xml-protocol";
 import {
   appendSystemReminder,
@@ -82,15 +83,21 @@ function deriveToolIdentity({
   turn,
   toolCall,
   turnNumber,
+  callIndex = 0,
 }: any) {
   const args = canonicalArgs(toolCall.args);
   const messageIdentity = assistantMessageId
     ? `message:${assistantMessageId}`
     : `turn:${turnNumber}:${createHash("sha256").update(turn.raw).digest("hex")}`;
+  // The first request keeps the pre-batching key so sessions recorded before
+  // multi-tool turns stay replay-safe; later requests get their own slot.
+  const callIdentity = callIndex > 0
+    ? `${messageIdentity}#call${callIndex}`
+    : messageIdentity;
   const operationKey = createHash("sha256")
     .update(sessionId)
     .update("\0")
-    .update(messageIdentity)
+    .update(callIdentity)
     .digest("hex");
   const fingerprint = createHash("sha256")
     .update(operationKey)
@@ -635,7 +642,37 @@ export class AgentRuntime {
         `Tool result metadata leaves fewer than 512 bytes within the ${limit}-byte browser limit.`,
       );
     }
-    return `${serializeToolResult(result, { maxBytes: resultBudget })}${suffix}`;
+    const batch = Array.isArray(result?.batch) && result.batch.length > 1
+      ? result.batch
+      : null;
+    const xml = batch
+      ? serializeToolResults(batch, { maxBytes: resultBudget })
+      : serializeToolResult(result, { maxBytes: resultBudget });
+    return `${xml}${suffix}`;
+  }
+
+  // One turn may run several tools; every result is returned in a single
+  // message so the model spends one round trip on the whole batch.
+  async sendToolResults(results, {
+    suffix = "",
+    runtimeTurn = null,
+  }: any = {}) {
+    const batch = (Array.isArray(results) ? results : [results]).filter(Boolean);
+    if (batch.length === 0) {
+      throw new TypeError("A tool result message needs at least one result.");
+    }
+    if (batch.length === 1) {
+      return this.sendToolResult(batch[0], { suffix, runtimeTurn });
+    }
+    const acknowledged = batch.find((entry) => entry.operationSignature)
+      ?? batch[batch.length - 1];
+    const outbound = { ...acknowledged, batch };
+    // Persist the batch as the in-flight result so a crash mid-send rebuilds the
+    // same combined message instead of only one of its results.
+    await this.#queueSessionOperation(() => (
+      this.session.setPendingToolResult(outbound)
+    ));
+    return this.sendToolResult(outbound, { suffix, runtimeTurn });
   }
 
   async sendToolResult(result, {
@@ -795,12 +832,13 @@ export class AgentRuntime {
     }
   }
 
-  async #appendHandoffTranscript(activeHandoff, suffix, item) {
+  async #appendHandoffTranscript(activeHandoff, suffix, item, discriminator = "") {
     if (!activeHandoff?.handoffId) {
       throw new Error("Cannot append transcript without an assistant handoff ID.");
     }
+    const suffixKey = discriminator ? `${suffix}:${discriminator}` : suffix;
     return await this.session.appendTranscriptItemOnce(item, {
-      idempotencyKey: `${activeHandoff.handoffId}:${suffix}`,
+      idempotencyKey: `${activeHandoff.handoffId}:${suffixKey}`,
     });
   }
 
@@ -1797,7 +1835,12 @@ export class AgentRuntime {
         });
       }
 
-      if (!parsed.toolCall) {
+      const toolCalls = parsed.toolCalls?.length
+        ? parsed.toolCalls
+        : parsed.toolCall
+          ? [parsed.toolCall]
+          : [];
+      if (toolCalls.length === 0) {
         // done=false without a tool call means the model is just talking
         // (e.g. asking a clarifying question, explaining its reasoning, or
         // giving a partial answer). The message was already emitted as
@@ -1817,53 +1860,270 @@ export class AgentRuntime {
         continue;
       }
 
-      const identity = deriveToolIdentity({
-        sessionId: this.session.sessionId,
-        assistantMessageId,
-        turn: parsed,
-        toolCall: parsed.toolCall,
-        turnNumber,
-      });
-      const normalizedCall = {
-        ...parsed.toolCall,
-        id: identity.callId,
-      };
-      let preparedCall;
-      try {
-        preparedCall = this.registry.validate(normalizedCall);
-      } catch (error) {
-        if (!(error instanceof ToolValidationError)) {
-          throw error;
-        }
-
-        const result = {
-          callId: normalizedCall.id,
-          name: normalizedCall.name,
-          ok: false,
-          message: error.message,
-        };
-        const fingerprint = identity.fingerprint;
-        await this.emit("tool.invalid", {
-          id: normalizedCall.id,
-          name: normalizedCall.name,
-          message: error.message,
+      // Independent requests from one turn run here, serially, in the order the
+      // model wrote them. Every result is collected and returned in one message.
+      const batchResults: any[] = [];
+      for (const [callIndex, toolCall] of toolCalls.entries()) {
+        const identity = deriveToolIdentity({
+          sessionId: this.session.sessionId,
+          assistantMessageId,
+          turn: parsed,
+          toolCall,
+          turnNumber,
+          callIndex,
         });
-        const completionEvent = await this.session.recordToolResult(
-          fingerprint,
-          result,
-        );
-        await this.onEvent?.(completionEvent);
-        // Record the rejected call and its error output so the transcript stays
-        // a faithful, replay-free record of what the model attempted.
+        const normalizedCall = {
+          ...toolCall,
+          id: identity.callId,
+        };
+        let preparedCall;
+        try {
+          preparedCall = this.registry.validate(normalizedCall);
+        } catch (error) {
+          if (!(error instanceof ToolValidationError)) {
+            throw error;
+          }
+
+          const result = {
+            callId: normalizedCall.id,
+            name: normalizedCall.name,
+            ok: false,
+            message: error.message,
+          };
+          const fingerprint = identity.fingerprint;
+          await this.emit("tool.invalid", {
+            id: normalizedCall.id,
+            name: normalizedCall.name,
+            message: error.message,
+          });
+          const completionEvent = await this.session.recordToolResult(
+            fingerprint,
+            result,
+          );
+          await this.onEvent?.(completionEvent);
+          // Record the rejected call and its error output so the transcript stays
+          // a faithful, replay-free record of what the model attempted.
+          await this.#appendHandoffTranscript(
+            activeHandoff,
+            "function_call",
+            functionCall({
+              name: normalizedCall.name,
+              args: normalizedCall.args,
+              callId: normalizedCall.id,
+            }),
+          toolCalls.length > 1 ? String(callIndex) : "");
+          await this.#appendHandoffTranscript(
+            activeHandoff,
+            "function_output",
+            functionCallOutput({
+              callId: result.callId,
+              output: toolResultOutput(result),
+            }),
+          toolCalls.length > 1 ? String(callIndex) : "");
+          batchResults.push(result);
+          continue;
+        }
+        await this.emit("tool.proposed", {
+          id: preparedCall.id,
+          name: preparedCall.name,
+          args: preparedCall.args,
+        });
         await this.#appendHandoffTranscript(
           activeHandoff,
           "function_call",
           functionCall({
-            name: normalizedCall.name,
-            args: normalizedCall.args,
-            callId: normalizedCall.id,
+            name: preparedCall.name,
+            args: preparedCall.args,
+            callId: preparedCall.id,
           }),
-        );
+        toolCalls.length > 1 ? String(callIndex) : "");
+
+        const isReadTool = preparedCall.definition.risk === "read";
+        const sideEffect = isReadTool ? null : identity;
+        const fingerprint = identity.fingerprint;
+        let result;
+        let restoredForTool = false;
+
+        if (
+          sideEffect
+          && replayGuard?.signature === identity.requestSignature
+        ) {
+          result = {
+            ...replayGuard.result,
+            callId: preparedCall.id,
+          };
+          await this.emit("tool.reused", {
+            fingerprint,
+            id: preparedCall.id,
+            name: preparedCall.name,
+            reason: "repeated-after-result",
+          });
+          await this.session.setPendingToolResult(result);
+        }
+        // The replay guard is only for the first tool proposal after resending a
+        // persisted result during recovery. Later identical proposals are new
+        // model turns and may be deliberate operations.
+        replayGuard = null;
+
+        if (!result && sideEffect) {
+          const existing = this.session.getSideEffectTool(
+            sideEffect.operationKey,
+          );
+          if (existing && existing.fingerprint !== identity.fingerprint) {
+            result = {
+              callId: preparedCall.id,
+              name: preparedCall.name,
+              ok: false,
+              message:
+                "The same assistant message changed its tool request after it "
+                + `was already recorded for ${existing.name}. The operation was not replayed.`,
+            };
+            await this.emit("tool.conflict", {
+              id: preparedCall.id,
+              name: preparedCall.name,
+              existingName: existing.name,
+            });
+            await this.session.setPendingToolResult(result);
+          } else if (existing?.status === "completed") {
+            result = existing.result;
+            await this.emit("tool.reused", {
+              fingerprint,
+              id: preparedCall.id,
+              name: preparedCall.name,
+            });
+            await this.session.setPendingToolResult(result);
+          } else if (existing) {
+            result = existing.result ?? unknownCompletionResult(preparedCall);
+            if (existing.status !== "unknown") {
+              const unknownEvent = await this.session.markSideEffectToolUnknown(
+                identity,
+                result,
+              );
+              await this.onEvent?.(unknownEvent);
+            } else {
+              await this.session.setPendingToolResult(result);
+            }
+            await this.emit("tool.reused_unknown", {
+              fingerprint,
+              id: preparedCall.id,
+              name: preparedCall.name,
+            });
+          }
+        } else if (!result) {
+          result = this.session.getToolResult(fingerprint);
+        }
+
+        if (!result) {
+          let decision;
+          try {
+            decision = await this.policy.evaluate(preparedCall, {
+              projectRoot,
+            });
+          } catch (error) {
+            result = policyRejectedResult(preparedCall, error.message);
+            await this.emit("tool.invalid", {
+              id: preparedCall.id,
+              name: preparedCall.name,
+              message: result.message,
+            });
+          }
+          const grants = decision?.grants;
+
+          if (!result && decision.action === "confirm") {
+            await this.emit("approval.required", {
+              id: preparedCall.id,
+              name: preparedCall.name,
+              args: preparedCall.args,
+              reasons: decision.reasons,
+            });
+            const approved = await this.approval({
+              toolCall: preparedCall,
+              reasons: decision.reasons,
+            });
+            if (!approved) {
+              result = deniedResult(preparedCall, decision.reasons);
+            }
+          } else if (!result && decision.action === "deny") {
+            result = policyRejectedResult(
+              preparedCall,
+              decision.reasons.join("; "),
+            );
+            await this.emit("tool.invalid", {
+              id: preparedCall.id,
+              name: preparedCall.name,
+              message: result.message,
+            });
+          }
+
+          if (sideEffect) {
+            const claimEvent = await this.session.claimSideEffectTool(sideEffect);
+            await this.onEvent?.(claimEvent);
+          }
+
+          if (!result) {
+            if (preparedCall.definition.requiresVisibleBrowser) {
+              await this.adapter.restoreWindow?.();
+              restoredForTool = true;
+            }
+            await this.emit("tool.started", {
+              id: preparedCall.id,
+              name: preparedCall.name,
+            });
+            try {
+              result = await this.registry.execute(preparedCall, {
+                projectRoot,
+                allowOutside: grants?.allowOutside ?? false,
+                toolTimeoutMs: this.limits.toolTimeoutMs,
+                sessionId: this.session.sessionId,
+                operationKey: identity.operationKey,
+                requestSignature: identity.requestSignature,
+                runAuxiliaryTurn: (options) => this.runAuxiliaryTurn(options),
+                onToolOutput: async (output) => {
+                  await this.session.appendToolOutput({
+                    id: preparedCall.id,
+                    name: preparedCall.name,
+                    ...output,
+                  });
+                  await this.onEvent?.({
+                    type: "tool.output",
+                    sessionId: this.session.sessionId,
+                    timestamp: new Date().toISOString(),
+                    payload: {
+                      id: preparedCall.id,
+                      name: preparedCall.name,
+                      ...output,
+                    },
+                  });
+                },
+              });
+            } finally {
+              if (restoredForTool) {
+                await this.adapter.page?.bringToFront?.().catch(() => null);
+              }
+            }
+          }
+
+          if (sideEffect) {
+            result.operationSignature = identity.requestSignature;
+          }
+
+          if (sideEffect && result.meta?.completionUnknown) {
+            const unknownEvent = await this.session.markSideEffectToolUnknown(
+              sideEffect,
+              result,
+            );
+            await this.onEvent?.(unknownEvent);
+          } else {
+            const completionEvent = await this.session.recordToolResult(
+              fingerprint,
+              result,
+              { identity: sideEffect },
+            );
+            await this.onEvent?.(completionEvent);
+          }
+        }
+
+
         await this.#appendHandoffTranscript(
           activeHandoff,
           "function_output",
@@ -1871,235 +2131,22 @@ export class AgentRuntime {
             callId: result.callId,
             output: toolResultOutput(result),
           }),
-        );
-        await this.sendToolResult(result, { runtimeTurn: turnNumber + 1 });
-        awaitingPendingAcknowledgement = true;
-        await this.emit("tool.result_sent", {
-          id: result.callId,
-          name: result.name,
-          ok: false,
-        });
-        continue;
-      }
-      await this.emit("tool.proposed", {
-        id: preparedCall.id,
-        name: preparedCall.name,
-        args: preparedCall.args,
-      });
-      await this.#appendHandoffTranscript(
-        activeHandoff,
-        "function_call",
-        functionCall({
-          name: preparedCall.name,
-          args: preparedCall.args,
-          callId: preparedCall.id,
-        }),
-      );
-
-      const isReadTool = preparedCall.definition.risk === "read";
-      const sideEffect = isReadTool ? null : identity;
-      const fingerprint = identity.fingerprint;
-      let result;
-      let restoredForTool = false;
-
-      if (
-        sideEffect
-        && replayGuard?.signature === identity.requestSignature
-      ) {
-        result = {
-          ...replayGuard.result,
-          callId: preparedCall.id,
-        };
-        await this.emit("tool.reused", {
-          fingerprint,
-          id: preparedCall.id,
-          name: preparedCall.name,
-          reason: "repeated-after-result",
-        });
-        await this.session.setPendingToolResult(result);
-      }
-      // The replay guard is only for the first tool proposal after resending a
-      // persisted result during recovery. Later identical proposals are new
-      // model turns and may be deliberate operations.
-      replayGuard = null;
-
-      if (!result && sideEffect) {
-        const existing = this.session.getSideEffectTool(
-          sideEffect.operationKey,
-        );
-        if (existing && existing.fingerprint !== identity.fingerprint) {
-          result = {
-            callId: preparedCall.id,
-            name: preparedCall.name,
-            ok: false,
-            message:
-              "The same assistant message changed its tool request after it "
-              + `was already recorded for ${existing.name}. The operation was not replayed.`,
-          };
-          await this.emit("tool.conflict", {
-            id: preparedCall.id,
-            name: preparedCall.name,
-            existingName: existing.name,
-          });
-          await this.session.setPendingToolResult(result);
-        } else if (existing?.status === "completed") {
-          result = existing.result;
-          await this.emit("tool.reused", {
-            fingerprint,
-            id: preparedCall.id,
-            name: preparedCall.name,
-          });
-          await this.session.setPendingToolResult(result);
-        } else if (existing) {
-          result = existing.result ?? unknownCompletionResult(preparedCall);
-          if (existing.status !== "unknown") {
-            const unknownEvent = await this.session.markSideEffectToolUnknown(
-              identity,
-              result,
-            );
-            await this.onEvent?.(unknownEvent);
-          } else {
-            await this.session.setPendingToolResult(result);
-          }
-          await this.emit("tool.reused_unknown", {
-            fingerprint,
-            id: preparedCall.id,
-            name: preparedCall.name,
-          });
-        }
-      } else if (!result) {
-        result = this.session.getToolResult(fingerprint);
-      }
-
-      if (!result) {
-        let decision;
-        try {
-          decision = await this.policy.evaluate(preparedCall, {
-            projectRoot,
-          });
-        } catch (error) {
-          result = policyRejectedResult(preparedCall, error.message);
-          await this.emit("tool.invalid", {
-            id: preparedCall.id,
-            name: preparedCall.name,
-            message: result.message,
-          });
-        }
-        const grants = decision?.grants;
-
-        if (!result && decision.action === "confirm") {
-          await this.emit("approval.required", {
-            id: preparedCall.id,
-            name: preparedCall.name,
-            args: preparedCall.args,
-            reasons: decision.reasons,
-          });
-          const approved = await this.approval({
-            toolCall: preparedCall,
-            reasons: decision.reasons,
-          });
-          if (!approved) {
-            result = deniedResult(preparedCall, decision.reasons);
-          }
-        } else if (!result && decision.action === "deny") {
-          result = policyRejectedResult(
-            preparedCall,
-            decision.reasons.join("; "),
-          );
-          await this.emit("tool.invalid", {
-            id: preparedCall.id,
-            name: preparedCall.name,
-            message: result.message,
-          });
-        }
-
-        if (sideEffect) {
-          const claimEvent = await this.session.claimSideEffectTool(sideEffect);
-          await this.onEvent?.(claimEvent);
-        }
-
-        if (!result) {
-          if (preparedCall.definition.requiresVisibleBrowser) {
-            await this.adapter.restoreWindow?.();
-            restoredForTool = true;
-          }
-          await this.emit("tool.started", {
-            id: preparedCall.id,
-            name: preparedCall.name,
-          });
-          try {
-            result = await this.registry.execute(preparedCall, {
-              projectRoot,
-              allowOutside: grants?.allowOutside ?? false,
-              toolTimeoutMs: this.limits.toolTimeoutMs,
-              sessionId: this.session.sessionId,
-              operationKey: identity.operationKey,
-              requestSignature: identity.requestSignature,
-              runAuxiliaryTurn: (options) => this.runAuxiliaryTurn(options),
-              onToolOutput: async (output) => {
-                await this.session.appendToolOutput({
-                  id: preparedCall.id,
-                  name: preparedCall.name,
-                  ...output,
-                });
-                await this.onEvent?.({
-                  type: "tool.output",
-                  sessionId: this.session.sessionId,
-                  timestamp: new Date().toISOString(),
-                  payload: {
-                    id: preparedCall.id,
-                    name: preparedCall.name,
-                    ...output,
-                  },
-                });
-              },
-            });
-          } finally {
-            if (restoredForTool) {
-              await this.adapter.page?.bringToFront?.().catch(() => null);
-            }
-          }
-        }
-
-        if (sideEffect) {
-          result.operationSignature = identity.requestSignature;
-        }
-
-        if (sideEffect && result.meta?.completionUnknown) {
-          const unknownEvent = await this.session.markSideEffectToolUnknown(
-            sideEffect,
-            result,
-          );
-          await this.onEvent?.(unknownEvent);
-        } else {
-          const completionEvent = await this.session.recordToolResult(
-            fingerprint,
-            result,
-            { identity: sideEffect },
-          );
-          await this.onEvent?.(completionEvent);
+        toolCalls.length > 1 ? String(callIndex) : "");
+        batchResults.push(result);
+        if (restoredForTool) {
+          await this.adapter.minimizeWindow?.();
         }
       }
 
       this.#assertProviderReadyForMessage();
-
-      await this.#appendHandoffTranscript(
-        activeHandoff,
-        "function_output",
-        functionCallOutput({
-          callId: result.callId,
-          output: toolResultOutput(result),
-        }),
-      );
-      await this.sendToolResult(result, { runtimeTurn: turnNumber + 1 });
+      await this.sendToolResults(batchResults, { runtimeTurn: turnNumber + 1 });
       awaitingPendingAcknowledgement = true;
-      await this.emit("tool.result_sent", {
-        id: result.callId,
-        name: result.name,
-        ok: result.ok,
-      });
-      if (restoredForTool) {
-        await this.adapter.minimizeWindow?.();
+      for (const sent of batchResults) {
+        await this.emit("tool.result_sent", {
+          id: sent.callId,
+          name: sent.name,
+          ok: sent.ok,
+        });
       }
     }
 

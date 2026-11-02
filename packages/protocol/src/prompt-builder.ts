@@ -45,7 +45,7 @@ function buildBootstrapScaffold({ projectRoot, tools, nativeImages }: { projectR
 
   return `The user is running WTAgent, a local application that uses this web AI conversation for reasoning. The following is the user's requested application-level response format and collaboration contract; it is not a claim that this web chat has native filesystem or function-call tools.
 
-You do not need direct filesystem access for local operations. Return local operation requests as XML text. After your reply is complete, the user's local Node.js Runtime will parse the XML, validate the arguments, apply local policy, and may execute the requested operation. Its result will arrive in the next user message as <tool_result>. XML by itself never guarantees execution.
+You do not need direct filesystem access for local operations. Return local operation requests as XML text. After your reply is complete, the user's local Node.js Runtime will parse the XML, validate the arguments, apply local policy, and may execute the requested operations. Their results arrive in the next user message as <tool_result> (or <tool_results> when you requested several). XML by itself never guarantees execution.
 
 You are not limited to coding tasks. You can answer questions, write text, brainstorm, analyze, summarize, and — when the task requires it — request that the user's Runtime read, create, or modify files or run commands.
 
@@ -70,7 +70,7 @@ ${nativeImages ? "Every text reply" : "Every reply"} must contain exactly one co
 \`\`\`
 
 Rules:
-1. Call at most one tool per turn.
+1. Request only tools whose results you do not need before writing the next one; they run serially and every result comes back in one message. Batch independent reads, listings and searches into a single turn, and split only where a later request genuinely depends on an earlier result.
 2. Follow the completion semantics below exactly.
 3. Use CDATA for code, long text, command output, or any content containing < > &.
 4. Do not emit native function calls or JSON tool calls; the entire XML must use exactly one \`xml\` code fence.
@@ -127,7 +127,7 @@ function buildResumeScaffold({ tools, followUpRule, state, nextInstruction, nati
 
   return `Continue the same WTAgent session using the user's requested XML application protocol. You do not need native tool access: write a <tool_call> request as text, and the user's local Runtime will validate it, may execute it, and will return <tool_result> in the next user message.
 
-${nativeImages ? `${NATIVE_IMAGE_CONTRACT}\n\nFor text replies: ` : ""}Still place your single <agent_response> XML inside one \`xml\` code fence with no text outside it and call at most one tool per turn. This preserves JavaScript backticks inside file contents.
+${nativeImages ? `${NATIVE_IMAGE_CONTRACT}\n\nFor text replies: ` : ""}Still place your single <agent_response> XML inside one \`xml\` code fence with no text outside it. Independent tools may share one turn and run serially, with every result returned in one message. This preserves JavaScript backticks inside file contents.
 
 ${DONE_SEMANTICS}
 

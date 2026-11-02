@@ -16,6 +16,9 @@ export interface AgentResponse {
 export interface ParsedAgentResponse {
   done: boolean;
   message: string;
+  // Every tool requested in this turn, in document order. `toolCall` is the
+  // first entry and stays for single-call readers.
+  toolCalls?: AgentToolCall[];
   toolCall?: AgentToolCall | null;
   raw?: string;
   recovered?: boolean;
@@ -35,10 +38,16 @@ export type XmlTextFieldName = "message" | "stdout" | "stderr" | "data";
 export interface ProtocolToolResult {
   name?: string | null;
   ok: boolean;
+  callId?: string | null;
   message?: string | null;
   stdout?: string | null;
   stderr?: string | null;
   data?: unknown;
+  // Set when several tools ran in one turn: the batch is sent as a single
+  // message so the model gets every result in one round trip.
+  batch?: ProtocolToolResult[] | null;
+  operationSignature?: string | null;
+  meta?: Record<string, unknown> | null;
 }
 
 export interface SerializedToolResult {

@@ -38,7 +38,7 @@ export const NATIVE_IMAGE_SYSTEM_REMINDER: string = (
   [
     NATIVE_IMAGE_CONTRACT,
     "For text answers and local operations, use exactly one complete <agent_response> XML envelope in one xml code fence.",
-    "Use done=true for a deliverable answer or a question that requires user input; use done=false with one local tool request when needed.",
+    "Use done=true for a deliverable answer or a question that requires user input; use done=false with the local tool requests you need, batching independent ones into the same turn.",
     "Use CDATA for code or long payloads. Local tools execute only after the Runtime returns their results.",
   ].join(" ")
 );
