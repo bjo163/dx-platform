@@ -93,7 +93,7 @@ export class ChatGPTImageDriver extends BrowserImageDriver {
       const toAbsolute = (value: string | null | undefined) => {
         if (!value) return "";
         try {
-          return new URL(value, location.href).href;
+          return new URL(value, window.location.href).href;
         } catch {
           return value;
         }
@@ -113,7 +113,7 @@ export class ChatGPTImageDriver extends BrowserImageDriver {
         }
         return best;
       };
-      const images = [...root.querySelectorAll("img")].map((image) => {
+      const images = Array.from(root.querySelectorAll("img")).map((image) => {
         const source = toAbsolute(
           image.currentSrc
           || fromSrcset(image.srcset)
@@ -134,7 +134,7 @@ export class ChatGPTImageDriver extends BrowserImageDriver {
         && image.height >= minEdge
       ));
 
-      for (const link of root.querySelectorAll<HTMLAnchorElement>("a[href]")) {
+      for (const link of Array.from(root.querySelectorAll<HTMLAnchorElement>("a[href]"))) {
         const href = toAbsolute(link.href);
         if (
           !href

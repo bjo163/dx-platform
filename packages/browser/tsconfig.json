@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+    "lib": ["dom", "es2022"],
       // Ported from the JavaScript original: these two are the residual of that
       // port, not new design choices. Re-enable per package as it is retyped.
       "noImplicitAny": false,

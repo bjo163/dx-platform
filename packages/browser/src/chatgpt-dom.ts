@@ -27,7 +27,7 @@ CHATGPT_DOM.messages = [legacyUser, legacyAssistant, modern("user"), modern("ass
 export function readChatGPTDom(input) {
   const options = input?.selector ? input : null;
   const elements = typeof input === "string" || options
-    ? [...document.querySelectorAll(options?.selector ?? input)]
+    ? Array.from(document.querySelectorAll(options?.selector ?? input))
     : Array.isArray(input) ? input : [input];
   const structure = { legacy: 0, modern: 0, unknown: 0, ambiguousIds: 0 };
   const entries = elements.map((element, domIndex) => {
@@ -61,23 +61,23 @@ export function readChatGPTDom(input) {
   if (options?.registry) {
     const visible = (element) => element.getClientRects().length > 0
       && getComputedStyle(element).visibility !== "hidden";
-    const count = (selector) => [...document.querySelectorAll(selector)].filter(visible).length;
-    const sendControls = [...document.querySelectorAll(
+    const count = (selector) => Array.from(document.querySelectorAll(selector)).filter(visible).length;
+    const sendControls = Array.from(document.querySelectorAll(
       [options.registry.send, options.registry.sendModern].filter(Boolean).join(', '),
-    )].filter(visible);
+    )).filter(visible);
     snapshot.capabilities = {
       readyState: document.readyState,
       composers: options.registry.composers.filter(({ selector }: any) => count(selector) > 0).map(({ name }: any) => name),
       sendButton: sendControls.length > 0,
       sendButtonEnabled: sendControls.some((element: any) => !element.disabled && element.getAttribute('aria-disabled') !== 'true'),
       composerHasText: options.registry.composers.some(({ selector }: any) => (
-        [...document.querySelectorAll(selector)].some((element) => visible(element)
+        Array.from(document.querySelectorAll(selector)).some((element) => visible(element)
           && String(element.value ?? element.innerText ?? element.textContent ?? '').trim().length > 0)
       )),
       stopButton: count(options.registry.stop) > 0,
-      placeholderCount: document.querySelectorAll('[id^="request-placeholder-"]').length,
+      placeholderCount: Array.from(document.querySelectorAll('[id^="request-placeholder-"]')).length,
       // Unknown suffixes are evidence of a renderer change, not valid messages.
-      unknownSearchUnits: [...document.querySelectorAll('[data-chatgpt-search-unit-key]')]
+      unknownSearchUnits: Array.from(document.querySelectorAll('[data-chatgpt-search-unit-key]'))
         .filter((element) => !/^fallback-turn-\d+:\d+:(user|assistant)$/.test(element.getAttribute("data-chatgpt-search-unit-key")!)).length,
     };
   }
