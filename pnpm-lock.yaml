@@ -237,27 +237,15 @@ importers:
 
   packages/mcp:
     dependencies:
-      '@wtagent/artifacts':
+      '@wtagent/policy':
         specifier: workspace:*
-        version: link:../artifacts
-      '@wtagent/image':
-        specifier: workspace:*
-        version: link:../image
-      '@wtagent/protocol':
-        specifier: workspace:*
-        version: link:../protocol
-      '@wtagent/session':
-        specifier: workspace:*
-        version: link:../session
+        version: link:../policy
       '@wtagent/shared':
         specifier: workspace:*
         version: link:../shared
       '@wtagent/tools':
         specifier: workspace:*
         version: link:../tools
-      '@wtagent/types':
-        specifier: workspace:*
-        version: link:../types
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -391,6 +379,9 @@ importers:
       '@wtagent/job':
         specifier: workspace:*
         version: link:../job
+      '@wtagent/mcp':
+        specifier: workspace:*
+        version: link:../mcp
       '@wtagent/platform':
         specifier: workspace:*
         version: link:../platform

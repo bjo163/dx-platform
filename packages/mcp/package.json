@@ -4,6 +4,9 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "wtagent-mcp": "./dist/main.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -18,13 +21,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*",
     "@wtagent/shared": "workspace:*",
     "@wtagent/tools": "workspace:*",
-    "@wtagent/protocol": "workspace:*",
-    "@wtagent/session": "workspace:*",
-    "@wtagent/image": "workspace:*",
-    "@wtagent/artifacts": "workspace:*"
+    "@wtagent/policy": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

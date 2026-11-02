@@ -1,4 +1,4 @@
-export { createDefaultMCPServer, MCPServer } from "./mcp-server.js";
-export type { MCPRequest, MCPResponse, MCPToolCall, MCPToolResult } from "./mcp-server.js";
-export { MCP_CORE_TOOLS } from "./tool-definitions.js";
-export type { MCPRegisteredTool, MCPToolName } from "./tool-definitions.js";
+export { MCPServer, createDefaultMCPServer, MCP_PROTOCOL_VERSION } from "./mcp-server.js";
+export type { MCPServerOptions, MCPRequest, MCPResponse } from "./mcp-server.js";
+export { listMCPTools, mcpErrorResult, toMCPToolResult } from "./tool-definitions.js";
+export type { MCPContentBlock, MCPToolCallResult, MCPToolDescriptor } from "./tool-definitions.js";

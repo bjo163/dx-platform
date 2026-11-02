@@ -14,6 +14,7 @@
     "@wtagent/image": "workspace:*",
     "@wtagent/gateway": "workspace:*",
     "@wtagent/job": "workspace:*",
+    "@wtagent/mcp": "workspace:*",
     "@wtagent/platform": "workspace:*",
     "@wtagent/policy": "workspace:*",
     "@wtagent/protocol": "workspace:*",

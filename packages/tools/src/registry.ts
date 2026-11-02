@@ -1,5 +1,5 @@
 import type { AgentToolCall, ToolContext, ToolResult, ToolRisk } from "@wtagent/types";
-import type { ZodType } from "zod";
+import { toJSONSchema, type ZodType } from "zod";
 import { ToolValidationError } from "@wtagent/shared/errors";
 
 // `@wtagent/types` describes the protocol-facing tool shape. The registry also
@@ -86,6 +86,18 @@ export class ToolRegistry {
       description: definition.description,
       inputDescription: definition.inputDescription,
       risk: definition.risk ?? "execute",
+    }));
+  }
+
+  // JSON Schema-speaking clients (MCP hosts, function-calling gateways) need the
+  // argument shape rather than the XML example. The conversion lives here
+  // because this package owns the zod schemas and therefore owns zod.
+  describe() {
+    return [...this.#definitions.values()].map((definition) => ({
+      name: definition.name,
+      description: definition.description,
+      risk: definition.risk ?? "execute",
+      inputSchema: toJSONSchema(definition.inputSchema, { io: "input" }),
     }));
   }
 
