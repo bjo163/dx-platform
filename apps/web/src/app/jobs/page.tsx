@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const apiUrl = process.env.NEXT_PUBLIC_WTAGENT_API_URL ?? "http://localhost:8080";
+const apiUrl = process.env.NEXT_PUBLIC_NEURALFORGE_API_URL ?? "http://localhost:8080";
 const statuses = ["pending", "running", "completed", "failed", "cancelled"] as const;
 type JobStatus = typeof statuses[number];
 type Job = {

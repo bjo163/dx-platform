@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const apiUrl = process.env.NEXT_PUBLIC_WTAGENT_API_URL ?? "http://localhost:8080";
+const apiUrl = process.env.NEXT_PUBLIC_NEURALFORGE_API_URL ?? "http://localhost:8080";
 type Plugin = { id: string; name: string; version: string; enabled: boolean; capabilities: string[] };
 
 export default function PluginsPage() {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { subscribeToJobEvents, type JobEventConnection, type JobStatusEvent } from "../../job-events";
 
-const apiUrl = process.env.NEXT_PUBLIC_WTAGENT_API_URL ?? "http://localhost:8080";
+const apiUrl = process.env.NEXT_PUBLIC_NEURALFORGE_API_URL ?? "http://localhost:8080";
 type Job = {
   jobId: string;
   task: string;

@@ -22,7 +22,7 @@ type WorkspaceProvider = { id: string; name: string; authenticated: boolean; sup
 type WorkspaceInfo = { id: string; name: string; path: string };
 type WorkspaceFile = { name: string; type: "directory" | "file" | "other"; path: string };
 
-const apiUrl = process.env.NEXT_PUBLIC_WTAGENT_API_URL ?? "http://localhost:8080";
+const apiUrl = process.env.NEXT_PUBLIC_NEURALFORGE_API_URL ?? "http://localhost:8080";
 
 const initialMessages: Message[] = [
   {

@@ -19,13 +19,28 @@
     "login": "pnpm --filter neuralforge login",
     "clean": "pnpm -r clean && rm -rf node_modules/.cache",
     "release": "pnpm publish -r",
-    "postinstall": "pnpm build"
+    "postinstall": "pnpm build",
+    "brand:check": "node scripts/brand-check.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
+  "keywords": [
+    "neuralforge",
+    "omni-nexus",
+    "agentic-ai",
+    "gateway",
+    "swarm-orchestration",
+    "local-first",
+    "no-api-keys",
+    "ai-mesh",
+    "browser-session",
+    "chatgpt",
+    "claude",
+    "deepseek"
+  ],
   "dependencies": {
     "concurrently": "^10.0.6"
   }

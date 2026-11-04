@@ -271,7 +271,7 @@ Chrome/Chromium (or `WTAGENT_CHROME_PATH`), use isolated test pages, and do not
 require a web account or consume generation quota. They do not replace live
 account testing when a provider changes its service.
 
-`test:media` 覆盖图片下载、多图回复、中断恢复、音乐处理和各网站的 DOM 行为。浏览器测试需要 Chrome/Chromium，也可通过 `WTAGENT_CHROME_PATH` 指定路径；测试使用隔离页面，无需账号，也不消耗生成额度。网站服务变化后的真实账号验证仍需单独进行。
+`test:media` 覆盖图片下载、多图回复、中断恢复、音乐处理和各网站的 DOM 行为。浏览器测试需要 Chrome/Chromium，也可通过 `NEURALFORGE_CHROME_PATH` 指定路径；测试使用隔离页面，无需账号，也不消耗生成额度。网站服务变化后的真实账号验证仍需单独进行。
 
 ## License
 
