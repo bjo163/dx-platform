@@ -1,336 +1,160 @@
-# WTAgent
+# NEURALFORGE
 
-**Local coding workspace powered by web AI providers**
+> *Smash the UI. Hijack the swarm. Ship raw.*
 
-WTAgent is a local-first AI coding agent that runs entirely on your machine. It connects to web-based AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) through browser automation, giving you full control over your code, data, and execution environment.
+**THE LOCAL-FIRST AGENTIC GATEWAY FOR THE BRUTAL BUILDER**
 
-## Features
+## [SYSTEM::OVERRIDE]
 
-- **Local-first**: All code, data, and execution stays on your machine
-- **Provider-agnostic**: Works with ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi
-- **No API keys needed**: Uses your existing browser sessions
-- **Secure sandbox**: File system access controlled by approval policies
-- **Job-based execution**: Long-running tasks with status tracking and logs
-- **Web UI**: Modern Next.js interface for task management
-- **Project browser**: Read-only file tree and bounded UTF-8 previews from the configured project root
-- **Extensible**: Plugin system for custom tools and integrations
+NeuralForge ain't just another AI coding tool. It's a rogue all-in-one developer foundry built to weaponize every web AI subscription you already pay for into a fully autonomous, multi-agent swarm. 
 
-## Architecture
+No API keys. No cloud tax. No middleman. Just pure unfiltered build power straight from your machine.
 
+## [CORE_DIRECTIVE]
+
+**Unify. Orchestrate. Dominate.**
+
+While the rest chain prompts across 7 different tabs, NeuralForge rips them all into one terminal-born war room. Think of it as your local AGI-adjacent command nexus - a brutalist gateway router that bends ChatGPT, Claude, Gemini, Grok, DeepSeek, Kimi & GLM to your will and makes em fight together for your codebase.
+
+## [WHY_WE_BUILT_THIS]
+
+Modern dev is a clusterfuck. Too many tabs, too many paywalls, too many APIs bleeding your wallet dry. 
+
+NeuralForge flips the script. Using browser-session hijack + local orchestration, it turns your existing logged-in web sessions into a distributed agentic mesh. Your code never leaves your box. Your wallet stays intact. Your velocity goes feral.
+
+## [FEATURE_STACK]
+
+### [SWARM_CORE] - Multi-Agent Mayhem
+- **AGENT MESH** - Spin up a squad of hyper-specialized agents. One hunts bugs, one refactors, one writes tests, one documents. All in parallel. All at your command.
+- **NEURAL ROUTING** - Smart-ass gateway router that auto-picks the right model for the job. Need raw reasoning? Route to Claude. Need speed? Hit Grok. Need brute force? Unleash DeepSeek.
+- **SWARM CONSENSUS** - Run the same task across multiple agents and let em duel. Compare diffs. Pick the cleanest kill.
+- **HIVE MIND** - Chain agents together. Output of agent-01 feeds straight into agent-02 with zero copy/paste. Pure pipeline carnage.
+- **DYNAMIC LOAD BALANCING** - Spread workload across providers to dodge rate-limits and keep the forge roaring 24/7.
+
+### [COMMAND_NEXUS] - Your War Room
+- **BRUTALIST UI** - Dark, raw, no bloat. Just signal, no noise.
+- **CONVERSATIONAL WARFARE** - Chat like you would with any of em... except now you're orchestrating an entire army from one input.
+- **LIVE JOB MATRIX** - Real-time swarm telemetry. Watch turns, thoughts, tool-calls and file mutations as they rip through your repo.
+- **UNIVERSAL TASKBOARD** - Kanban for the chaos. Queue up 10 missions at once, track every one to completion.
+- **MULTI-PROJECT GRID** - Jump between any repo instantly with isolated contexts, agents, and history.
+
+### [CODEBASE_INTEL] - Total Situational Awareness
+- **HOLOMAPPING** - Full-repo semantic map. The swarm sees your entire codebase, not just the file you uploaded.
+- **CROSS-FILE COGNITION** - Agents reason across modules, trace imports, follow the rabbit hole to the root cause.
+- **IMPACT RADAR** - Pre-flight strike analysis. See every file that'll catch shrapnel before you pull the trigger.
+- **CONTEXT COMPRESSION** - Smart truncation that feeds maximum relevant code with minimum tokens. Brutally efficient.
+- **GIT-AWARE** - Branch, diff, staged/unstaged. The forge knows your repo state before you even say it.
+
+### [GATEWAY_ROUTER] - The Kill Switch To All Models
+- **UNIFIED INGRESS** - One endpoint to rule em all. Route any request to any connected provider through NeuralForge's intelligent gateway.
+- **SESSION PERSISTENCE** - Leverages your existing authenticated browser sessions. Login once, unleash forever.
+- **BROWSER BRIDGE** - Playwright-powered session hijack. No API scraping, no key extraction. Just pure session reuse.
+- **FAILOVER CASCADE** - If one provider chokes, routes to the next in line instantly. Zero downtime.
+- **PROVIDER TELEMETRY** - Live health, auth state, availability. Know exactly which guns are loaded at all times.
+- **MODEL ARSENAL** - Swap mid-job. Escalate to a beefier model the moment shit gets complicated.
+
+### [FORTRESS_PROTOCOL] - Paranoid By Design
+- **LOCAL SOVEREIGNTY** - Everything runs on localhost. Zero cloud. Zero sync. Zero telemetry.
+- **POLICY ENGINE** - Ruthlessly strict permission matrix. Block, allow, or force-approve per tool, per path, per action.
+- **HUMAN-IN-THE-LOOP** - Destructive ops, mass-deletes, deploys? The forge locks up and begs for your explicit go.
+- **SANDBOXED STRIKE ZONE** - Locked to project root. No escaping the cage unless YOU say so.
+- **FULL AUDIT LOG** - Every thought, every tool call, every file edit logged locally with timestamps.
+- **DIFF FORTRESS** - Review every byte before apply. Reject, edit, or nuke with one click.
+
+### [FORGE_OPS] - Built For Actual Dev
+- **DIFF STUDIO** - Side-by-side brutality. See the carnage, approve the cleanest path.
+- **JOB ORCHESTRATION** - Fire-and-forget long ops. Come back to finished builds while you grab coffee.
+- **PLUGIN RUNTIME** - Write your own tools, slash commands, workflows. Mold the forge to fit your hands.
+- **TEMPLATE ARMORY** - Battle-tested blueprints for migrations, tests, APIs, refactors, and more.
+- **HOT SWAP CONTEXT** - Add/remove files from context on the fly mid-conversation without breaking stride.
+- **WEB UI + TERMINAL DNA** - Feels like chatting, hits like an IDE, moves like a CLI.
+
+## [SYSTEM_ARCHITECTURE]
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              NEURALFORGE NEXUS                               │
+├─────────────┬─────────────┬─────────────┬─────────────┬─────────────────────┤
+│  WAR ROOM    │  DIFF STUDIO │  SWARM MAP   │  GATEWAY HUD │  AUDIT CHAMBER      │
+│  (Command)   │  (Review)    │  (Telemetry) │  (Router)    │  (Forensics)        │
+└─────────────┴─────────────┴─────────────┴─────────────┴─────────────────────┘
+                                │ HTTP / WS / EVENT-BUS
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            AGENTIC ORCHESTRATOR                              │
+├─────────────┬─────────────┬─────────────┬─────────────┬─────────────────────┤
+│  AGENT MESH  │  NEURAL      │  POLICY      │  PLUGIN      │  SESSION KERNEL     │
+│  RUNTIME     │  ROUTER      │  ENGINE      │  VM          │  (State Mgmt)       │
+└─────────────┴─────────────┴─────────────┴─────────────┴─────────────────────┘
+                                │                    │
+                            ┌───▼───┐            ┌───▼───┐
+                            │BROWSER│            │ LOCAL │
+                            │BRIDGE │            │ VAULT  │
+                            │(PW)   │            │(PGlite)│
+                            └───┬───┘            └───────┘
+                                │
+                        ┌───────▼─────────────────────────────────────────┐
+                        │        WEB AI ARSENAL (SESSION-BASED)          │
+                        │ ChatGPT • Claude • Gemini • Grok • DeepSeek    │
+                        │                Kimi • GLM                       │
+                        └─────────────────────────────────────────────────┘
+                                │                        │
+                            ┌───▼───┐                ┌───▼───┐
+                            │  YOUR   │                │  YOUR   │
+                            │ BROWSER │                │ CODEBASE│
+                            │SESSIONS │                │  ROOT   │
+                            �tr └─────────┘                └─────────┘
 ```
-┌─────────────────┐     HTTP      ┌─────────────────┐
-│   Web UI        │ ────────────► │   API Server    │
-│   (Next.js)     │               │   (Fastify)     │
-│   :3000         │               │   :8080         │
-└─────────────────┘               └────────┬────────┘
-                                            │
-                    ┌───────────────────────┼───────────────────────┐
-                    │                       │                       │
-             ┌──────▼──────┐        ┌───────▼───────┐       ┌──────▼──────┐
-             │  Job Svc    │        │  Database     │       │  Browser    │
-             │  (Queue)    │        │  (PGlite)     │       │  Pool       │
-             └─────────────┘        └───────────────┘       └─────────────┘
-```
 
-## Quick Start
+## [LOADOUT_COMPARISON]
 
-### Prerequisites
+| LOADOUT | API-BASED TOOLS | CURSOR/WINDSURF | **NEURALFORGE** |
+| --- | --- | --- | --- |
+| **COST** | BLEEDING (per token) | SUBS + USAGE CAPS | **FREE TO RUN - USE YOUR EXISTING SUBS** |
+| **SWARM** | SINGLE AGENT | MOSTLY SINGLE AGENT | **FULL MULTI-AGENT MESH** |
+| **GATEWAY** | VENDOR LOCKED | VENDOR LOCKED | **UNIFIED GATEWAY ROUTER - ALL PROVIDERS** |
+| **LOCAL CONTROL** | CLOUD PROXIED | HYBRID/CLOUD HEAVY | **100% LOCAL-FIRST, ZERO TELEMETRY** |
+| **CONTEXT** | LIMITED UPLOADS | WORKSPACE CONTEXT | **HOLOMAPPED ENTIRE REPO + CROSS-FILE INTEL** |
+| **POLICIES** | WEAK/BUILT-IN RESTRICTIVE | SOME CONTROLS | **BRUTAL POLICY ENGINE + HUMAN-IN-LOOP** |
+| **EXTENSIBILITY** | CLOSED ECOSYSTEM | LIMITED PLUGINS | **FULL PLUGIN RUNTIME + TEMPLATE ARMORY** |
+| **PRIVACY** | CODE HITS THIRD-PARTY API | CODE HITS THEIR CLOUD | **CODE NEVER LEAVES YOUR MACHINE** |
+| **ORCHESTRATION** {banner="bold"} | NONE | MINIMAL | **AGENTIC PIPELINES, SWARM CONSENSUS, FAILOVER CASCADE** |
+| **SESSION BASED** | API KEY MANDATORY | API KEY MANDATORY | **BROWSER SESSION BASED - NO KEYS REQUIRED** |
 
-- Node.js 20+
-- pnpm 9+
-- Chrome/Chromium browser installed
-
-### Installation
+## [QUICK_DEPLOY]
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd wtagent
+# CLONE THE FORGE
+git clone <repo-url>
+cd neuralforge
 
-# Install dependencies
+# IGNITE DEPENDENCIES
 pnpm install
 
-# Build all packages
-pnpm run build
+# SMASH BUILD
+pnpm build
 
-# Start development servers (terminal 1 - API)
-pnpm --filter @wtagent/api dev
-
-# Start development servers (terminal 2 - Web)
-pnpm --filter @wtagent/web dev
+# UNLEASH THE SWARM
+pnpm dev
 ```
 
-### Environment Configuration
+**WAR ROOM:** `http://localhost:3000` | **GATEWAY:** `http://localhost:8080`
 
-Copy the example environment files and adjust as needed:
+## [MISSION_PROTOCOL]
 
-```bash
-# API server configuration
-cp apps/api/.env.example apps/api/.env
+1. **CONNECT** - Go to the Gateway HUD. Click connect for your desired arsenal. Login through the popped browser window like you normally do.
+2. **LOADOUT** - Pick your providers, configure your policy engine, define your project root.
+3. **DEPLOY SWARM** - Throw your first task at the nexus. Orchestrate multiple agents to tear it apart.
+4. **REVIEW & SMASH** - Check diff studio, approve with prejudice, watch your repo evolve.
+5 **REPEAT** - Build faster, smarter, ferocious.
 
-# Web UI configuration
-cp apps/web/.env.example apps/web/.env
-```
+## [MANIFESTO]
 
-### First Run
+> *"I don't want a chatbot. I want a war machine."*
 
-1. Open http://localhost:3000 in your browser
-2. Navigate to **Providers** page
-3. Click **Connect** for your desired AI provider
-4. Complete authentication in the opened browser window
-5. Return to **Workspace** and start giving tasks
+NeuralForge is built for the builder who refuses to pick just one AI. For the hacker who values sovereignty. For the engineer who wants an entire think-tank running on localhost, powered by the subscriptions they already own.
 
-## Project Structure
+**This isn't an assistant. It's an agentic gateway. It's a swarm orchestrator. It's a developer's foundry forged in brutality and built for domination.**
 
-```
-wtagent/
-├── apps/
-│   ├── api/              # Fastify API server
-│   └── web/              # Next.js web interface
-├── packages/
-│   ├── browser/          # Browser automation (CDP)
-│   ├── job/              # Job queue & execution
-│   ├── database/         # PGlite persistence
-│   ├── tools/            # Tool implementations (fs, terminal)
-│   ├── protocol/         # Agent-provider communication
-│   ├── policy/           # Security & approval engine
-│   ├── platform/         # OS abstraction
-│   ├── session/          # Session management
-│   ├── runtime/          # Agent runtime orchestration
-│   ├── artifacts/        # Generated artifact handling
-│   ├── image/            # Image generation providers
-│   ├── audio/            # Audio/music generation
-│   ├── mcp/              # Model Context Protocol server
-│   ├── sdk/              # External integration SDK
-│   ├── cli/              # Command-line interface
-│   ├── types/            # Shared TypeScript types
-│   ├── shared/           # Shared utilities
-│   ├── config-api/       # Configuration API
-│   ├── ws-server/        # WebSocket server
-│   ├── tests/            # Test utilities
-│   ├── plugins/          # Plugin system
-│   ├── local/            # Local utilities
-│   └── database/         # Database package
-├── pnpm-workspace.yaml   # pnpm workspace config
-└── README.md             # This file
-```
+**NEURALFORGE - THE GATEWAY TO YOUR AI ARSENAL. THE SWARM AT YOUR FINGERTIPS. YOUR CODE, YOUR RULES, YOUR VICTORY.**
 
-## Available Scripts
-
-```bash
-# Build all packages
-pnpm run build
-
-# Run tests
-pnpm run test
-
-# Lint code
-pnpm run lint
-
-# Clean build artifacts
-pnpm run clean
-
-# Start API server (production)
-pnpm --filter @wtagent/api start
-
-# Start Web UI (production)
-pnpm --filter @wtagent/web start
-```
-
-## Configuration
-
-### API Server (`apps/api/.env`)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8080` | API server port |
-| `WTAGENT_HOST` | `127.0.0.1` | API bind address; non-loopback binding requires a 32-character `WTAGENT_JWT_SECRET` |
-| `WTAGENT_DATA_DIR` | `.wtagent` | Data directory |
-| `WTAGENT_PROJECT_ROOT` | `auto` | Project root directory |
-| `WTAGENT_PROVIDER` | `chatgpt` | Default provider |
-| `WTAGENT_JWT_SECRET` | unset | Enables bearer-token authentication for every API request |
-| `WTAGENT_JOB_TIMEOUT_MS` | `1800000` | Maximum provider execution time per job attempt, in milliseconds |
-| `WTAGENT_JOB_TTL_MS` | `86400000` | Time to retain completed, failed, and cancelled jobs, in milliseconds |
-
-The timeout starts after the provider session is authenticated. A timeout ends the attempt as failed with `JOB_TIMEOUT`; it does not retry automatically, and the job can be retried explicitly.
-Expired terminal jobs and their activity records are removed automatically, with cleanup running hourly after the API starts. Their session transcript files are removed with them. Pending and running jobs are never removed by retention cleanup.
-`WTAGENT_PROJECT_ROOT=auto` uses the repository root; a configured path is resolved by the API and cannot be overridden by a job request. The workspace file browser is read-only, hides `.git`, `.wtagent`, and `node_modules`, and previews UTF-8 files up to 256 KiB.
-The API binds to loopback by default. Remote binding is opt-in and fails closed unless `WTAGENT_JWT_SECRET` is at least 32 characters; when a secret is configured, requests without a valid bearer token are rejected.
-
-### Web UI (`apps/web/.env`)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NEXT_PUBLIC_WTAGENT_API_URL` | `http://localhost:8080` | API server URL |
-
-## Supported Providers
-
-| Provider | ID | Status |
-|----------|-----|--------|
-| ChatGPT | `chatgpt` | ✅ Active |
-| Gemini | `gemini` | ✅ Active |
-| Grok | `grok` | ✅ Active |
-| DeepSeek | `deepseek` | ✅ Active |
-| GLM | `glm` | ✅ Active |
-| Kimi | `kimi` | ✅ Active |
-
-## Security Model
-
-WTAgent uses a **policy-based approval system**:
-
-1. **Sandbox Modes**:
-   - `workspace-read`: Read files in workspace
-   - `workspace-write`: Read + write files in workspace
-   - `danger-full-access`: Full filesystem + terminal access
-
-2. **Approval Flow**:
-   ```
-   Tool Call → Policy Engine → User Approval → Execute/Reject
-   ```
-   Interactive CLI sessions can request approval. Web jobs are unattended and
-   currently have no review-and-apply flow. API background jobs therefore only
-   receive read-only tools by default, and clients cannot grant write or
-   command tools in job requests.
-
-3. **Browser Isolation**:
-   - Each provider gets isolated Chrome profile
-   - No credentials stored in plaintext
-   - Session validation before execution
-
-### Local data and retention
-
-- Project source files remain in the configured project root. Job requests cannot
-  override that root.
-- PGlite, job metadata, sessions, transcripts, and tool output are stored under
-  `WTAGENT_DATA_DIR` (default: `<project root>/.wtagent`). Treat this directory
-  and its backups as sensitive because they may contain prompts and provider
-  output.
-- Directories are created with owner-only permissions where supported; Windows
-  uses the current user's inherited filesystem ACL.
-- Completed, failed, and cancelled jobs are retained for `WTAGENT_JOB_TTL_MS`.
-  Their session transcripts are removed with them. Browser provider profiles
-  persist separately under the platform application-data directory until the
-  provider is removed. Backups are not pruned automatically.
-
-## Development
-
-### Adding a New Package
-
-1. Create directory under `packages/`
-2. Add `package.json` with workspace dependencies
-3. Add to `pnpm-workspace.yaml`
-4. Run `pnpm install`
-
-### TypeScript Configuration
-
-Packages use TypeScript project references for fast incremental builds. Root `tsconfig.json` references all package `tsconfig.json` files.
-
-### Testing
-
-```bash
-# Run all tests
-pnpm run test
-
-# Run tests for specific package
-pnpm --filter @wtagent/database test
-```
-
-## API Reference
-
-### Jobs
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/backups` | POST | Create a database and session backup in the configured data directory |
-| `/v1/jobs` | POST | Create new job |
-| `/v1/jobs` | GET | List all jobs |
-| `/v1/jobs/:id` | GET | Get job details |
-| `/v1/jobs/:id/status` | GET | Get job status |
-| `/v1/jobs/:id/cancel` | POST | Cancel job |
-| `/v1/jobs/:id/retry` | POST | Retry failed job |
-| `/v1/jobs/:id/logs` | GET | Get job logs |
-| `/v1/jobs/:id/events` | GET | SSE event stream |
-| `/v1/activity` | GET | List persisted job activity |
-
-The API uses PGlite as the canonical job store at `.wtagent/data/wtagent.pglite`.
-Existing JSON job records are imported when their IDs are not already present in PGlite. Existing session events are backfilled to PGlite activity once; subsequent lifecycle changes and runtime activity are committed there in order. If a running job has no lease heartbeat for 120 seconds, recovery marks it failed with `JOB_INTERRUPTED`; it is not replayed automatically because tools may already have changed files. Review its activity and retry it explicitly. PGlite locks job claims so only one worker can claim a pending job at a time.
-On startup, existing PGlite data is migrated into the default project without deleting job or provider/profile/plugin records; project-scoped state uses a composite key so the same provider, plugin, or profile can exist in multiple projects.
-
-### Backup and restore
-
-Backups contain a PGlite dump and a copy of the job session files. They do not contain browser profiles, provider login sessions, or credentials. Backups are stored under `.wtagent/backups/` (or under `WTAGENT_DATA_DIR/backups/` when configured). For the closest database/transcript consistency, wait until jobs are idle before creating a backup.
-
-With the API running, create a backup:
-
-```bash
-pnpm --filter @wtagent/api backup
-```
-
-Restore only after stopping the API, passing the backup directory:
-
-```bash
-pnpm --filter @wtagent/api restore -- .wtagent/backups/wtagent-<timestamp>-<id>
-```
-
-Restore verifies the manifest checksums and PGlite schema before replacing data. The previous database and session directories are preserved beside their original locations with a `.pre-restore-*` suffix. Keep the backup directory and those safety copies until the restored application has been checked.
-
-### Providers
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/providers` | GET | List all providers |
-| `/v1/providers/:id/login` | POST | Start login flow |
-| `/v1/providers/:id/verify` | POST | Verify authentication |
-| `/v1/providers/:id` | DELETE | Disconnect provider |
-
-### Profile
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/profile` | GET | Get user profile |
-| `/v1/profile` | PUT | Update profile |
-
-### Plugins
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/plugins` | GET | List plugins |
-| `/v1/plugins/:id` | PUT | Update plugin config |
-
-### Health
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-
-## Known Limitations
-
-- Browser automation depends on a locally installed Chrome/Chromium and per-provider login sessions; headless/CI runs are not supported for provider authentication.
-- Official API-key providers and OS credential storage are not implemented yet; only web providers are supported.
-- Only one job runs at a time due to the shared browser profile lock.
-- Web jobs do not yet provide a reviewable diff and apply workflow. Jobs created
-  through the API cannot write files or execute commands; this remains a
-  planned capability rather than a verified code-modification workflow.
-- Remote API access requires an operator-provided JWT secret, but WTAgent does
-  not issue, rotate, or revoke remote bearer tokens yet. Keep remote access
-  disabled unless you manage those credentials and protect the network path.
-- Streaming chat completions are not supported; requests with `stream: true` are rejected.
-- Backup/restore covers PGlite and session transcripts only; browser profiles and credentials are excluded.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Support
-
-- Check existing [Issues](../../issues)
-- Create a new issue for bugs or feature requests
-- Review [Architecture Documentation](docs/ARCHITECTURE.md) for system design
+[END OF LINE]
