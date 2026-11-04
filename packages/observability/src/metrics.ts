@@ -1,4 +1,4 @@
-// Prometheus-compatible metrics for WTAgent
+// Prometheus-compatible metrics for NeuralForge
 
 export interface MetricLabels {
   [key: string]: string;
@@ -109,39 +109,39 @@ export class Gauge {
 
 export const defaultRegistry = new MetricsRegistry();
 
-// Pre-defined WTAgent metrics
+// Pre-defined NeuralForge metrics
 export const httpRequestDuration = defaultRegistry.gauge(
-  'wtagent_http_request_duration_seconds',
+  'neuralforge_http_request_duration_seconds',
   'HTTP request duration in seconds'
 );
 
 export const httpRequestsTotal = defaultRegistry.counter(
-  'wtagent_http_requests_total',
+  'neuralforge_http_requests_total',
   'Total number of HTTP requests'
 );
 
 export const jobQueueSize = defaultRegistry.gauge(
-  'wtagent_job_queue_size',
+  'neuralforge_job_queue_size',
   'Current number of jobs in queue'
 );
 
 export const jobExecutionsTotal = defaultRegistry.counter(
-  'wtagent_job_executions_total',
+  'neuralforge_job_executions_total',
   'Total number of job executions'
 );
 
 export const jobExecutionDuration = defaultRegistry.gauge(
-  'wtagent_job_execution_duration_seconds',
+  'neuralforge_job_execution_duration_seconds',
   'Job execution duration in seconds'
 );
 
 export const activeProviders = defaultRegistry.gauge(
-  'wtagent_active_providers',
+  'neuralforge_active_providers',
   'Number of active provider connections'
 );
 
 export const artifactStorageBytes = defaultRegistry.gauge(
-  'wtagent_artifact_storage_bytes',
+  'neuralforge_artifact_storage_bytes',
   'Total artifact storage used in bytes'
 );
 

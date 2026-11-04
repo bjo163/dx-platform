@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Executive Overview
+# NeuralForge Master Blueprint — Executive Overview
 
 ## Document: 00-executive-overview.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -11,11 +11,11 @@
 
 ## Executive Summary
 
-WTAgent is a **local-first AI coding agent** that transforms web AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) into a Codex/Claude Code-like coding environment. The system runs entirely on the user's machine with no API keys, no cloud dependencies, and no data exfiltration.
+NeuralForge is a **local-first AI coding agent** that transforms web AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) into a Codex/Claude Code-like coding environment. The system runs entirely on the user's machine with no API keys, no cloud dependencies, and no data exfiltration.
 
 ### Key Differentiators
 
-| Dimension | WTAgent | Traditional AI Coding Tools |
+| Dimension | NeuralForge | Traditional AI Coding Tools |
 |-----------|---------|----------------------------|
 | **Authentication** | Browser session (no API key) | API key required |
 | **Data Location** | Local only | Cloud-based |

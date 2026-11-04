@@ -8,7 +8,7 @@ import {
   diffDomStructures,
   hashDomStructure,
   readDomStructure,
-} from "@wtagent/browser";
+} from "@neuralforge/browser";
 
 function element(tag, attributes = {}) {
   return {
@@ -72,7 +72,7 @@ test("an element without attributes still shapes the page", () => {
 });
 
 test("the adapter baselines a working page and detects when it stops matching", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-drift-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-drift-"));
   t.after(() => fs.rm(base, { recursive: true, force: true }));
 
   let nodes = WORKING;
@@ -107,7 +107,7 @@ test("the adapter baselines a working page and detects when it stops matching", 
 });
 
 test("a page that never worked has no drift to report", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-drift-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-drift-"));
   t.after(() => fs.rm(base, { recursive: true, force: true }));
 
   const adapter = new BaseWebAdapter({ profileDir: path.join(base, "profile"), baseUrl: "https://example.test" });
@@ -121,7 +121,7 @@ test("a page that never worked has no drift to report", async (t) => {
 });
 
 test("a dead page never turns a drift check into a second failure", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-drift-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-drift-"));
   t.after(() => fs.rm(base, { recursive: true, force: true }));
 
   const adapter = new BaseWebAdapter({ profileDir: path.join(base, "profile"), baseUrl: "https://example.test" });

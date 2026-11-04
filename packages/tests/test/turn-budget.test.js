@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { AgentRuntime } from "@wtagent/runtime/agent-runtime";
-import { TaskSession } from "@wtagent/session/task-session";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { ToolRegistry } from "@wtagent/tools/registry";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { FakeWebModelAdapter } from "@wtagent/browser/fake-web-model-adapter";
-import { DEFAULT_LIMITS } from "@wtagent/shared/limits";
-import { BrowserAdapterError } from "@wtagent/shared/errors";
+import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
+import { TaskSession } from "@neuralforge/session/task-session";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { ToolRegistry } from "@neuralforge/tools/registry";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { FakeWebModelAdapter } from "@neuralforge/browser/fake-web-model-adapter";
+import { DEFAULT_LIMITS } from "@neuralforge/shared/limits";
+import { BrowserAdapterError } from "@neuralforge/shared/errors";
 
 const envelope = (done, message, body = "") =>
   `<agent_response><done>${done}</done><message>${message}</message>${body}</agent_response>`;
@@ -34,7 +34,7 @@ async function harness(t, responses, {
   registry = createDefaultToolRegistry(),
   prefix = "budget",
 } = {}) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), `wtagent-${prefix}-`));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), `neuralforge-${prefix}-`));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const session = await TaskSession.create({
     sessionsDir: path.join(root, "sessions"),

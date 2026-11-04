@@ -5,9 +5,9 @@ import { GeminiWebAdapter } from "./gemini-web-adapter.js";
 import { GrokWebAdapter } from "./grok-web-adapter.js";
 import { KimiWebAdapter } from "./kimi-web-adapter.js";
 import { GLMWebAdapter } from "./glm-web-adapter.js";
-import { getProfileDir } from "@wtagent/platform/paths";
+import { getProfileDir } from "@neuralforge/platform/paths";
 
-// Single source of truth for the web-AI providers WTAgent can drive. The CLI,
+// Single source of truth for the web-AI providers NeuralForge can drive. The CLI,
 // per-provider Chrome profile resolution, and `resume` all read from here so a
 // new provider is added in exactly one place.
 //
@@ -21,7 +21,7 @@ import { getProfileDir } from "@wtagent/platform/paths";
 //                          but not implemented yet)
 //   adapter              - the adapter class, or null until implemented
 //
-// WTAgent deliberately does not encode provider-specific model names or choose
+// NeuralForge deliberately does not encode provider-specific model names or choose
 // a model automatically. After login, interactive runs give the user a chance
 // to choose directly on the provider website; pressing Enter keeps whatever
 // the website currently has selected.
@@ -129,7 +129,7 @@ export function isProviderProfileBasename(basename) {
 }
 
 // Resolves a provider that has a working adapter, or throws a clear,
-// actionable error. Used everywhere WTAgent is about to actually drive a
+// actionable error. Used everywhere NeuralForge is about to actually drive a
 // browser (run, resume, login).
 export function resolveProvider(providerId = DEFAULT_PROVIDER) {
   const provider = getProvider(providerId);

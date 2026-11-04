@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runProgram } from "@wtagent/tools/terminal-exec";
-import { ProcessManager } from "@wtagent/tools/process-manager";
+import { runProgram } from "@neuralforge/tools/terminal-exec";
+import { ProcessManager } from "@neuralforge/tools/process-manager";
 import { repositoryRoot, windowsScriptFixtures } from "../src/layout.js";
 
 const fixturesRoot = path.join(repositoryRoot, "packages", "tests", "test", "fixtures", "windows");
@@ -51,7 +51,7 @@ test("windows package smoke fixture exposes test and dev scripts", async () => {
     ),
   );
 
-  assert.equal(manifest.name, "wtagent-windows-smoke");
+  assert.equal(manifest.name, "neuralforge-windows-smoke");
   assert.equal(manifest.scripts.test, "node -e \"process.stdout.write('fixture-test-ok')\"");
   assert.equal(
     manifest.scripts.dev,
@@ -91,7 +91,7 @@ test("Windows launcher preserves hostile argv and cannot append a second command
 }, async (t) => {
   const root = await fs.mkdtemp(path.join(
     process.env.TEMP ?? process.cwd(),
-    "wtagent windows 中文 ",
+    "neuralforge windows 中文 ",
   ));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 

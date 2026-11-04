@@ -1,4 +1,4 @@
-import { createWebAdapter, getProviderProfileDir, resolveProvider } from "@wtagent/browser/provider-registry";
+import { createWebAdapter, getProviderProfileDir, resolveProvider } from "@neuralforge/browser/provider-registry";
 import type {
   ImageAdapterFactory,
   ImageAdapterResource,
@@ -97,7 +97,7 @@ export class BrowserImageSessionPool {
     if (authState !== "authenticated") {
       await adapter.close().catch(() => null);
       throw new Error(
-        `${provider.label} is not logged in. Run "wtagent login --model ${providerId}" first.`,
+        `${provider.label} is not logged in. Run "neuralforge login --model ${providerId}" first.`,
       );
     }
     await adapter.startConversation(null);

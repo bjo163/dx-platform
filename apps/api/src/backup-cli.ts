@@ -1,20 +1,20 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createConnection } from "node:net";
-import { restoreWTagentBackup } from "@wtagent/database";
+import { restoreWTagentBackup } from "@neuralforge/database";
 
 const command = process.argv[2];
 const apiDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = process.env.WTAGENT_PROJECT_ROOT
   ?? path.resolve(apiDirectory, "..", "..", "..");
-const dataDir = process.env.WTAGENT_DATA_DIR ?? path.join(projectRoot, ".wtagent");
+const dataDir = process.env.WTAGENT_DATA_DIR ?? path.join(projectRoot, ".neuralforge");
 
 async function assertApiIsStopped(port: number): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const socket = createConnection({ host: "127.0.0.1", port });
     const timeout = setTimeout(() => {
       socket.destroy();
-      reject(new Error("Could not verify that the WTAgent API is stopped; restore was cancelled."));
+      reject(new Error("Could not verify that the NeuralForge API is stopped; restore was cancelled."));
     }, 1_000);
     const finish = (callback: () => void) => {
       clearTimeout(timeout);
@@ -23,7 +23,7 @@ async function assertApiIsStopped(port: number): Promise<void> {
 
     socket.once("connect", () => {
       socket.destroy();
-      finish(() => reject(new Error("Stop the WTAgent API before restoring a backup.")));
+      finish(() => reject(new Error("Stop the NeuralForge API before restoring a backup.")));
     });
     socket.once("error", (error: NodeJS.ErrnoException) => {
       if (error.code === "ECONNREFUSED") {
@@ -46,12 +46,12 @@ if (command === "backup") {
     throw new Error(`Backup request failed with HTTP ${response.status}: ${body}`);
   }
   const result = await response.json() as { path: string; createdAt: string; fileCount: number; totalBytes: number };
-  console.info(`WTAgent backup created: ${result.path}`);
+  console.info(`NeuralForge backup created: ${result.path}`);
   console.info(`Created at ${result.createdAt}; ${result.fileCount} files, ${result.totalBytes} bytes.`);
 } else if (command === "restore") {
   const backupDir = process.argv[3];
   if (!backupDir) {
-    throw new Error("Usage: pnpm --filter @wtagent/api restore -- <backup-directory>");
+    throw new Error("Usage: pnpm --filter @neuralforge/api restore -- <backup-directory>");
   }
 
   const port = Number(process.env.PORT ?? "8080");
@@ -65,10 +65,10 @@ if (command === "backup") {
     dataDir: path.join(dataDir, "data"),
     sessionsDir: path.join(dataDir, "sessions"),
   });
-  console.info(`Restored WTAgent backup from ${result.backupCreatedAt}.`);
+  console.info(`Restored NeuralForge backup from ${result.backupCreatedAt}.`);
   console.info(`Restored ${result.restoredFiles} files.`);
   if (result.previousDataDir) console.info(`Previous database preserved at ${result.previousDataDir}.`);
   if (result.previousSessionsDir) console.info(`Previous sessions preserved at ${result.previousSessionsDir}.`);
 } else {
-  throw new Error("Usage: pnpm --filter @wtagent/api backup | restore -- <backup-directory>");
+  throw new Error("Usage: pnpm --filter @neuralforge/api backup | restore -- <backup-directory>");
 }

@@ -47,13 +47,13 @@ describe('WTagentDatabase', () => {
   });
 
   it('should have DatabaseOptions interface', () => {
-    const options: { dataDir: string } = { dataDir: '.wtagent-db' };
+    const options: { dataDir: string } = { dataDir: '.neuralforge-db' };
     expect(options).toHaveProperty('dataDir');
   });
 
   it('migrates existing single-project tables to project-scoped keys without losing data', async () => {
-    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'wtagent-db-migration-'));
-    const raw = new PGlite(path.join(dataDir, 'wtagent.pglite'));
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'neuralforge-db-migration-'));
+    const raw = new PGlite(path.join(dataDir, 'neuralforge.pglite'));
     await raw.waitReady;
     await raw.exec(`
       CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
@@ -129,7 +129,7 @@ describe('WTagentDatabase', () => {
   }, 30_000);
 
   it('backs up and restores the database and sessions while preserving the previous data', async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'wtagent-backup-'));
+    const root = await mkdtemp(path.join(os.tmpdir(), 'neuralforge-backup-'));
     const sourceDataDir = path.join(root, 'source', 'data');
     const sourceSessionsDir = path.join(root, 'source', 'sessions');
     const destinationDataDir = path.join(root, 'target', 'data');
@@ -184,7 +184,7 @@ describe('WTagentDatabase', () => {
   }, 60_000);
 
   it('rejects a corrupt backup without changing the existing database', async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'wtagent-backup-corrupt-'));
+    const root = await mkdtemp(path.join(os.tmpdir(), 'neuralforge-backup-corrupt-'));
     const backupDataDir = path.join(root, 'source', 'data');
     const backupSessionsDir = path.join(root, 'source', 'sessions');
     const targetDataDir = path.join(root, 'target', 'data');

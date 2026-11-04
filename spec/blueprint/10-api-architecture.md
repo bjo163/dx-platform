@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — API Architecture
+# NeuralForge Master Blueprint — API Architecture
 
 ## Document: 10-api-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## API Architecture Overview
 
-WTAgent uses Fastify 5 with schema validation (Zod) for a RESTful API. This document defines API design principles, endpoint organization, error handling, security, and versioning strategy.
+NeuralForge uses Fastify 5 with schema validation (Zod) for a RESTful API. This document defines API design principles, endpoint organization, error handling, security, and versioning strategy.
 
 ---
 
@@ -131,7 +131,7 @@ app.setErrorHandler((error, _request, reply) => {
 ```typescript
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://app.wtagent.local'
+  'https://app.neuralforge.local'
 ];
 ```
 
@@ -209,7 +209,7 @@ app.register(rateLimit);
 |--------|-------|---------|
 | `X-Request-ID` | UUID v4 | Request tracing |
 | `X-Response-Time` | ms | Latency measurement |
-| `Server` | `WTAgent/1.0.0` | Server identification |
+| `Server` | `NeuralForge/1.0.0` | Server identification |
 
 ---
 
@@ -243,15 +243,15 @@ import { OpenAPIV3 } from 'openapi-types';
 const openapiDoc: OpenAPIV3.Document = {
   openapi: '3.0.3',
   info: {
-    title: 'WTAgent API',
+    title: 'NeuralForge API',
     version: '1.0.0',
     description: 'Local AI coding agent API',
-    contact: { name: 'WTAgent Team', url: 'https://github.com/wtagent/wtagent' },
+    contact: { name: 'NeuralForge Team', url: 'https://github.com/neuralforge/neuralforge' },
     license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' }
   },
   servers: [
     { url: 'http://localhost:8080', description: 'Development server' },
-    { url: 'https://api.wtagent.local', description: 'Production server' }
+    { url: 'https://api.neuralforge.local', description: 'Production server' }
   ],
   paths: { /* all endpoints */ },
   components: {

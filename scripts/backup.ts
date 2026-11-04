@@ -1,4 +1,4 @@
-// Database backup / restore scripts for WTAgent
+// Database backup / restore scripts for NeuralForge
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -28,7 +28,7 @@ export interface BackupOptions {
 export type JobStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 /**
- * Create a backup of the WTAgent data directory
+ * Create a backup of the NeuralForge data directory
  * @param options Backup configuration options
  * @returns Backup file path(s)
  */
@@ -44,7 +44,7 @@ export async function createBackup(options: BackupOptions): Promise<string | { m
   } = options;
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const backupDir = path.join(outputDir, `wtagent-backup-${timestamp}`);
+  const backupDir = path.join(outputDir, `neuralforge-backup-${timestamp}`);
   await fs.mkdir(backupDir, { recursive: true });
 
   const metadata: Record<string, unknown> = {
@@ -57,7 +57,7 @@ export async function createBackup(options: BackupOptions): Promise<string | { m
   let dbPath: string;
   try {
     // Try to find the PGlite data directory
-    const dataDir = process.env.WTAGENT_DATA_DIR ?? path.join(process.cwd(), '.wtagent', 'data');
+    const dataDir = process.env.WTAGENT_DATA_DIR ?? path.join(process.cwd(), '.neuralforge', 'data');
     const dbFiles = await fs.readdir(dataDir);
     const pgliteFile = dbFiles.find((f) => f.endsWith('.pglite'));
     dbPath = pgliteFile ? path.join(dataDir, pgliteFile) : null;
@@ -79,7 +79,7 @@ export async function createBackup(options: BackupOptions): Promise<string | { m
 
     // Find job stores
     const possibleJobsDirs = [
-      path.join(process.cwd(), '.wtagent', 'jobs'),
+      path.join(process.cwd(), '.neuralforge', 'jobs'),
       path.join(process.cwd(), 'data', 'jobs'),
     ];
 
@@ -109,7 +109,7 @@ export async function createBackup(options: BackupOptions): Promise<string | { m
     await fs.mkdir(artifactsDir, { recursive: true });
 
     const possibleArtifactsDirs = [
-      path.join(process.cwd(), '.wtagent', 'artifacts'),
+      path.join(process.cwd(), '.neuralforge', 'artifacts'),
       path.join(process.cwd(), 'data', 'artifacts'),
     ];
 
@@ -139,7 +139,7 @@ export async function createBackup(options: BackupOptions): Promise<string | { m
     await fs.mkdir(sessionsDir, { recursive: true });
 
     const possibleSessionsDirs = [
-      path.join(process.cwd(), '.wtagent', 'sessions'),
+      path.join(process.cwd(), '.neuralforge', 'sessions'),
       path.join(process.cwd(), 'data', 'sessions'),
     ];
 
@@ -185,7 +185,7 @@ export async function createBackup(options: BackupOptions): Promise<string | { m
 }
 
 /**
- * Restore WTAgent data from a backup file
+ * Restore NeuralForge data from a backup file
  * @param backupPath Path to backup file or directory
  * @param options Restore options
  */
@@ -235,7 +235,7 @@ async function restoreFromDirectory(backupDir: string, targetDir: string): Promi
  * Restore from a .tar.gz backup
  */
 async function restoreFromTarGz(backupPath: string, targetDir: string): Promise<void> {
-  const extractDir = path.join(targetDir, '.wtagent-restore-' + Date.now());
+  const extractDir = path.join(targetDir, '.neuralforge-restore-' + Date.now());
   await fs.mkdir(extractDir, { recursive: true });
 
   try {
@@ -272,7 +272,7 @@ export async function listBackups(backupDir: string): Promise<Record<string, unk
     const entries = await fs.readdir(backupDir, { withFileTypes: true });
 
     for (const entry of entries) {
-      if (entry.isDirectory() && entry.name.startsWith('wtagent-backup-')) {
+      if (entry.isDirectory() && entry.name.startsWith('neuralforge-backup-')) {
         try {
           const metadataPath = path.join(backupDir, entry.name, 'metadata.json');
           const metadata = JSON.parse(await fs.readFile(metadataPath, 'utf8'));

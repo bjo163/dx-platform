@@ -2,14 +2,14 @@ import {
   createWebAdapter,
   getProviderProfileDir,
   resolveProvider,
-} from "@wtagent/browser/provider-registry";
-import { AgentRuntime } from "@wtagent/runtime/agent-runtime";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { ProcessManager } from "@wtagent/tools/process-manager";
-import { getAppDataDir } from "@wtagent/platform/paths";
-import { resolveLimits } from "@wtagent/shared/limits";
-import type { Limits } from "@wtagent/shared/limits";
+} from "@neuralforge/browser/provider-registry";
+import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { ProcessManager } from "@neuralforge/tools/process-manager";
+import { getAppDataDir } from "@neuralforge/platform/paths";
+import { resolveLimits } from "@neuralforge/shared/limits";
+import type { Limits } from "@neuralforge/shared/limits";
 import type { JobRecord } from "./job-store.js";
 
 export interface HeadlessRuntimeConfig {

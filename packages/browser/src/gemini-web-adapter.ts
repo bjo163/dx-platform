@@ -1,7 +1,7 @@
 import path from "node:path";
 import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
-import { BrowserAdapterError } from "@wtagent/shared/errors";
-import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
+import { BrowserAdapterError } from "@neuralforge/shared/errors";
+import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
 import { readRenderedBlocks } from "./rendered-text.js";
 
 export { isConnectionLostError } from "./base-web-adapter.js";
@@ -473,11 +473,11 @@ export class GeminiWebAdapter extends BaseWebAdapter {
         return false;
       }
       try {
-        (window as any).__wtagentPreviousClipboard = await navigator.clipboard.read();
+        (window as any).__neuralforgePreviousClipboard = await navigator.clipboard.read();
         await navigator.clipboard.writeText(value);
         return true;
       } catch {
-        delete (window as any).__wtagentPreviousClipboard;
+        delete (window as any).__neuralforgePreviousClipboard;
         return false;
       }
     }, text).catch(() => false);
@@ -501,8 +501,8 @@ export class GeminiWebAdapter extends BaseWebAdapter {
       return;
     }
     await this.page!.evaluate(async () => {
-      const previous = (window as any).__wtagentPreviousClipboard;
-      delete (window as any).__wtagentPreviousClipboard;
+      const previous = (window as any).__neuralforgePreviousClipboard;
+      delete (window as any).__neuralforgePreviousClipboard;
       if (!previous || !navigator.clipboard?.write) {
         return;
       }

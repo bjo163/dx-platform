@@ -1,7 +1,7 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { DeepSeekWebAdapter } from "@wtagent/browser/deepseek-web-adapter";
-import { isConnectionLostError } from "@wtagent/browser/deepseek-web-adapter";
+import { DeepSeekWebAdapter } from "@neuralforge/browser/deepseek-web-adapter";
+import { isConnectionLostError } from "@neuralforge/browser/deepseek-web-adapter";
 
 // Minimal Playwright-locator doubles, mirroring test/browser-adapter.test.js.
 // Only the surface the base turn-completion loop touches is implemented.

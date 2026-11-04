@@ -1,7 +1,7 @@
 
 import test from "./packages/tests/src/shim.js";
 import assert from "node:assert/strict";
-import { JobStore, JobRunner, createHeadlessRuntime } from "@wtagent/job";
+import { JobStore, JobRunner, createHeadlessRuntime } from "@neuralforge/job";
 import { GatewayServer } from "../../packages/gateway/dist/index.js";
 
 async function runTest() {
@@ -13,7 +13,7 @@ async function runTest() {
   const { join } = await import("node:path");
   const { tmpdir } = await import("node:os");
   
-  const root = await mkdtemp(join(tmpdir(), "wtagent-gateway-test-"));
+  const root = await mkdtemp(join(tmpdir(), "neuralforge-gateway-test-"));
   console.log("Root:", root);
   
   const server = new GatewayServer({ port: 0, baseDir: root, runJobs: false });

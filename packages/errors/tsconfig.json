@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@wtagent/types": ["../types/dist"]
+      "@neuralforge/types": ["../types/dist"]
     }
   },
   "include": ["src"]

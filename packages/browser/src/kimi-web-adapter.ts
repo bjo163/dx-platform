@@ -1,5 +1,5 @@
 import { BaseWebAdapter, firstVisible, hasCompleteAgentEnvelope } from "./base-web-adapter.js";
-import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
+import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
 
 export { isConnectionLostError } from "./base-web-adapter.js";
 

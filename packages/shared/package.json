@@ -1,7 +1,7 @@
 {
-  "name": "@wtagent/shared",
+  "name": "@neuralforge/shared",
   "version": "1.0.3",
-  "description": "Shared utilities for WTAgent packages.",
+  "description": "Shared utilities for NeuralForge packages.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -23,7 +23,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*"
+    "@neuralforge/types": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { writeConfig } from "@wtagent/shared/paths";
+import { writeConfig } from "@neuralforge/shared/paths";
 
 export interface PluginManifest {
   name: string;
@@ -39,7 +39,7 @@ export class PluginSystem {
   private configs: Map<string, PluginConfig> = new Map();
 
   constructor(options: PluginSystemOptions = {}) {
-    this.pluginDir = options.pluginDir ?? ".wtagent/plugins";
+    this.pluginDir = options.pluginDir ?? ".neuralforge/plugins";
   }
 
   async initialize(): Promise<void> {

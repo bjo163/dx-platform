@@ -76,7 +76,7 @@ export function truncateUtf8HeadTail(value: unknown, maxBytes: number, { headRat
     };
   }
 
-  let marker = "\n[WTAgent output truncated]\n";
+  let marker = "\n[NeuralForge output truncated]\n";
   let head: Buffer = Buffer.alloc(0);
   let tail: Buffer = Buffer.alloc(0);
 
@@ -101,7 +101,7 @@ export function truncateUtf8HeadTail(value: unknown, maxBytes: number, { headRat
     head = utf8PrefixBuffer(original, headBudget);
     tail = utf8SuffixBuffer(original, tailBudget);
     const omittedBytes = Math.max(0, original.length - head.length - tail.length);
-    marker = `\n[WTAgent omitted ${omittedBytes} bytes]\n`;
+    marker = `\n[NeuralForge omitted ${omittedBytes} bytes]\n`;
   }
 
   let text = `${head.toString("utf8")}${marker}${tail.toString("utf8")}`;

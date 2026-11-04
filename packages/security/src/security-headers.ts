@@ -1,4 +1,4 @@
-// Security headers middleware for WTAgent
+// Security headers middleware for NeuralForge
 
 import Fastify, { type FastifyInstance, type FastifyReply } from 'fastify';
 

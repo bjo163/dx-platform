@@ -9,10 +9,10 @@ import {
   npmRegistryLatestUrl,
   parseVersion,
   runSelfUpdate,
-} from "wtagent/self-update";
-import { fetchJson } from "@wtagent/shared/fetch-json";
+} from "neuralforge/self-update";
+import { fetchJson } from "@neuralforge/shared/fetch-json";
 import path from "node:path";
-import { resolveLaunchPlan } from "@wtagent/platform/command-launcher";
+import { resolveLaunchPlan } from "@neuralforge/platform/command-launcher";
 
 test("self-update resolves Windows npm without an explicit cwd", async () => {
   const npmPath = "C:\\Program Files\\nodejs\\npm.cmd";
@@ -61,8 +61,8 @@ test("self-update uses the host's real default planner before spawning", async (
 
 test("npm registry URL targets the published latest document", () => {
   assert.equal(
-    npmRegistryLatestUrl("wtagent"),
-    "https://registry.npmjs.org/wtagent/latest",
+    npmRegistryLatestUrl("neuralforge"),
+    "https://registry.npmjs.org/neuralforge/latest",
   );
 });
 
@@ -101,7 +101,7 @@ test("fetchLatestVersion reads the npm latest version and ignores failures", asy
   const invalid = await fetchLatestVersion({
     fetchImpl: async () => ({
       ok: true,
-      json: async () => ({ name: "wtagent" }),
+      json: async () => ({ name: "neuralforge" }),
     }),
   });
   assert.equal(invalid, null);
@@ -141,7 +141,7 @@ test("installLatest uses the official registry and treats a zero exit as success
     argv: [
       "install",
       "-g",
-      "wtagent@latest",
+      "neuralforge@latest",
       "--registry=https://registry.npmjs.org/",
     ],
   }]);
@@ -170,7 +170,7 @@ test("installLatest reports spawn and non-zero failures", async () => {
   assert.equal(failed.code, 1);
 });
 
-test("wtagent update installs when npm has a newer version", async () => {
+test("neuralforge update installs when npm has a newer version", async () => {
   const lines = [];
   const errors = [];
   let installed = false;
@@ -191,7 +191,7 @@ test("wtagent update installs when npm has a newer version", async () => {
   assert.deepEqual(errors, []);
 });
 
-test("wtagent update is a no-op when already current", async () => {
+test("neuralforge update is a no-op when already current", async () => {
   const lines = [];
   const result = await runSelfUpdate({
     currentVersion: "0.2.0",
@@ -208,7 +208,7 @@ test("wtagent update is a no-op when already current", async () => {
   assert.match(lines.join("\n"), /Already up to date \(0\.2\.0\)/);
 });
 
-test("wtagent update prints a manual command when the check or install fails", async () => {
+test("neuralforge update prints a manual command when the check or install fails", async () => {
   const errors = [];
   const offline = await runSelfUpdate({
     fetchLatest: async () => null,
@@ -218,7 +218,7 @@ test("wtagent update prints a manual command when the check or install fails", a
   assert.equal(offline.status, "error");
   assert.match(
     errors.join("\n"),
-    /npm install -g wtagent@latest --registry=https:\/\/registry\.npmjs\.org\//,
+    /npm install -g neuralforge@latest --registry=https:\/\/registry\.npmjs\.org\//,
   );
 
   errors.length = 0;
@@ -233,6 +233,6 @@ test("wtagent update prints a manual command when the check or install fails", a
   assert.match(errors.join("\n"), /Update failed/);
   assert.match(
     errors.join("\n"),
-    /npm install -g wtagent@latest --registry=https:\/\/registry\.npmjs\.org\//,
+    /npm install -g neuralforge@latest --registry=https:\/\/registry\.npmjs\.org\//,
   );
 });

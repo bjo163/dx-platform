@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Package Architecture
+# NeuralForge Master Blueprint — Package Architecture
 
 ## Document: 08-package-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Package Architecture Overview
 
-WTAgent uses a pnpm workspace monorepo with 23+ packages. This document defines package responsibilities, dependencies, public APIs, and import rules to maintain clean architecture.
+NeuralForge uses a pnpm workspace monorepo with 23+ packages. This document defines package responsibilities, dependencies, public APIs, and import rules to maintain clean architecture.
 
 ---
 
@@ -23,78 +23,78 @@ WTAgent uses a pnpm workspace monorepo with 23+ packages. This document defines 
 
 | Package | Responsibility | Exports | Dependencies |
 |---------|---------------|---------|--------------|
-| `@wtagent/types` | Shared TypeScript types | `JobRecord`, `ProviderState`, `ToolResult`, `SandboxMode`, etc. | typescript |
-| `@wtagent/shared` | Shared utilities | `fetchJson`, `UsageLimit`, `WTAgentError`, `atomicWrite` | zod |
-| `@wtagent/platform` | OS abstraction | `getAppDataDir`, `getProjectRoot`, `getChromePath`, `WindowsDiagnostics` | typescript |
-| `@wtagent/errors` | Error types (NEW) | `ValidationError`, `NotFoundError`, `ConflictError`, `WTAgentError` | typescript |
+| `@neuralforge/types` | Shared TypeScript types | `JobRecord`, `ProviderState`, `ToolResult`, `SandboxMode`, etc. | typescript |
+| `@neuralforge/shared` | Shared utilities | `fetchJson`, `UsageLimit`, `NeuralForgeError`, `atomicWrite` | zod |
+| `@neuralforge/platform` | OS abstraction | `getAppDataDir`, `getProjectRoot`, `getChromePath`, `WindowsDiagnostics` | typescript |
+| `@neuralforge/errors` | Error types (NEW) | `ValidationError`, `NotFoundError`, `ConflictError`, `NeuralForgeError` | typescript |
 
 ### Execution & Tool Packages
 
 | Package | Responsibility | Exports | Dependencies |
 |---------|---------------|---------|--------------|
-| `@wtagent/tools` | Tool implementations | `ToolRegistry`, `fs.read`, `fs.write`, `fs.edit`, `fs.search`, `terminal.exec` | zod, @wtagent/types, @wtagent/policy |
-| `@wtagent/job` | Job queue & execution | `JobService`, `createJobService`, `JobWorker` | @wtagent/types, @wtagent/shared, @wtagent/browser, @wtagent/runtime |
-| `@wtagent/browser` | Browser automation | `WebAdapter`, `ProviderRegistry`, `launchNativeLoginBrowser`, `PROVIDERS` | playwright-core, @wtagent/types, @wtagent/protocol |
-| `@wtagent/policy` | Security policy engine | `PolicyEngine`, `ApprovalManager`, `AuditLogger`, `PathGuard` | @wtagent/types, @wtagent/shared |
+| `@neuralforge/tools` | Tool implementations | `ToolRegistry`, `fs.read`, `fs.write`, `fs.edit`, `fs.search`, `terminal.exec` | zod, @neuralforge/types, @neuralforge/policy |
+| `@neuralforge/job` | Job queue & execution | `JobService`, `createJobService`, `JobWorker` | @neuralforge/types, @neuralforge/shared, @neuralforge/browser, @neuralforge/runtime |
+| `@neuralforge/browser` | Browser automation | `WebAdapter`, `ProviderRegistry`, `launchNativeLoginBrowser`, `PROVIDERS` | playwright-core, @neuralforge/types, @neuralforge/protocol |
+| `@neuralforge/policy` | Security policy engine | `PolicyEngine`, `ApprovalManager`, `AuditLogger`, `PathGuard` | @neuralforge/types, @neuralforge/shared |
 
 ### Runtime & Session Packages
 
 | Package | Responsibility | Exports | Dependencies |
 |---------|---------------|---------|--------------|
-| `@wtagent/runtime` | Agent runtime orchestration | `AgentRuntime`, `executeTask` | @wtagent/types, @wtagent/tools, @wtagent/session |
-| `@wtagent/session` | Session management | `SessionManager`, `Session`, `Turn`, `Artifact` | @wtagent/types, @wtagent/shared |
-| `@wtagent/protocol` | Agent-provider communication | `Envelope`, `Marker`, `PromptBuilder`, `XMLProtocol` | @wtagent/types |
+| `@neuralforge/runtime` | Agent runtime orchestration | `AgentRuntime`, `executeTask` | @neuralforge/types, @neuralforge/tools, @neuralforge/session |
+| `@neuralforge/session` | Session management | `SessionManager`, `Session`, `Turn`, `Artifact` | @neuralforge/types, @neuralforge/shared |
+| `@neuralforge/protocol` | Agent-provider communication | `Envelope`, `Marker`, `PromptBuilder`, `XMLProtocol` | @neuralforge/types |
 
 ### Data & Storage Packages
 
 | Package | Responsibility | Exports | Dependencies |
 |---------|---------------|---------|--------------|
-| `@wtagent/database` | PGlite persistence | `WTagentDatabase`, `JobRepository`, `ProviderRepository` | @electric-sql/pglite, @wtagent/types |
-| `@wtagent/artifacts` | Generated artifact handling | `ArtifactStore`, `saveArtifact`, `verifyArtifact` | @wtagent/types, @wtagent/shared |
+| `@neuralforge/database` | PGlite persistence | `WTagentDatabase`, `JobRepository`, `ProviderRepository` | @electric-sql/pglite, @neuralforge/types |
+| `@neuralforge/artifacts` | Generated artifact handling | `ArtifactStore`, `saveArtifact`, `verifyArtifact` | @neuralforge/types, @neuralforge/shared |
 
 ### Media & Specialized Packages
 
 | Package | Responsibility | Exports | Dependencies |
 |---------|---------------|---------|--------------|
-| `@wtagent/image` | Image generation providers | `ImageProviderRegistry`, `GeminiImageDriver`, `GrokImageDriver` | @wtagent/types, @wtagent/browser |
-| `@wtagent/audio` | Music generation | `MusicService`, `GeminiMusicDriver` | @wtagent/types, @wtagent/browser |
-| `@wtagent/mcp` | Model Context Protocol server | `MCPServer`, `MCPToolAdapter` | @wtagent/types, @wtagent/tools |
+| `@neuralforge/image` | Image generation providers | `ImageProviderRegistry`, `GeminiImageDriver`, `GrokImageDriver` | @neuralforge/types, @neuralforge/browser |
+| `@neuralforge/audio` | Music generation | `MusicService`, `GeminiMusicDriver` | @neuralforge/types, @neuralforge/browser |
+| `@neuralforge/mcp` | Model Context Protocol server | `MCPServer`, `MCPToolAdapter` | @neuralforge/types, @neuralforge/tools |
 
 ### Application & Tool Packages
 
 | Package | Responsibility | Exports | Dependencies |
 |---------|---------------|---------|--------------|
-| `@wtagent/cli` | Command-line interface | `CLI`, `parseArgs`, `runInteractive` | @wtagent/types, @wtagent/runtime, @wtagent/session |
-| `@wtagent/plugins` | Plugin system | `PluginRegistry`, `PluginManager` | @wtagent/types, @wtagent/shared |
-| `@wtagent/sdk` | External integration SDK | `BrowserAdapter`, `JobRequest` | @wtagent/types, @wtagent/browser |
-| `@wtagent/config-api` | Configuration API | `ConfigLoader`, `validateConfig` | @wtagent/types, @wtagent/shared |
-| `@wtagent/ws-server` | WebSocket server | `WSServer`, `WSClient` | @wtagent/types, @wtagent/shared |
-| `@wtagent/tests` | Test utilities | `testUtils`, `mockProviders`, `setupTestEnv` | vitest, @wtagent/types |
-| `@wtagent/local` | Local utilities | `localUtils` | @wtagent/types, @wtagent/shared |
+| `@neuralforge/cli` | Command-line interface | `CLI`, `parseArgs`, `runInteractive` | @neuralforge/types, @neuralforge/runtime, @neuralforge/session |
+| `@neuralforge/plugins` | Plugin system | `PluginRegistry`, `PluginManager` | @neuralforge/types, @neuralforge/shared |
+| `@neuralforge/sdk` | External integration SDK | `BrowserAdapter`, `JobRequest` | @neuralforge/types, @neuralforge/browser |
+| `@neuralforge/config-api` | Configuration API | `ConfigLoader`, `validateConfig` | @neuralforge/types, @neuralforge/shared |
+| `@neuralforge/ws-server` | WebSocket server | `WSServer`, `WSClient` | @neuralforge/types, @neuralforge/shared |
+| `@neuralforge/tests` | Test utilities | `testUtils`, `mockProviders`, `setupTestEnv` | vitest, @neuralforge/types |
+| `@neuralforge/local` | Local utilities | `localUtils` | @neuralforge/types, @neuralforge/shared |
 
 ---
 
 ## Dependency Graph
 
 ```
-@wtagent/web ────────────────────────────┐
+@neuralforge/web ────────────────────────────┐
                                           │
-@wtagent/cli ────────────────────────────┤
+@neuralforge/cli ────────────────────────────┤
                                           │
-@wtagent/api ────────────────────────────┼─► @wtagent/job
+@neuralforge/api ────────────────────────────┼─► @neuralforge/job
                                           │     │
-                                          │     ├─► @wtagent/browser
+                                          │     ├─► @neuralforge/browser
                                           │     │     │
-                                          │     ├─► @wtagent/runtime
+                                          │     ├─► @neuralforge/runtime
                                           │     │     │
-                                          │     ├─► @wtagent/tools
+                                          │     ├─► @neuralforge/tools
                                           │     │     │
-                                          │     └─► @wtagent/policy
+                                          │     └─► @neuralforge/policy
                                           │           │
-                                          │           └─► @wtagent/types
-                                          │           └─► @wtagent/shared
+                                          │           └─► @neuralforge/types
+                                          │           └─► @neuralforge/shared
                                           │
-@wtagent/database ────────────────────────┘
+@neuralforge/database ────────────────────────┘
 ```
 
 ---
@@ -105,23 +105,23 @@ WTAgent uses a pnpm workspace monorepo with 23+ packages. This document defines 
 
 | Package | Can Import |
 |---------|------------|
-| `@wtagent/types` | None (leaf package) |
-| `@wtagent/shared` | `@wtagent/types` |
-| `@wtagent/platform` | `@wtagent/types` |
-| `@wtagent/errors` | `@wtagent/types` |
-| `@wtagent/protocol` | `@wtagent/types` |
-| `@wtagent/tools` | `@wtagent/types`, `@wtagent/shared`, `@wtagent/policy`, `@wtagent/platform` |
-| `@wtagent/policy` | `@wtagent/types`, `@wtagent/shared`, `@wtagent/platform` |
-| `@wtagent/database` | `@wtagent/types`, `@wtagent/shared` |
-| `@wtagent/browser` | `@wtagent/types`, `@wtagent/shared`, `@wtagent/platform`, `@wtagent/protocol` |
-| `@wtagent/job` | `@wtagent/types`, `@wtagent/shared`, `@wtagent/browser`, `@wtagent/runtime`, `@wtagent/policy`, `@wtagent/tools`, `@wtagent/platform` |
-| `@wtagent/runtime` | `@wtagent/types`, `@wtagent/tools`, `@wtagent/session`, `@wtagent/protocol` |
-| `@wtagent/session` | `@wtagent/types`, `@wtagent/shared` |
-| `@wtagent/image` | `@wtagent/types`, `@wtagent/browser`, `@wtagent/shared` |
-| `@wtagent/audio` | `@wtagent/types`, `@wtagent/browser`, `@wtagent/shared` |
-| `@wtagent/cli` | `@wtagent/types`, `@wtagent/runtime`, `@wtagent/session`, `@wtagent/shared` |
-| `@wtagent/api` | `@wtagent/job`, `@wtagent/database`, `@wtagent/browser`, `@wtagent/policy`, `@wtagent/platform` |
-| `@wtagent/web` | None (frontend only, imports via HTTP) |
+| `@neuralforge/types` | None (leaf package) |
+| `@neuralforge/shared` | `@neuralforge/types` |
+| `@neuralforge/platform` | `@neuralforge/types` |
+| `@neuralforge/errors` | `@neuralforge/types` |
+| `@neuralforge/protocol` | `@neuralforge/types` |
+| `@neuralforge/tools` | `@neuralforge/types`, `@neuralforge/shared`, `@neuralforge/policy`, `@neuralforge/platform` |
+| `@neuralforge/policy` | `@neuralforge/types`, `@neuralforge/shared`, `@neuralforge/platform` |
+| `@neuralforge/database` | `@neuralforge/types`, `@neuralforge/shared` |
+| `@neuralforge/browser` | `@neuralforge/types`, `@neuralforge/shared`, `@neuralforge/platform`, `@neuralforge/protocol` |
+| `@neuralforge/job` | `@neuralforge/types`, `@neuralforge/shared`, `@neuralforge/browser`, `@neuralforge/runtime`, `@neuralforge/policy`, `@neuralforge/tools`, `@neuralforge/platform` |
+| `@neuralforge/runtime` | `@neuralforge/types`, `@neuralforge/tools`, `@neuralforge/session`, `@neuralforge/protocol` |
+| `@neuralforge/session` | `@neuralforge/types`, `@neuralforge/shared` |
+| `@neuralforge/image` | `@neuralforge/types`, `@neuralforge/browser`, `@neuralforge/shared` |
+| `@neuralforge/audio` | `@neuralforge/types`, `@neuralforge/browser`, `@neuralforge/shared` |
+| `@neuralforge/cli` | `@neuralforge/types`, `@neuralforge/runtime`, `@neuralforge/session`, `@neuralforge/shared` |
+| `@neuralforge/api` | `@neuralforge/job`, `@neuralforge/database`, `@neuralforge/browser`, `@neuralforge/policy`, `@neuralforge/platform` |
+| `@neuralforge/web` | None (frontend only, imports via HTTP) |
 
 ### Prohibited Imports
 
@@ -143,7 +143,7 @@ WTAgent uses a pnpm workspace monorepo with 23+ packages. This document defines 
 3. **JSDoc**: All public functions documented
 4. **Stability**: Public API changes require major version bump
 
-### Example: `@wtagent/types`
+### Example: `@neuralforge/types`
 
 ```typescript
 // src/index.ts
@@ -164,7 +164,7 @@ export interface JobRecord {
 export type JobStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 ```
 
-### Example: `@wtagent/tools`
+### Example: `@neuralforge/tools`
 
 ```typescript
 // src/index.ts
@@ -185,13 +185,13 @@ export async function fsRead(params: FsReadParams, context: ToolContext): Promis
 
 | Package | Version | Strategy |
 |---------|---------|----------|
-| `@wtagent/types` | 1.0.3 | Semantic (breaking = major) |
-| `@wtagent/shared` | 1.0.3 | Semantic |
-| `@wtagent/job` | 1.0.3 | Semantic |
-| `@wtagent/browser` | 1.0.3 | Semantic |
-| `@wtagent/tools` | 1.0.3 | Semantic |
-| `@wtagent/policy` | 1.0.3 | Semantic |
-| `@wtagent/database` | 1.0.0 | Semantic |
+| `@neuralforge/types` | 1.0.3 | Semantic (breaking = major) |
+| `@neuralforge/shared` | 1.0.3 | Semantic |
+| `@neuralforge/job` | 1.0.3 | Semantic |
+| `@neuralforge/browser` | 1.0.3 | Semantic |
+| `@neuralforge/tools` | 1.0.3 | Semantic |
+| `@neuralforge/policy` | 1.0.3 | Semantic |
+| `@neuralforge/database` | 1.0.0 | Semantic |
 | All others | 1.0.3 | Synchronized |
 
 **Version Sync**: All packages use same major.minor for simplicity (pnpm workspace).
@@ -238,13 +238,13 @@ export async function fsRead(params: FsReadParams, context: ToolContext): Promis
 
 ### Build Order
 
-1. `@wtagent/types` (no deps)
-2. `@wtagent/shared`, `@wtagent/platform`, `@wtagent/errors`, `@wtagent/protocol` (deps: types)
-3. `@wtagent/policy`, `@wtagent/tools`, `@wtagent/database`, `@wtagent/session` (deps: shared/types)
-4. `@wtagent/browser`, `@wtagent/runtime`, `@wtagent/artifacts` (deps: policy/tools/protocol)
-5. `@wtagent/job`, `@wtagent/image`, `@wtagent/audio` (deps: browser/runtime)
-6. `@wtagent/mcp`, `@wtagent/cli`, `@wtagent/plugins`, `@wtagent/sdk` (deps: job/tools)
-7. `@wtagent/api`, `@wtagent/web` (apps, deps: all)
+1. `@neuralforge/types` (no deps)
+2. `@neuralforge/shared`, `@neuralforge/platform`, `@neuralforge/errors`, `@neuralforge/protocol` (deps: types)
+3. `@neuralforge/policy`, `@neuralforge/tools`, `@neuralforge/database`, `@neuralforge/session` (deps: shared/types)
+4. `@neuralforge/browser`, `@neuralforge/runtime`, `@neuralforge/artifacts` (deps: policy/tools/protocol)
+5. `@neuralforge/job`, `@neuralforge/image`, `@neuralforge/audio` (deps: browser/runtime)
+6. `@neuralforge/mcp`, `@neuralforge/cli`, `@neuralforge/plugins`, `@neuralforge/sdk` (deps: job/tools)
+7. `@neuralforge/api`, `@neuralforge/web` (apps, deps: all)
 
 ---
 

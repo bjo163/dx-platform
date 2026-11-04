@@ -2,7 +2,7 @@
 
 ## Overview
 
-Continue transforming WTAgent into a **rocksoul-dx Developer Platform** after Phase 1 (SDK Package) is complete. This plan covers Track B phases 2-3 and Track C phases 1-2.
+Continue transforming NeuralForge into a **rocksoul-dx Developer Platform** after Phase 1 (SDK Package) is complete. This plan covers Track B phases 2-3 and Track C phases 1-2.
 
 ## 🎯 Goal
 
@@ -14,11 +14,11 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 
 ### Phase 2: gRPC / WebSocket Server — *Track B: p.2*
 
-| Package | `@wtagent/ws-server` |
+| Package | `@neuralforge/ws-server` |
 |---------|----------------------|
 | **Purpose** | Bidirectional streaming for real-time agent operations |
 | **Key Features** | - VS Code / Cursor / Windsurf integration hooks<br>- Connection lifecycle management<br>- WebSocket upgrade from gateway foundation |
-| **Dependencies** | `@wtagent/types`, `@wtagent/shared`, `@wtagent/gateway` |
+| **Dependencies** | `@neuralforge/types`, `@neuralforge/shared`, `@neuralforge/gateway` |
 | **Success Criteria** | Supports bidirectional streaming connections |
 
 **Implementation Plan:**
@@ -29,11 +29,11 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 
 ### Phase 3: Configuration REST API — *Track B: p.3*
 
-| Package | `@wtagent/config-api` |
+| Package | `@neuralforge/config-api` |
 |---------|----------------------|
 | **Purpose** | REST `/v1/config` dynamic runtime switching |
 | **Key Features** | - `POST /v1/config` accepting model/provider/temperature<br>- OpenAPI spec for platform consumers<br>- Environment variable + runtime config merging |
-| **Dependencies** | `@wtagent/types`, `@wtagent/shared`, `@wtagent/sdk` |
+| **Dependencies** | `@neuralforge/types`, `@neuralforge/shared`, `@neuralforge/sdk` |
 | **Success Criteria** | `POST /v1/config` accepts and returns runtime configuration |
 
 **Implementation Plan:**
@@ -41,15 +41,15 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 - Implement `POST /v1/config` route with config merging logic
 - Define OpenAPI specification for config API
 - Merge environment variables with runtime config
-- Integrate with `@wtagent/sdk` for runtime switching
+- Integrate with `@neuralforge/sdk` for runtime switching
 
 ### Phase 4: Plugin System — *Track C: p.1*
 
-| Package | `@wtagent/plugins` |
+| Package | `@neuralforge/plugins` |
 |---------|--------------------|
 | **Purpose** | Plugin system for community tools |
 | **Key Features** | - Manifest-based plugin discovery<br>- GitHub, Jira, DB community tool templates<br>- Sandboxed execution context (future: Docker/gVisor) |
-| **Dependencies** | `@wtagent/types`, `@wtagent/shared` |
+| **Dependencies** | `@neuralforge/types`, `@neuralforge/shared` |
 | **Success Criteria** | Manifest format documented and versioned |
 
 **Implementation Plan:**
@@ -61,11 +61,11 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 
 ### Phase 5: Local Model Support — *Track C: p.2*
 
-| Package | `@wtagent/local` |
+| Package | `@neuralforge/local` |
 |---------|------------------|
 | **Purpose** | Local model support (Ollama, LMStudio) |
 | **Key Features** | - Ollama integration<br>- LMStudio integration<br>- Offline/air-gapped mode flag<br>- Model capability detection |
-| **Dependencies** | `@wtagent/types`, `@wtagent/shared` |
+| **Dependencies** | `@neuralforge/types`, `@neuralforge/shared` |
 | **Success Criteria** | Local model (Ollama/LMStudio) integration functional |
 
 **Implementation Plan:**
@@ -73,7 +73,7 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 - Integrate Ollama and LMStudio as providers
 - Add `offline`/air-gapped mode flag
 - Implement model capability detection and fallback
-- Integrate with `@wtagent/sdk` for local model routing
+- Integrate with `@neuralforge/sdk` for local model routing
 
 ### Phase 6: Web App Enhancements — *Track A completion*
 
@@ -93,12 +93,12 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 ## 📊 Dependencies & Boundaries
 
 ### Existing (reuse)
-- `@wtagent/types` — type definitions
-- `@wtagent/shared` — env parsing, path resolution
-- `@wtagent/gateway` — HTTP server foundation
-- `@wtagent/sdk` — importable library (Phase 1)
-- `@wtagent/job` — task orchestration
-- `@wtagent/runtime` — agent execution
+- `@neuralforge/types` — type definitions
+- `@neuralforge/shared` — env parsing, path resolution
+- `@neuralforge/gateway` — HTTP server foundation
+- `@neuralforge/sdk` — importable library (Phase 1)
+- `@neuralforge/job` — task orchestration
+- `@neuralforge/runtime` — agent execution
 
 ### New packages to create
 - `packages/ws-server` — gRPC/WebSocket runtime
@@ -107,7 +107,7 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 - `packages/local` — local model support
 
 ### Shared dependencies
-- All new packages depend on `@wtagent/types` and `@wtagent/shared`
+- All new packages depend on `@neuralforge/types` and `@neuralforge/shared`
 - TypeScript `composite: true` + `incremental: true` builds
 - `tsc -b` build workflow
 
@@ -117,7 +117,7 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 
 | Risk | Mitigation |
 |------|-----------|
-| WebSocket complexity | Use existing `net`/`ws` foundations from `@wtagent/gateway` |
+| WebSocket complexity | Use existing `net`/`ws` foundations from `@neuralforge/gateway` |
 | Plugin sandboxing security | Delegate to Docker/gVisor in future; start with allowlist |
 | Type compatibility across packages | Enforce `composite: true` and shared `tsconfig.json` |
 | Config API merging complexity | Start with simple env + runtime merge; iterate |
@@ -126,11 +126,11 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 
 ## ✅ Success Criteria (Extended)
 
-- `@wtagent/ws-server` supports bidirectional streaming connections
+- `@neuralforge/ws-server` supports bidirectional streaming connections
 - `POST /v1/config` accepts and returns runtime configuration
 - Plugin manifest format documented and versioned
 - Local model (Ollama/LMStudio) integration functional
-- Web app (`apps/web`) integrates with SDK via `@wtagent/sdk`
+- Web app (`apps/web`) integrates with SDK via `@neuralforge/sdk`
 - All packages build with `pnpm run build` (`tsc -b`)
 
 ---
@@ -149,7 +149,7 @@ Complete the developer platform with WebSocket connectivity, configuration API, 
 
 ```typescript
 // SDK usage (Phase 1, already done)
-import { createRuntime, type AgentRuntime } from '@wtagent/sdk'
+import { createRuntime, type AgentRuntime } from '@neuralforge/sdk'
 
 // WebSocket events (Phase 2, to be implemented)
 ws.send({ type: 'subscribe', task_id: 'abc123' })
@@ -171,20 +171,20 @@ POST /v1/config
 
 | Package | Status | Phase |
 |---------|--------|-------|
-| `@wtagent/types` | ✅ Complete | — |
-| `@wtagent/shared` | ✅ Complete | — |
-| `@wtagent/sdk` | ✅ Complete | Track B: p.1 |
+| `@neuralforge/types` | ✅ Complete | — |
+| `@neuralforge/shared` | ✅ Complete | — |
+| `@neuralforge/sdk` | ✅ Complete | Track B: p.1 |
 | `apps/web` | ✅ Complete | — |
 | `apps/api` | ✅ Complete | User request |
-| `@wtagent/ws-server` | ⏳ Pending | Track B: p.2 |
-| `@wtagent/config-api` | ⏳ Pending | Track B: p.3 |
-| `@wtagent/plugins` | ⏳ Pending | Track C: p.1 |
-| `@wtagent/local` | ⏳ Pending | Track C: p.2 |
+| `@neuralforge/ws-server` | ⏳ Pending | Track B: p.2 |
+| `@neuralforge/config-api` | ⏳ Pending | Track B: p.3 |
+| `@neuralforge/plugins` | ⏳ Pending | Track C: p.1 |
+| `@neuralforge/local` | ⏳ Pending | Track C: p.2 |
 
 ---
 
 ## 📝 Plan File
 
-Saved to: `Z:\project\wtagent\.kilo\plans\1793741585659-rocksoul-dx-developer-platform-plan-phases2-6.md`
+Saved to: `Z:\project\neuralforge\.kilo\plans\1793741585659-rocksoul-dx-developer-platform-plan-phases2-6.md`
 
 This plan is ready for implementation by an agent capable of source code changes. The plan covers all remaining phases from the rocksoul-dx Developer Platform roadmap, building on the SDK package (Phase 1) that has just been completed.

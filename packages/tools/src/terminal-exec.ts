@@ -1,18 +1,18 @@
 import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
-import type { ToolOutputPayload } from "@wtagent/types";
+import type { ToolOutputPayload } from "@neuralforge/types";
 import { buildToolEnvironment } from "./safe-env.js";
 import { killProcessTree } from "./process-utils.js";
 import {
   resolveLaunchPlan,
   type ResolveLaunchPlanOptions,
   type ResolvedLaunchPlan,
-} from "@wtagent/platform/command-launcher";
+} from "@neuralforge/platform/command-launcher";
 import {
   utf8ByteLength,
   utf8Prefix,
   utf8Suffix,
-} from "@wtagent/shared/text-budget";
+} from "@neuralforge/shared/text-budget";
 
 // The chunk terminal.exec streams to the host while a program is still
 // running. It is a `ToolOutputPayload` plus the two fields only this package
@@ -105,7 +105,7 @@ class StreamCapture {
       };
     }
 
-    let marker = "\n[WTAgent output truncated]\n";
+    let marker = "\n[NeuralForge output truncated]\n";
     let head = "";
     let tail = "";
     for (let pass = 0; pass < 4; pass += 1) {
@@ -118,7 +118,7 @@ class StreamCapture {
         0,
         this.totalBytes - utf8ByteLength(head) - utf8ByteLength(tail),
       );
-      marker = `\n[WTAgent omitted ${omittedBytes} bytes]\n`;
+      marker = `\n[NeuralForge omitted ${omittedBytes} bytes]\n`;
     }
 
     let text = `${head}${marker}${tail}`;

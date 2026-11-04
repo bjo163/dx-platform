@@ -1,11 +1,11 @@
 {
-  "name": "@wtagent/mcp",
+  "name": "@neuralforge/mcp",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "wtagent-mcp": "./dist/main.js"
+    "neuralforge-mcp": "./dist/main.js"
   },
   "exports": {
     ".": {
@@ -21,9 +21,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/shared": "workspace:*",
-    "@wtagent/tools": "workspace:*",
-    "@wtagent/policy": "workspace:*"
+    "@neuralforge/shared": "workspace:*",
+    "@neuralforge/tools": "workspace:*",
+    "@neuralforge/policy": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

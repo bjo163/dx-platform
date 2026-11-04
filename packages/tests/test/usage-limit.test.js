@@ -1,6 +1,6 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
+import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
 
 test("recognizes usage-limit notices in common UI languages", () => {
   assert.equal(isUsageLimitNotice("你已达到限额。请稍后重试。"), true);

@@ -7,7 +7,7 @@
 > **Note**: This document is a historical draft from the project's early design phase. The current release-readiness plan is in `.plan/task.md` (updated November 2026). See the `.plan` directory for the active plan, release criteria, and M0-M5 milestones.
 
 ## Document: DRAFT
-## Owner: @wtagent/job
+## Owner: @neuralforge/job
 ## Related: PROV-SPEC-001, TOOL-SPEC-001
 
 ---
@@ -18,9 +18,9 @@
 - **Name**: Job Service
 - **Version**: 1.0
 - **Status**: DRAFT
-- **Owner**: @wtagent/job
+- **Owner**: @neuralforge/job
 - **Related Requirements**: FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008
-- **Dependencies**: @wtagent/database, @wtagent/browser, @wtagent/policy, @wtagent/runtime
+- **Dependencies**: @neuralforge/database, @neuralforge/browser, @neuralforge/policy, @neuralforge/runtime
 
 ---
 
@@ -48,9 +48,9 @@ The Job Service provides a robust queuing and execution system for AI agent task
 - Timeout and TTL configuration
 
 **Excluded**:
-- Browser automation (handled by @wtagent/browser)
-- Tool execution (handled by @wtagent/tools)
-- Policy enforcement (handled by @wtagent/policy)
+- Browser automation (handled by @neuralforge/browser)
+- Tool execution (handled by @neuralforge/tools)
+- Policy enforcement (handled by @neuralforge/policy)
 - Provider authentication (handled by API layer)
 
 ---

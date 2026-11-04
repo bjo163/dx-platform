@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { writeConfig, readConfig } from "@wtagent/shared/paths";
+import { writeConfig, readConfig } from "@neuralforge/shared/paths";
 
 export const GitHubPluginManifest = {
   name: "github",
   version: "1.0.0",
   description: "GitHub integration plugin",
-  author: "WTAgent",
+  author: "NeuralForge",
   tools: [],
   permissions: ["github:read", "github:write"],
   manifestVersion: 1,

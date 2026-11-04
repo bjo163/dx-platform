@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { ApprovalStore } from "@wtagent/policy/approval-store";
-import { resolveCanonicalWriteTarget } from "@wtagent/policy/path-guard";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { ApprovalStore } from "@neuralforge/policy/approval-store";
+import { resolveCanonicalWriteTarget } from "@neuralforge/policy/path-guard";
 
 async function evaluateCommand(root, program, argv = []) {
   const engine = new PolicyEngine();
@@ -23,7 +23,7 @@ async function evaluateCommand(root, program, argv = []) {
 }
 
 test("allows routine project-local writes", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const engine = new PolicyEngine();
   const decision = await engine.evaluate(
@@ -34,7 +34,7 @@ test("allows routine project-local writes", async (t) => {
 });
 
 test("allows normal Codex-like program and argv execution", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const decision = await evaluateCommand(root, "npm", ["run", "build"]);
@@ -44,7 +44,7 @@ test("allows normal Codex-like program and argv execution", async (t) => {
 });
 
 test("requires approval outside the project", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const engine = new PolicyEngine();
   const decision = await engine.evaluate(
@@ -56,7 +56,7 @@ test("requires approval outside the project", async (t) => {
 });
 
 test("requires approval for pushes and sensitive environment inheritance", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const engine = new PolicyEngine();
   const decision = await engine.evaluate(
@@ -76,7 +76,7 @@ test("requires approval for pushes and sensitive environment inheritance", async
 });
 
 test("normalizes absolute destructive executable basenames", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const decision = await evaluateCommand(root, "/bin/rm", ["-rf", "dist"]);
@@ -86,7 +86,7 @@ test("normalizes absolute destructive executable basenames", async (t) => {
 });
 
 test("requires approval for shell inline commands", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const decision = await evaluateCommand(root, "sh", ["-c", "echo ok"]);
@@ -96,7 +96,7 @@ test("requires approval for shell inline commands", async (t) => {
 });
 
 test("requires approval for interpreter inline code", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const decision = await evaluateCommand(root, "python", ["-c", "print('ok')"]);
@@ -106,7 +106,7 @@ test("requires approval for interpreter inline code", async (t) => {
 });
 
 test("unwraps env before classifying the executable", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const decision = await evaluateCommand(
@@ -120,7 +120,7 @@ test("unwraps env before classifying the executable", async (t) => {
 });
 
 test("finds git push after global options", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const decision = await evaluateCommand(
@@ -134,7 +134,7 @@ test("finds git push after global options", async (t) => {
 });
 
 test("classifies Windows cmd shims by their logical executable", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const decision = await evaluateCommand(
@@ -148,8 +148,8 @@ test("classifies Windows cmd shims by their logical executable", async (t) => {
 });
 
 test("write guard rejects a parent replaced by an outside symlink", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-write-root-"));
-  const outside = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-write-outside-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-write-root-"));
+  const outside = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-write-outside-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   t.after(() => fs.rm(outside, { recursive: true, force: true }));
 
@@ -166,7 +166,7 @@ test("write guard rejects a parent replaced by an outside symlink", async (t) =>
 });
 
 test("always-allowed tools skip confirmation and grant outside-project paths", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const store = new ApprovalStore({
@@ -192,7 +192,7 @@ test("always-allowed tools skip confirmation and grant outside-project paths", a
 });
 
 test("allow-all bypasses confirmation for every tool", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const store = new ApprovalStore({

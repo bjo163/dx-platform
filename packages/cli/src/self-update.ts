@@ -1,14 +1,14 @@
 import { spawn } from "node:child_process";
-import { resolveLaunchPlan } from "@wtagent/platform/command-launcher";
-import { fetchJson, NETWORK_TIMEOUT_MS } from "@wtagent/shared/fetch-json";
-import { getPackageName, getPackageVersion } from "@wtagent/shared/package-info";
+import { resolveLaunchPlan } from "@neuralforge/platform/command-launcher";
+import { fetchJson, NETWORK_TIMEOUT_MS } from "@neuralforge/shared/fetch-json";
+import { getPackageName, getPackageVersion } from "@neuralforge/shared/package-info";
 
 export const UPDATE_CHECK_TIMEOUT_MS = NETWORK_TIMEOUT_MS;
 export const UPDATE_COMMAND_TIMEOUT_MS = 10_000;
 export const INSTALL_TIMEOUT_MS = 120_000;
 export const OFFICIAL_NPM_REGISTRY = "https://registry.npmjs.org/";
 export const MANUAL_INSTALL_COMMAND =
-  `npm install -g wtagent@latest --registry=${OFFICIAL_NPM_REGISTRY}`;
+  `npm install -g neuralforge@latest --registry=${OFFICIAL_NPM_REGISTRY}`;
 
 const VERSION_RE = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/;
 
@@ -81,7 +81,7 @@ export async function installLatest({
   const plan = planCommandImpl("npm", [
     "install",
     "-g",
-    "wtagent@latest",
+    "neuralforge@latest",
     `--registry=${OFFICIAL_NPM_REGISTRY}`,
   ]);
   return await new Promise((resolve) => {
@@ -131,7 +131,7 @@ export async function runSelfUpdate({
 }: any = {}) {
   const latest = await fetchLatest({ timeoutMs: UPDATE_COMMAND_TIMEOUT_MS });
   if (!latest) {
-    writeError("Could not check npm for the latest WTAgent version.");
+    writeError("Could not check npm for the latest NeuralForge version.");
     writeError(`Install it manually: ${MANUAL_INSTALL_COMMAND}`);
     return { status: "error" };
   }
@@ -140,13 +140,13 @@ export async function runSelfUpdate({
     return { status: "current", currentVersion, latest };
   }
 
-  write(`Updating WTAgent ${currentVersion} → ${latest} ...`);
+  write(`Updating NeuralForge ${currentVersion} → ${latest} ...`);
   const result = await install();
   if (!result.ok) {
     writeError("Update failed.");
     writeError(`Install it manually: ${MANUAL_INSTALL_COMMAND}`);
     return { status: "error", currentVersion, latest };
   }
-  write(`Updated to ${latest}. Run wtagent again to use the new version.`);
+  write(`Updated to ${latest}. Run neuralforge again to use the new version.`);
   return { status: "updated", currentVersion, latest };
 }

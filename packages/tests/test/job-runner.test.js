@@ -4,14 +4,14 @@ import fs from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
-import { JobStore, JobRunner, createHeadlessRuntime } from "@wtagent/job";
+import { JobStore, JobRunner, createHeadlessRuntime } from "@neuralforge/job";
 import { GatewayServer } from "../../packages/gateway/dist/index.js";
-import { TaskSession } from "@wtagent/session/task-session";
+import { TaskSession } from "@neuralforge/session/task-session";
 
 const HOUR = 3_600_000;
 
 async function tempStore(t, prefix) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), `wtagent-${prefix}-`));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), `neuralforge-${prefix}-`));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const store = new JobStore(path.join(root, "jobs"));
   await store.initialize();
@@ -323,7 +323,7 @@ test("a runtime that throws leaves a readable failure on the record", async (t) 
 });
 
 test("the headless approval grants only the tools the job was created with", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-headless-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-headless-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const session = await TaskSession.create({
     sessionsDir: path.join(root, "sessions"),
@@ -380,7 +380,7 @@ async function request(port, method, route, body, headers = {}) {
 }
 
 async function gatewayHarness(t) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-gateway-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-gateway-"));
   const server = new GatewayServer({ port: 0, baseDir: root, projectRoot: root, runJobs: false });
   await server.listen();
   // Registered before the rm so it runs first: a listening server holds the dir.

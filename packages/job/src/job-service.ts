@@ -1,8 +1,8 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
-import { AgentSession } from "@wtagent/session/agent-session";
-import type { CanonicalTranscriptItem } from "@wtagent/types";
+import { AgentSession } from "@neuralforge/session/agent-session";
+import type { CanonicalTranscriptItem } from "@neuralforge/types";
 import {
   assertValidJobId,
   JobStore,

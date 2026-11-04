@@ -9,12 +9,12 @@ import {
   resolveLaunchPlan,
   type ResolveLaunchPlanOptions,
   type ResolvedLaunchPlan,
-} from "@wtagent/platform/command-launcher";
+} from "@neuralforge/platform/command-launcher";
 import {
   truncateUtf8HeadTail,
   utf8ByteLength,
   utf8Suffix,
-} from "@wtagent/shared/text-budget";
+} from "@neuralforge/shared/text-budget";
 
 const MAX_PROCESS_LOG_BYTES = 1024 * 1024;
 const URL_PATTERN = /\bhttps?:\/\/(?:localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)(?::\d+)?(?:\/[^\s]*)?/gi;

@@ -37,13 +37,13 @@ const DONE_SEMANTICS: string = `Current-run completion semantics:
 - Use done=false only when you are about to call a local tool and need its result before you can continue.
 - Tool count, elapsed turns, or lack of an immediately obvious next action never proves completion.`;
 
-// The protocol + tool catalog are WTAgent-specific transport scaffolding.
+// The protocol + tool catalog are NeuralForge-specific transport scaffolding.
 // They are wrapped for the web message and never persisted into the portable
 // Codex rollout.
 function buildBootstrapScaffold({ projectRoot, tools, nativeImages }: { projectRoot: string; tools: ToolDoc[]; nativeImages?: boolean }) {
   const toolDocs = tools.map(formatTool).join("\n\n");
 
-  return `The user is running WTAgent, a local application that uses this web AI conversation for reasoning. The following is the user's requested application-level response format and collaboration contract; it is not a claim that this web chat has native filesystem or function-call tools.
+  return `The user is running NeuralForge, a local application that uses this web AI conversation for reasoning. The following is the user's requested application-level response format and collaboration contract; it is not a claim that this web chat has native filesystem or function-call tools.
 
 You do not need direct filesystem access for local operations. Return local operation requests as XML text. After your reply is complete, the user's local Node.js Runtime will parse the XML, validate the arguments, apply local policy, and may execute the requested operations. Their results arrive in the next user message as <tool_result> (or <tool_results> when you requested several). XML by itself never guarantees execution.
 
@@ -125,7 +125,7 @@ export function buildBootstrapPrompt({ task, projectRoot, tools, nativeImages = 
 function buildResumeScaffold({ tools, followUpRule, state, nextInstruction, nativeImages }: { tools: ToolDoc[]; followUpRule: string; state: ResumeState; nextInstruction: string; nativeImages?: boolean }) {
   const toolDocs = tools.map(formatTool).join("\n\n");
 
-  return `Continue the same WTAgent session using the user's requested XML application protocol. You do not need native tool access: write a <tool_call> request as text, and the user's local Runtime will validate it, may execute it, and will return <tool_result> in the next user message.
+  return `Continue the same NeuralForge session using the user's requested XML application protocol. You do not need native tool access: write a <tool_call> request as text, and the user's local Runtime will validate it, may execute it, and will return <tool_result> in the next user message.
 
 ${nativeImages ? `${NATIVE_IMAGE_CONTRACT}\n\nFor text replies: ` : ""}Still place your single <agent_response> XML inside one \`xml\` code fence with no text outside it. Independent tools may share one turn and run serially, with every result returned in one message. This preserves JavaScript backticks inside file contents.
 

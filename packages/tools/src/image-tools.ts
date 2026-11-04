@@ -1,7 +1,7 @@
 import path from "node:path";
 import { z } from "zod";
-import type { ArtifactRecord, ImageRequest, ToolContext } from "@wtagent/types";
-import { resolveToolPath } from "@wtagent/policy/path-guard";
+import type { ArtifactRecord, ImageRequest, ToolContext } from "@neuralforge/types";
+import { resolveToolPath } from "@neuralforge/policy/path-guard";
 import { ToolRegistry, type ToolExecutionResult } from "./registry.js";
 
 // A provider reply that carried text instead of an image. The image service

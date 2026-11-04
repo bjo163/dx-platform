@@ -2,7 +2,7 @@ import * as http from "node:http";
 import { URL } from "node:url";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { JobService, isValidJobId } from "@wtagent/job";
+import { JobService, isValidJobId } from "@neuralforge/job";
 import { executeGatewayChatCompletion, type GatewayChatMessage } from "./chat-completion.js";
 
 export interface OpenAIChatCompletionRequest {
@@ -59,7 +59,7 @@ export class GatewayServer {
     this.port = options.port ?? 8080;
     this.runJobs = options.runJobs ?? true;
     this.#projectRoot = path.resolve(options.projectRoot ?? process.cwd());
-    const baseDir = options.baseDir ?? path.join(options.projectRoot ?? ".", "wtagent-gateway");
+    const baseDir = options.baseDir ?? path.join(options.projectRoot ?? ".", "neuralforge-gateway");
     this.jobService = new JobService(baseDir, {
       provider: options.provider,
       defaultAllowedTools: options.defaultAllowedTools ?? [],

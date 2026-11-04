@@ -27,7 +27,7 @@ const apiUrl = process.env.NEXT_PUBLIC_WTAGENT_API_URL ?? "http://localhost:8080
 const initialMessages: Message[] = [
   {
     role: "agent",
-    text: "The workspace is ready. Describe a change, ask for an implementation review, or choose a file to inspect.",
+    text: "NeuralForge Omni-Nexus online. Orchestrate your AI swarm.. Describe a change, ask for an implementation review, or choose a file to inspect.",
   },
 ];
 
@@ -67,7 +67,7 @@ export default function Home() {
       } catch {
         if (!cancelled) {
           setBackendState("offline");
-          setBackendError(`Cannot reach WTAgent API at ${apiUrl}`);
+          setBackendError(`Cannot reach NeuralForge API at ${apiUrl}`);
         }
       }
     }
@@ -193,7 +193,7 @@ export default function Home() {
         ...current,
         {
           role: "agent",
-          text: `Task queued as job ${job.jobId}.`,
+          text: `Mission deployed to swarm as job ${job.jobId}.`,
         },
       ]);
       setRecentJobs((current) => [job, ...current.filter((item) => item.jobId !== job.jobId)].slice(0, 6));
@@ -244,7 +244,7 @@ export default function Home() {
       <aside className={`sidebar ${sidebarOpen ? "" : "sidebar--closed"}`} aria-label="Workspace navigation">
         <div className="brand-row">
           <div className="brand-mark" aria-hidden="true">W</div>
-          <span>WTAgent</span>
+          <span>NeuralForge</span>
           <button
             className="icon-button collapse-button"
             type="button"
@@ -349,7 +349,7 @@ export default function Home() {
                   <article className={`message message--${message.role}`} key={`${message.role}-${index}`}>
                     <div className="message-avatar" aria-hidden="true">{message.role === "agent" ? "W" : "Y"}</div>
                     <div>
-                      <strong>{message.role === "agent" ? "WTAgent" : "You"}</strong>
+                      <strong>{message.role === "agent" ? "NeuralForge" : "You"}</strong>
                       <p>{message.text}</p>
                     </div>
                   </article>
@@ -364,7 +364,7 @@ export default function Home() {
                 rows={3}
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value)}
-                placeholder="Ask WTAgent to change or inspect the project..."
+                placeholder="Ask NeuralForge to change or inspect the project..."
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) {
                     event.preventDefault();
@@ -406,7 +406,7 @@ export default function Home() {
                     <code>localhost:3000</code>
                   </div>
                   <div className="preview-page">
-                    <span className="preview-kicker">WTAgent Web Interface</span>
+                    <span className="preview-kicker">NeuralForge Web Interface</span>
                     <h2>Workspace preview</h2>
                     <p>The interface is running locally.</p>
                   </div>

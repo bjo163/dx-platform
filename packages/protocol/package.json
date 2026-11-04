@@ -1,7 +1,7 @@
 {
-  "name": "@wtagent/protocol",
+  "name": "@neuralforge/protocol",
   "version": "1.0.3",
-  "description": "Protocol utilities for WTAgent.",
+  "description": "Protocol utilities for NeuralForge.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -23,8 +23,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/shared": "workspace:*",
-    "@wtagent/types": "workspace:*",
+    "@neuralforge/shared": "workspace:*",
+    "@neuralforge/types": "workspace:*",
     "fast-xml-parser": "^5.10.1"
   },
   "devDependencies": {

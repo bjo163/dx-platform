@@ -12,11 +12,11 @@ import {
   readCdpState,
   reapStaleProfileChrome,
   saveCdpState,
-} from "@wtagent/browser/cdp-state";
+} from "@neuralforge/browser/cdp-state";
 
 async function createProfile(t) {
   const profileDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "wtagent-cdp-state-"),
+    path.join(os.tmpdir(), "neuralforge-cdp-state-"),
   );
   t.after(() => fs.rm(profileDir, { recursive: true, force: true }));
   return profileDir;
@@ -175,7 +175,7 @@ test("win32 verifies saved CDP state with quoted and case-shifted profile paths"
   assert.equal(state.port, 9555);
 });
 
-test("profile lock rejects a second live WTAgent session", async (t) => {
+test("profile lock rejects a second live NeuralForge session", async (t) => {
   const profileDir = await createProfile(t);
   const release = await acquireCdpProfileLock(profileDir);
   t.after(release);
@@ -188,13 +188,13 @@ test("profile lock rejects a second live WTAgent session", async (t) => {
     }),
     (error) =>
       error.code === "PROFILE_LOCKED"
-      && /Another WTAgent session/.test(error.message),
+      && /Another NeuralForge session/.test(error.message),
   );
 });
 
 test("profile lock recovers after a dead owner", async (t) => {
   const profileDir = await createProfile(t);
-  const lockFile = path.join(profileDir, ".wtagent-session.lock");
+  const lockFile = path.join(profileDir, ".neuralforge-session.lock");
   await fs.writeFile(
     lockFile,
     JSON.stringify({ pid: 2_147_483_647, token: "stale" }),
@@ -208,7 +208,7 @@ test("profile lock recovers after a dead owner", async (t) => {
 
 test("profile lock recovers when the owner pid was recycled", async (t) => {
   const profileDir = await createProfile(t);
-  const lockFile = path.join(profileDir, ".wtagent-session.lock");
+  const lockFile = path.join(profileDir, ".neuralforge-session.lock");
   await fs.writeFile(
     lockFile,
     JSON.stringify({
@@ -231,7 +231,7 @@ test("profile lock recovers when the owner pid was recycled", async (t) => {
 
 test("profile lock never removes a concurrently initializing lock", async (t) => {
   const profileDir = await createProfile(t);
-  const lockFile = path.join(profileDir, ".wtagent-session.lock");
+  const lockFile = path.join(profileDir, ".neuralforge-session.lock");
   await fs.writeFile(lockFile, "");
 
   await assert.rejects(
@@ -381,7 +381,7 @@ test("profile inspection reports degraded win32 state when CIM verification is u
 });
 
 test("processMatchesCdpState returns true when a matching Chrome process is found", async () => {
-  const profileDir = "C:\\Users\\test\\AppData\\Roaming\\wtagent\\chrome-profile";
+  const profileDir = "C:\\Users\\test\\AppData\\Roaming\\neuralforge\\chrome-profile";
   const state = {
     pid: 1234,
     port: 9333,
@@ -402,7 +402,7 @@ test("processMatchesCdpState returns true when a matching Chrome process is foun
 });
 
 test("processMatchesCdpState returns false when no matching process exists", async () => {
-  const profileDir = "C:\\Users\\test\\AppData\\Roaming\\wtagent\\chrome-profile";
+  const profileDir = "C:\\Users\\test\\AppData\\Roaming\\neuralforge\\chrome-profile";
   const state = {
     pid: 1234,
     port: 9333,
@@ -440,7 +440,7 @@ test("processMatchesCdpState returns false when the process table cannot be read
 });
 
 test("processMatchesCdpState matches profile paths case-insensitively on win32", async () => {
-  const profileDir = "C:\\Users\\test\\AppData\\Roaming\\wtagent\\chrome-profile";
+  const profileDir = "C:\\Users\\test\\AppData\\Roaming\\neuralforge\\chrome-profile";
   const state = {
     pid: 1234,
     port: 9333,

@@ -22,7 +22,7 @@ vi.mock('node:path', () => ({
   join: vi.fn((...args: string[]) => args.join('/')),
 }));
 
-vi.mock('@wtagent/shared/atomic-write', () => ({
+vi.mock('@neuralforge/shared/atomic-write', () => ({
   replaceFileAtomic: vi.fn(),
 }));
 

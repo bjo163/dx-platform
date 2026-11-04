@@ -4,9 +4,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { ProcessManager } from "@wtagent/tools/process-manager";
-import { DEFAULT_LIMITS } from "@wtagent/shared/limits";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { ProcessManager } from "@neuralforge/tools/process-manager";
+import { DEFAULT_LIMITS } from "@neuralforge/shared/limits";
 
 function context(root) {
   return {
@@ -16,7 +16,7 @@ function context(root) {
 }
 
 test("fs.edit preserves literal dollar sequences for single and all replacements", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-edit-literal-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-edit-literal-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const registry = createDefaultToolRegistry();
   const replacement = "$& / $$ / $` / $' / $1\r\n中文";
@@ -40,7 +40,7 @@ test("fs.edit preserves literal dollar sequences for single and all replacements
 });
 
 test("writes, reads, and atomically edits a file", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const registry = createDefaultToolRegistry({
     processManager: new ProcessManager(),
@@ -77,7 +77,7 @@ test("writes, reads, and atomically edits a file", async (t) => {
 });
 
 test("reads files in UTF-8-safe chunks of at most 16 KiB", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const content = `start-${"中".repeat(7_000)}-end`;
   await fs.writeFile(path.join(root, "large.txt"), content, "utf8");
@@ -113,7 +113,7 @@ test("reads files in UTF-8-safe chunks of at most 16 KiB", async (t) => {
 });
 
 test("moves an arbitrary file offset to the next UTF-8 boundary", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   await fs.writeFile(path.join(root, "utf8.txt"), "A中B", "utf8");
   const registry = createDefaultToolRegistry();
@@ -130,7 +130,7 @@ test("moves an arbitrary file offset to the next UTF-8 boundary", async (t) => {
 });
 
 test("executes a structured command", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const registry = createDefaultToolRegistry();
   const call = registry.validate({
@@ -156,7 +156,7 @@ test("executes a structured command", async (t) => {
 });
 
 test("limits combined command output to 4 KiB and preserves its head and tail", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const registry = createDefaultToolRegistry();
   const call = registry.validate({
@@ -179,7 +179,7 @@ test("limits combined command output to 4 KiB and preserves its head and tail", 
       <= 4 * 1024,
   );
   assert.match(result.stdout, /^START/);
-  assert.match(result.stdout, /WTAgent omitted/);
+  assert.match(result.stdout, /NeuralForge omitted/);
   assert.match(result.stdout, /END$/);
   assert.doesNotMatch(result.stdout, /�/);
   assert.equal(result.data.truncated, true);
@@ -187,7 +187,7 @@ test("limits combined command output to 4 KiB and preserves its head and tail", 
 });
 
 test("caps the locally streamed command log independently", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const registry = createDefaultToolRegistry({
     limits: {
@@ -216,7 +216,7 @@ test("caps the locally streamed command log independently", async (t) => {
 });
 
 test("bounds managed-process reads and omits logs from process lists", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   const processManager = new ProcessManager();
   t.after(async () => {
     await processManager.stopAll();
@@ -297,7 +297,7 @@ test("terminal tool guidance tells the model to bound output without shell opera
 });
 
 test("fs.search excludes paths given in the exclude argument", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   await fs.mkdir(path.join(root, "src"), { recursive: true });
   await fs.mkdir(path.join(root, "vendor"), { recursive: true });
@@ -319,7 +319,7 @@ test("fs.search excludes paths given in the exclude argument", async (t) => {
 });
 
 test("fs.search splits comma-separated exclude patterns", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-tools-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-tools-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   await fs.mkdir(path.join(root, "src"), { recursive: true });
   await fs.mkdir(path.join(root, "vendor"), { recursive: true });

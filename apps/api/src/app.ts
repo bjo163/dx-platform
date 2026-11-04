@@ -1,23 +1,23 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import type { JobService } from "@wtagent/job";
-import { createWTagentBackup, type WTagentDatabase } from "@wtagent/database";
+import type { JobService } from "@neuralforge/job";
+import { createWTagentBackup, type WTagentDatabase } from "@neuralforge/database";
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
-import { extractJwtFromHeader, verifyJwt, JwtResult } from "@wtagent/shared/jwt";
-import { createRateLimiter, type RateLimitRequest } from "@wtagent/shared/rate-limit";
-import { createCorsValidator, type CorsOptions } from "@wtagent/shared/cors";
-import { executeGatewayChatCompletion } from "@wtagent/gateway";
+import { extractJwtFromHeader, verifyJwt, JwtResult } from "@neuralforge/shared/jwt";
+import { createRateLimiter, type RateLimitRequest } from "@neuralforge/shared/rate-limit";
+import { createCorsValidator, type CorsOptions } from "@neuralforge/shared/cors";
+import { executeGatewayChatCompletion } from "@neuralforge/gateway";
 import {
   createWebAdapter,
   findProvider,
   getProviderProfileDir,
   launchNativeLoginBrowser,
   PROVIDERS,
-} from "@wtagent/browser";
-import { getAppDataDir } from "@wtagent/platform/paths";
-import type { JobStatus } from "@wtagent/job";
+} from "@neuralforge/browser";
+import { getAppDataDir } from "@neuralforge/platform/paths";
+import type { JobStatus } from "@neuralforge/job";
 
 export interface BuildAppOptions {
   jobService: JobService;
@@ -39,7 +39,7 @@ export interface BuildAppOptions {
 }
 
 const WORKSPACE_PREVIEW_MAX_BYTES = 256 * 1024;
-const WORKSPACE_IGNORED_ENTRIES = new Set([".git", ".wtagent", "node_modules"]);
+const WORKSPACE_IGNORED_ENTRIES = new Set([".git", ".neuralforge", "node_modules"]);
 
 function isWithinDirectory(directory: string, target: string): boolean {
   const relative = path.relative(directory, target);
@@ -223,7 +223,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       });
     }
     const createdAt = new Date();
-    const backupName = `wtagent-${createdAt.toISOString().replaceAll(":", "-")}-${randomUUID().slice(0, 8)}`;
+    const backupName = `neuralforge-${createdAt.toISOString().replaceAll(":", "-")}-${randomUUID().slice(0, 8)}`;
     const result = await createWTagentBackup({
       database: options.database,
       sessionsDir: path.join(options.dataDir, "sessions"),
@@ -553,7 +553,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     if (!secret) {
       return reply.code(503).send({ error: { code: "CONFIG_ERROR", message: "Artifact preview secret is not configured." } });
     }
-    const { createArtifactPreview } = await import("@wtagent/artifacts");
+    const { createArtifactPreview } = await import("@neuralforge/artifacts");
     const preview = createArtifactPreview({
       secret,
       ttlMs: Number(process.env.WTAGENT_ARTIFACT_TTL_MS) || 3600 * 1000,
@@ -588,7 +588,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     if (!secret) {
       return reply.code(503).send({ error: { code: "CONFIG_ERROR", message: "Artifact preview secret is not configured." } });
     }
-    const { createArtifactPreview } = await import("@wtagent/artifacts");
+    const { createArtifactPreview } = await import("@neuralforge/artifacts");
     const preview = createArtifactPreview({ secret });
     const token = request.params.token;
     try {

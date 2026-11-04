@@ -7,7 +7,7 @@
 > **Note**: This document is a historical draft from the project's early design phase. The current release-readiness plan is in `.plan/task.md` (updated November 2026). See the `.plan` directory for the active plan, release criteria, and M0-M5 milestones.
 
 ## Document: DRAFT
-## Owner: @wtagent/browser
+## Owner: @neuralforge/browser
 ## Related: JOB-SPEC-001, POLICY-SPEC-001
 
 ---
@@ -18,15 +18,15 @@
 - **Name**: Provider Integration
 - **Version**: 1.0
 - **Status**: DRAFT
-- **Owner**: @wtagent/browser
+- **Owner**: @neuralforge/browser
 - **Related Requirements**: FR-001, FR-002, FR-009, FR-010
-- **Dependencies**: @wtagent/protocol, @wtagent/platform, @wtagent/tools, @wtagent/policy
+- **Dependencies**: @neuralforge/protocol, @neuralforge/platform, @neuralforge/tools, @neuralforge/policy
 
 ---
 
 ## B. Purpose
 
-The Provider Integration layer enables WTAgent to interact with web-based AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) through browser automation (Chrome DevTools Protocol) without requiring API keys. It provides:
+The Provider Integration layer enables NeuralForge to interact with web-based AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) through browser automation (Chrome DevTools Protocol) without requiring API keys. It provides:
 - Session management per provider
 - Authentication flow automation
 - DOM interaction for message sending/receiving
@@ -156,7 +156,7 @@ Each provider adapter implements `getAuthState()` by checking for specific DOM e
 │                 Provider Integration Layer           │
 ├──────────────────────────────────────────────────────┤
 │  HTTP API Layer         ┌──────────────────────────┐ │
-│  /v1/providers          │   @wtagent/browser         │ │
+│  /v1/providers          │   @neuralforge/browser         │ │
 │  /v1/providers/:id      │   ┌────────────────────┐  │ │
 │                         │   │ Adapter Registry   │  │ │
 │  Job Service            │   │  (ChatGPT, Gemini) │  │ │
@@ -208,7 +208,7 @@ interface WebAdapter {
 
 | Location | Purpose | Retention |
 |----------|---------|-----------|
-| `.wtagent/data/providers/{id}/` | Chrome user data dir | Until disconnect |
+| `.neuralforge/data/providers/{id}/` | Chrome user data dir | Until disconnect |
 | `sessions/{id}/` | Session metadata | Until disconnect |
 | `logs/` | Browser logs | Rotating, 7 days |
 
@@ -396,7 +396,7 @@ interface ProviderCapability {
 
 ### Data Protection
 
-- Profile directories stored in `.wtagent/data/providers/`
+- Profile directories stored in `.neuralforge/data/providers/`
 - No plaintext credentials in database
 - Session cookies validated before use
 - Browser instances destroyed on disconnect

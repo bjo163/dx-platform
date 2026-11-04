@@ -4,9 +4,9 @@ import os from "node:os";
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { ArtifactStore } from "@wtagent/artifacts/artifact-store";
-import { inspectMusicBuffer } from "@wtagent/artifacts/music-artifact";
-import type { MusicArtifact, MusicReceiverContext } from "@wtagent/types";
+import { ArtifactStore } from "@neuralforge/artifacts/artifact-store";
+import { inspectMusicBuffer } from "@neuralforge/artifacts/music-artifact";
+import type { MusicArtifact, MusicReceiverContext } from "@neuralforge/types";
 
 // Structural view of the provider surfaces this receiver drives: the download
 // request channel plus the native Music entry point of the web adapter.
@@ -62,7 +62,7 @@ export interface NativeMusicReceiverOptions {
 const execFileAsync = promisify(execFile);
 export const MUSIC_SYSTEM_REMINDER = "Use Gemini's native Music tool to create the requested playable music. "
   + "Return the generated track directly, with an optional short description. Do not use XML, code, or local tools. "
-  + "If music cannot be generated, explain the limitation plainly. WTAgent downloads the generated file automatically.";
+  + "If music cannot be generated, explain the limitation plainly. NeuralForge downloads the generated file automatically.";
 
 export function validateGenerationType(
   type: string | null | undefined,
@@ -98,7 +98,7 @@ export class NativeMusicReceiver {
   async save(tracks: NativeMusicTrack[], { projectRoot, handoffId, assistantMessageId }: MusicReceiverContext) {
     const store = new ArtifactStore({ projectRoot });
     const directory = path.join("artifacts", "music", createHash("sha256").update(handoffId).digest("hex").slice(0, 24));
-    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-music-"));
+    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-music-"));
     const artifacts: MusicArtifact[] = [];
     try {
       for (const [index, track] of tracks.entries()) {

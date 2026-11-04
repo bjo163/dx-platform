@@ -97,7 +97,7 @@ export class WTagentDatabase {
 
   static async open(options: DatabaseOptions): Promise<WTagentDatabase> {
     await mkdir(options.dataDir, { recursive: true, mode: 0o700 });
-    const client = new PGlite(path.join(options.dataDir, "wtagent.pglite"));
+    const client = new PGlite(path.join(options.dataDir, "neuralforge.pglite"));
     await client.waitReady;
     const database = new WTagentDatabase(client);
     await database.migrate();

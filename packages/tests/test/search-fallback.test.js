@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fallbackSearch } from "@wtagent/tools/search-fallback";
+import { fallbackSearch } from "@neuralforge/tools/search-fallback";
 
 async function fixtureTree(t) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-search-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-search-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   for (const [name, content] of [
     ["src/a.js", "const needle = 1;"],

@@ -24,31 +24,31 @@ importers:
 
   apps/api:
     dependencies:
-      '@wtagent/artifacts':
+      '@neuralforge/artifacts':
         specifier: workspace:*
         version: link:../../packages/artifacts
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../../packages/browser
-      '@wtagent/database':
+      '@neuralforge/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@wtagent/gateway':
+      '@neuralforge/gateway':
         specifier: workspace:*
         version: link:../../packages/gateway
-      '@wtagent/job':
+      '@neuralforge/job':
         specifier: workspace:*
         version: link:../../packages/job
-      '@wtagent/platform':
+      '@neuralforge/platform':
         specifier: workspace:*
         version: link:../../packages/platform
-      '@wtagent/plugins':
+      '@neuralforge/plugins':
         specifier: workspace:*
         version: link:../../packages/plugins
-      '@wtagent/session':
+      '@neuralforge/session':
         specifier: workspace:*
         version: link:../../packages/session
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       fastify:
@@ -88,13 +88,13 @@ importers:
 
   packages/artifacts:
     dependencies:
-      '@wtagent/policy':
+      '@neuralforge/policy':
         specifier: workspace:*
         version: link:../policy
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -104,13 +104,13 @@ importers:
 
   packages/audio:
     dependencies:
-      '@wtagent/artifacts':
+      '@neuralforge/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -120,19 +120,19 @@ importers:
 
   packages/browser:
     dependencies:
-      '@wtagent/platform':
+      '@neuralforge/platform':
         specifier: workspace:*
         version: link:../platform
-      '@wtagent/protocol':
+      '@neuralforge/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/tools':
+      '@neuralforge/tools':
         specifier: workspace:*
         version: link:../tools
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -148,40 +148,40 @@ importers:
       '@inquirer/prompts':
         specifier: ^8.5.2
         version: 8.7.5(@types/node@22.20.5)
-      '@wtagent/artifacts':
+      '@neuralforge/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@wtagent/audio':
+      '@neuralforge/audio':
         specifier: workspace:*
         version: link:../audio
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../browser
-      '@wtagent/image':
+      '@neuralforge/image':
         specifier: workspace:*
         version: link:../image
-      '@wtagent/platform':
+      '@neuralforge/platform':
         specifier: workspace:*
         version: link:../platform
-      '@wtagent/policy':
+      '@neuralforge/policy':
         specifier: workspace:*
         version: link:../policy
-      '@wtagent/protocol':
+      '@neuralforge/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@wtagent/runtime':
+      '@neuralforge/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@wtagent/session':
+      '@neuralforge/session':
         specifier: workspace:*
         version: link:../session
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/tools':
+      '@neuralforge/tools':
         specifier: workspace:*
         version: link:../tools
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
       commander:
@@ -222,7 +222,7 @@ importers:
 
   packages/errors:
     dependencies:
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -232,7 +232,7 @@ importers:
 
   packages/gateway:
     dependencies:
-      '@wtagent/job':
+      '@neuralforge/job':
         specifier: workspace:*
         version: link:../job
     devDependencies:
@@ -242,19 +242,19 @@ importers:
 
   packages/image:
     dependencies:
-      '@wtagent/artifacts':
+      '@neuralforge/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../browser
-      '@wtagent/protocol':
+      '@neuralforge/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -264,28 +264,28 @@ importers:
 
   packages/job:
     dependencies:
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../browser
-      '@wtagent/platform':
+      '@neuralforge/platform':
         specifier: workspace:*
         version: link:../platform
-      '@wtagent/policy':
+      '@neuralforge/policy':
         specifier: workspace:*
         version: link:../policy
-      '@wtagent/runtime':
+      '@neuralforge/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@wtagent/session':
+      '@neuralforge/session':
         specifier: workspace:*
         version: link:../session
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/tools':
+      '@neuralforge/tools':
         specifier: workspace:*
         version: link:../tools
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -295,13 +295,13 @@ importers:
 
   packages/mcp:
     dependencies:
-      '@wtagent/policy':
+      '@neuralforge/policy':
         specifier: workspace:*
         version: link:../policy
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/tools':
+      '@neuralforge/tools':
         specifier: workspace:*
         version: link:../tools
     devDependencies:
@@ -311,10 +311,10 @@ importers:
 
   packages/platform:
     dependencies:
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -324,10 +324,10 @@ importers:
 
   packages/plugins:
     dependencies:
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -337,10 +337,10 @@ importers:
 
   packages/policy:
     dependencies:
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -350,10 +350,10 @@ importers:
 
   packages/protocol:
     dependencies:
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
       fast-xml-parser:
@@ -366,31 +366,31 @@ importers:
 
   packages/runtime:
     dependencies:
-      '@wtagent/artifacts':
+      '@neuralforge/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@wtagent/audio':
+      '@neuralforge/audio':
         specifier: workspace:*
         version: link:../audio
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../browser
-      '@wtagent/image':
+      '@neuralforge/image':
         specifier: workspace:*
         version: link:../image
-      '@wtagent/protocol':
+      '@neuralforge/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@wtagent/session':
+      '@neuralforge/session':
         specifier: workspace:*
         version: link:../session
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/tools':
+      '@neuralforge/tools':
         specifier: workspace:*
         version: link:../tools
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -400,19 +400,19 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../browser
-      '@wtagent/job':
+      '@neuralforge/job':
         specifier: workspace:*
         version: link:../job
-      '@wtagent/runtime':
+      '@neuralforge/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -422,19 +422,19 @@ importers:
 
   packages/session:
     dependencies:
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../browser
-      '@wtagent/policy':
+      '@neuralforge/policy':
         specifier: workspace:*
         version: link:../policy
-      '@wtagent/protocol':
+      '@neuralforge/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -444,7 +444,7 @@ importers:
 
   packages/shared:
     dependencies:
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -454,52 +454,52 @@ importers:
 
   packages/tests:
     dependencies:
-      '@wtagent/artifacts':
+      '@neuralforge/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@wtagent/audio':
+      '@neuralforge/audio':
         specifier: workspace:*
         version: link:../audio
-      '@wtagent/browser':
+      '@neuralforge/browser':
         specifier: workspace:*
         version: link:../browser
-      '@wtagent/gateway':
+      '@neuralforge/gateway':
         specifier: workspace:*
         version: link:../gateway
-      '@wtagent/image':
+      '@neuralforge/image':
         specifier: workspace:*
         version: link:../image
-      '@wtagent/job':
+      '@neuralforge/job':
         specifier: workspace:*
         version: link:../job
-      '@wtagent/mcp':
+      '@neuralforge/mcp':
         specifier: workspace:*
         version: link:../mcp
-      '@wtagent/platform':
+      '@neuralforge/platform':
         specifier: workspace:*
         version: link:../platform
-      '@wtagent/policy':
+      '@neuralforge/policy':
         specifier: workspace:*
         version: link:../policy
-      '@wtagent/protocol':
+      '@neuralforge/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@wtagent/runtime':
+      '@neuralforge/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@wtagent/session':
+      '@neuralforge/session':
         specifier: workspace:*
         version: link:../session
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/tools':
+      '@neuralforge/tools':
         specifier: workspace:*
         version: link:../tools
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
-      wtagent:
+      neuralforge:
         specifier: workspace:*
         version: link:../cli
     devDependencies:
@@ -521,16 +521,16 @@ importers:
 
   packages/tools:
     dependencies:
-      '@wtagent/platform':
+      '@neuralforge/platform':
         specifier: workspace:*
         version: link:../platform
-      '@wtagent/policy':
+      '@neuralforge/policy':
         specifier: workspace:*
         version: link:../policy
-      '@wtagent/shared':
+      '@neuralforge/shared':
         specifier: workspace:*
         version: link:../shared
-      '@wtagent/types':
+      '@neuralforge/types':
         specifier: workspace:*
         version: link:../types
       zod:

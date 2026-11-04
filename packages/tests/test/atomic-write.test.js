@@ -1,6 +1,6 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { replaceFileAtomic } from "@wtagent/shared/atomic-write";
+import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
 
 test("Windows atomic replacement retries transient sharing violations", async () => {
   let calls = 0;

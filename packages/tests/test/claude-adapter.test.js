@@ -1,6 +1,6 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { ClaudeWebAdapter, isConnectionLostError } from "@wtagent/browser/claude-web-adapter";
+import { ClaudeWebAdapter, isConnectionLostError } from "@neuralforge/browser/claude-web-adapter";
 
 class EmptyLocator {
   async count() { return 0; }

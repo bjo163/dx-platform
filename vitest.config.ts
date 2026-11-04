@@ -33,9 +33,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@wtagent/types': resolve(__dirname, 'packages/types/src'),
-      '@wtagent/shared': resolve(__dirname, 'packages/shared/src'),
-      '@wtagent/sdk': resolve(__dirname, 'packages/sdk/src'),
+      '@neuralforge/types': resolve(__dirname, 'packages/types/src'),
+      '@neuralforge/shared': resolve(__dirname, 'packages/shared/src'),
+      '@neuralforge/sdk': resolve(__dirname, 'packages/sdk/src'),
     },
   },
 });

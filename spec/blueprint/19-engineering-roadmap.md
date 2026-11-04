@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Engineering Roadmap
+# NeuralForge Master Blueprint — Engineering Roadmap
 
 ## Document: 19-engineering-roadmap.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Engineering Roadmap Overview
 
-This document defines the phased implementation plan for WTAgent, organized into 5 phases over 10 weeks. Each phase has clear objectives, deliverables, dependencies, and acceptance criteria.
+This document defines the phased implementation plan for NeuralForge, organized into 5 phases over 10 weeks. Each phase has clear objectives, deliverables, dependencies, and acceptance criteria.
 
 ---
 
@@ -43,7 +43,7 @@ Establish documentation, configuration, and testing foundations to enable effici
 | PH1-003 | ARCHITECTURE.md | Architecture | ✅ Complete |
 | PH1-004 | Master Blueprint (20 docs) | Architecture | 🟡 In Progress |
 | PH1-005 | TypeScript project references | Platform | ⚪ Pending |
-| PH1-006 | @wtagent/errors package | Platform | ⚪ Pending |
+| PH1-006 | @neuralforge/errors package | Platform | ⚪ Pending |
 | PH1-007 | Vitest configuration | Testing | ⚪ Pending |
 
 ### Dependencies
@@ -59,7 +59,7 @@ Establish documentation, configuration, and testing foundations to enable effici
 - [x] ARCHITECTURE.md published
 - [ ] All 20 blueprint documents complete
 - [ ] TypeScript project references configured
-- [ ] @wtagent/errors package published
+- [ ] @neuralforge/errors package published
 - [ ] Vitest configuration merged
 
 ### Acceptance Criteria
@@ -90,7 +90,7 @@ Implement comprehensive testing, monitoring, and documentation to ensure quality
 | PH2-008 | Prometheus metrics endpoint | Platform | ⚪ Planned |
 
 ### Dependencies
-- PH1-006 (@wtagent/errors)
+- PH1-006 (@neuralforge/errors)
 - PH1-007 (Vitest configuration)
 
 ### Risks

@@ -1,15 +1,15 @@
-interface WTAgentErrorOptions extends ErrorOptions {
+interface NeuralForgeErrorOptions extends ErrorOptions {
   code?: string;
   recoverable?: boolean;
   details?: unknown;
 }
 
-export class WTAgentError extends Error {
+export class NeuralForgeError extends Error {
   code: string;
   recoverable: boolean;
   details: unknown;
 
-  constructor(message: string, options: WTAgentErrorOptions = {}) {
+  constructor(message: string, options: NeuralForgeErrorOptions = {}) {
     super(message, options);
     this.name = this.constructor.name;
     this.code = options.code ?? "WTAGENT_ERROR";
@@ -18,8 +18,8 @@ export class WTAgentError extends Error {
   }
 }
 
-export class ProtocolError extends WTAgentError {
-  constructor(message: string, options: WTAgentErrorOptions = {}) {
+export class ProtocolError extends NeuralForgeError {
+  constructor(message: string, options: NeuralForgeErrorOptions = {}) {
     super(message, {
       code: "PROTOCOL_ERROR",
       recoverable: true,
@@ -28,8 +28,8 @@ export class ProtocolError extends WTAgentError {
   }
 }
 
-export class BrowserAdapterError extends WTAgentError {
-  constructor(message: string, options: WTAgentErrorOptions = {}) {
+export class BrowserAdapterError extends NeuralForgeError {
+  constructor(message: string, options: NeuralForgeErrorOptions = {}) {
     super(message, {
       code: "BROWSER_ADAPTER_ERROR",
       recoverable: true,
@@ -38,8 +38,8 @@ export class BrowserAdapterError extends WTAgentError {
   }
 }
 
-export class ToolValidationError extends WTAgentError {
-  constructor(message: string, options: WTAgentErrorOptions = {}) {
+export class ToolValidationError extends NeuralForgeError {
+  constructor(message: string, options: NeuralForgeErrorOptions = {}) {
     super(message, {
       code: "TOOL_VALIDATION_ERROR",
       recoverable: true,
@@ -48,8 +48,8 @@ export class ToolValidationError extends WTAgentError {
   }
 }
 
-export class PolicyDeniedError extends WTAgentError {
-  constructor(message: string, options: WTAgentErrorOptions = {}) {
+export class PolicyDeniedError extends NeuralForgeError {
+  constructor(message: string, options: NeuralForgeErrorOptions = {}) {
     super(message, {
       code: "POLICY_DENIED",
       recoverable: true,
@@ -59,4 +59,4 @@ export class PolicyDeniedError extends WTAgentError {
 }
 
 // Compatibility alias for integrations written before the product rename.
-export { WTAgentError as WebAgentError };
+export { NeuralForgeError as WebAgentError };

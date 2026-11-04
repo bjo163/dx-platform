@@ -1,5 +1,5 @@
 /**
- * JWT (JSON Web Token) authentication utilities for WTAgent API.
+ * JWT (JSON Web Token) authentication utilities for NeuralForge API.
  * Supports optional JWT auth with Bearer token validation.
  */
 

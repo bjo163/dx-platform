@@ -16,14 +16,14 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@wtagent/types": ["../types/dist"],
-      "@wtagent/shared": ["../shared/dist"],
-      "@wtagent/session": ["../session/dist"],
-      "@wtagent/browser": ["../browser/dist"],
-      "@wtagent/runtime": ["../runtime/dist"],
-      "@wtagent/policy": ["../policy/dist"],
-      "@wtagent/tools": ["../tools/dist"],
-      "@wtagent/platform": ["../platform/dist"]
+      "@neuralforge/types": ["../types/dist"],
+      "@neuralforge/shared": ["../shared/dist"],
+      "@neuralforge/session": ["../session/dist"],
+      "@neuralforge/browser": ["../browser/dist"],
+      "@neuralforge/runtime": ["../runtime/dist"],
+      "@neuralforge/policy": ["../policy/dist"],
+      "@neuralforge/tools": ["../tools/dist"],
+      "@neuralforge/platform": ["../platform/dist"]
     },
     "noEmit": false,
     "resolveJsonModule": true,

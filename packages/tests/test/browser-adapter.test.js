@@ -4,8 +4,8 @@ import { PassThrough } from "node:stream";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { launchAndConnectCdpChrome } from "@wtagent/browser/cdp-browser";
-import { ChatGPTWebAdapter, isConnectionLostError } from "@wtagent/browser/chatgpt-web-adapter";
+import { launchAndConnectCdpChrome } from "@neuralforge/browser/cdp-browser";
+import { ChatGPTWebAdapter, isConnectionLostError } from "@neuralforge/browser/chatgpt-web-adapter";
 
 test("ChatGPT leaves model selection entirely to the website/user", () => {
   const adapter = new ChatGPTWebAdapter({ profileDir: "." });
@@ -1253,7 +1253,7 @@ test("an unmatched provisional URL opens a verified fresh page without navigatin
 const freshSendTestId = "11111111-1111-4111-8111-111111111111";
 const oldSendTestId = "22222222-2222-4222-8222-222222222222";
 const freshSendTestMarker = (id) =>
-  `Opaque WTAgent transport correlation ID (do not repeat): ${id}.`;
+  `Opaque NeuralForge transport correlation ID (do not repeat): ${id}.`;
 const freshSendTestPayload = (id) =>
   "Read `src/slugify.js` and inspect the tests.\n" +
   `<system_reminder>Use XML. ${freshSendTestMarker(id)}</system_reminder>`;
@@ -3906,7 +3906,7 @@ test("reconnect detaches the old lock and transport before relaunching", async (
 });
 
 test("reconnect acquires a fresh real profile lock and releases it on failure", async (t) => {
-  const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-reconnect-"));
+  const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-reconnect-"));
   t.after(() => fs.rm(profileDir, { recursive: true, force: true }));
   const url = "https://chatgpt.com/c/reconnect";
   const page = {
@@ -3933,7 +3933,7 @@ test("reconnect acquires a fresh real profile lock and releases it on failure", 
     killTree: () => { throw new Error("must not kill Chrome"); },
   });
   t.after(() => adapter.detach());
-  const lockFile = path.join(profileDir, ".wtagent-session.lock");
+  const lockFile = path.join(profileDir, ".neuralforge-session.lock");
   const readLock = async () => JSON.parse(await fs.readFile(lockFile, "utf8"));
   await adapter.launch(url);
   const oldConnection = adapter.cdpChrome;

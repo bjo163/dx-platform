@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Deployment Strategy
+# NeuralForge Master Blueprint — Deployment Strategy
 
 ## Document: 16-deployment-strategy.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Deployment Strategy Overview
 
-WTAgent's deployment strategy covers release processes, environment promotion, configuration management, and rollback procedures. This document defines how new versions are delivered to users.
+NeuralForge's deployment strategy covers release processes, environment promotion, configuration management, and rollback procedures. This document defines how new versions are delivered to users.
 
 ---
 
@@ -104,7 +104,7 @@ v2.0.0 — Docker + CI/CD + observability
 |-------|------------|--------------|-----------------|
 | Dev | PORT=3000 | PORT=8080 | PORT=8080 |
 | API | WTAGENT_PROVIDER=chatgpt | WTAGENT_PROVIDER=chatgpt | WTAGENT_PROVIDER=chatgpt |
-| Path | WTAGENT_DATA_DIR=.wtagent | WTAGENT_DATA_DIR=.wtagent | WTAGENT_DATA_DIR=/data |
+| Path | WTAGENT_DATA_DIR=.neuralforge | WTAGENT_DATA_DIR=.neuralforge | WTAGENT_DATA_DIR=/data |
 
 ### Configuration Validation
 
@@ -114,7 +114,7 @@ import { z } from 'zod';
 
 const EnvSchema = z.object({
   PORT: z.string().default('8080'),
-  WTAGENT_DATA_DIR: z.string().default('.wtagent'),
+  WTAGENT_DATA_DIR: z.string().default('.neuralforge'),
   WTAGENT_PROJECT_ROOT: z.string().default('auto'),
   WTAGENT_PROVIDER: z.enum(['chatgpt', 'gemini', 'grok', 'deepseek', 'glm', 'kimi']).default('chatgpt'),
   NEXT_PUBLIC_WTAGENT_API_URL: z.string().default('http://localhost:8080'),
@@ -154,7 +154,7 @@ export function validateEnv(partial: Partial<EnvConfig>): EnvConfig {
 
 ```bash
 # Rollback to previous version
-docker pull wtagent/api:v1.0.0
+docker pull neuralforge/api:v1.0.0
 docker compose up -d api@v1.0.0
 
 # Or via Git
@@ -182,22 +182,22 @@ pnpm run release:rollback --version v1.0.0
 
 | Artifact Type | Storage Location | Retention | Cleanup |
 |---------------|-----------------|-----------|---------|
-| Native images | `.wtagent/artifacts/native-images/` | 90 days | Garbage collect |
-| Music tracks | `.wtagent/artifacts/music/` | 90 days | Garbage collect |
-| Job results | `.wtagent/data/` | 7 days (PGlite) | VACUUM |
-| Audit logs | `.wtagent/data/audit/` | 30 days (rotated) | Rotate daily |
+| Native images | `.neuralforge/artifacts/native-images/` | 90 days | Garbage collect |
+| Music tracks | `.neuralforge/artifacts/music/` | 90 days | Garbage collect |
+| Job results | `.neuralforge/data/` | 7 days (PGlite) | VACUUM |
+| Audit logs | `.neuralforge/data/audit/` | 30 days (rotated) | Rotate daily |
 
 ### Artifact Cleanup Script
 
 ```bash
 #!/bin/bash
 # Cleanup artifacts older than 90 days
-find .wtagent/artifacts/native-images/ -type f -mtime +90 -delete
-find .wtagent/artifacts/music/ -type f -mtime +90 -delete
+find .neuralforge/artifacts/native-images/ -type f -mtime +90 -delete
+find .neuralforge/artifacts/music/ -type f -mtime +90 -delete
 
 # Rotate audit logs older than 30 days
-find .wtagent/data/audit/*.jsonl -mtime +30 -delete
-gzip .wtagent/data/audit/$(ls -1t .wtagent/data/audit/*.jsonl | tail -1)
+find .neuralforge/data/audit/*.jsonl -mtime +30 -delete
+gzip .neuralforge/data/audit/$(ls -1t .neuralforge/data/audit/*.jsonl | tail -1)
 ```
 
 ---
@@ -208,8 +208,8 @@ gzip .wtagent/data/audit/$(ls -1t .wtagent/data/audit/*.jsonl | tail -1)
 
 ```hcl
 # terraform/main.tf
-resource "docker_image" "wtagent_api" {
-  name = "wtagent/api:${var.version}"
+resource "docker_image" "neuralforge_api" {
+  name = "neuralforge/api:${var.version}"
   pull_options = ["--platform", "linux/amd64"]
 }
 
@@ -224,18 +224,18 @@ resource "local_file" ".env.production" {
 ### Ansible (Future)
 
 ```yaml
-# ansible/roles/wtagent/tasks/main.yml
-- name: Deploy WTAgent API
+# ansible/roles/neuralforge/tasks/main.yml
+- name: Deploy NeuralForge API
   docker_container:
-    name: wtagent_api
-    image: wtagent/api:{{ .Version }}
+    name: neuralforge_api
+    image: neuralforge/api:{{ .Version }}
     state: started
     restart_policy: always
     published_ports:
       - "8080:8080"
     env:
       - PORT=8080
-      - WTAGENT_DATA_DIR=.wtagent
+      - WTAGENT_DATA_DIR=.neuralforge
 ```
 
 ---

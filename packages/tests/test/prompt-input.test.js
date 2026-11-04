@@ -10,7 +10,7 @@ import {
   promptForText,
   readChatMessage,
   ShellChatInput,
-} from "wtagent/prompt-input";
+} from "neuralforge/prompt-input";
 
 function createTtyStream() {
   const stream = new PassThrough();

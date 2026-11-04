@@ -1,25 +1,25 @@
-import { registerImageTools } from "@wtagent/tools/image-tools";
+import { registerImageTools } from "@neuralforge/tools/image-tools";
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { inspectImageBuffer, ArtifactStore } from "@wtagent/artifacts/artifact-store";
-import { ImageGenerationService } from "@wtagent/image/image-generation-service";
-import { BrowserImageDriver } from "@wtagent/image/browser-image-driver";
-import { BrowserImageSessionPool } from "@wtagent/image/browser-image-session-pool";
+import { inspectImageBuffer, ArtifactStore } from "@neuralforge/artifacts/artifact-store";
+import { ImageGenerationService } from "@neuralforge/image/image-generation-service";
+import { BrowserImageDriver } from "@neuralforge/image/browser-image-driver";
+import { BrowserImageSessionPool } from "@neuralforge/image/browser-image-session-pool";
 import {
   ChatGPTImageDriver,
   preferredImageUrl,
-} from "@wtagent/image/providers/chatgpt-image-driver";
-import { GeminiImageDriver } from "@wtagent/image/providers/gemini-image-driver";
+} from "@neuralforge/image/providers/chatgpt-image-driver";
+import { GeminiImageDriver } from "@neuralforge/image/providers/gemini-image-driver";
 import {
   GrokImageDriver,
   parseGrokGeneratedImageUrl,
-} from "@wtagent/image/providers/grok-image-driver";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { ToolRegistry } from "@wtagent/tools/registry";
+} from "@neuralforge/image/providers/grok-image-driver";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { ToolRegistry } from "@neuralforge/tools/registry";
 import { z } from "zod";
 
 const PNG_1X1 = Buffer.from(
@@ -119,7 +119,7 @@ test("providers without a reliable completion signal require a longer stable tex
 });
 
 test("image.generate returns provider text without creating or replacing an image", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-text-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-text-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   await fs.writeFile(path.join(root, "existing.png"), PNG_1X1);
   t.mock.timers.enable({ apis: ["Date"], now: 1_000 });
@@ -166,7 +166,7 @@ test("inspectImageBuffer validates and describes PNG artifacts", () => {
 });
 
 test("ArtifactStore atomically saves a verified local artifact", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-artifact-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-artifact-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, "source.png");
   await fs.writeFile(source, PNG_1X1);
@@ -186,7 +186,7 @@ test("ArtifactStore atomically saves a verified local artifact", async (t) => {
 });
 
 test("ArtifactStore rejects an extension that disagrees with image bytes", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-artifact-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-artifact-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, "source.png");
   await fs.writeFile(source, PNG_1X1);
@@ -262,7 +262,7 @@ test("secondary image generation uses the adapter's normal chat send path", asyn
     }, {}, async ({ sendResult }) => sendResult);
 
   assert.match(result.text, /Aspect ratio: 16:9/);
-  assert.match(result.text, /Opaque WTAgent transport correlation ID/);
+  assert.match(result.text, /Opaque NeuralForge transport correlation ID/);
   assert.match(result.options.outboundId, /^[0-9a-f-]{36}$/);
   assert.deepEqual(result.options.files, []);
   assert.equal(result.options.requireAttachments, false);
@@ -290,7 +290,7 @@ test("secondary image generation requires every reference attachment", async () 
 });
 
 test("image.generate dispatches to a provider and returns a local artifact", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-tool-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-tool-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, "provider.png");
   await fs.writeFile(source, PNG_1X1);
@@ -345,7 +345,7 @@ test("default catalog never exposes image.generate, even with a legacy service",
 });
 
 test("image.generate reports an aspect-ratio fallback in its result", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-tool-ratio-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-tool-ratio-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, "provider.png");
   await fs.writeFile(source, PNG_1X1);
@@ -387,7 +387,7 @@ test("image.generate reports an aspect-ratio fallback in its result", async (t) 
 });
 
 test("image.generate requires approval for output or references outside the project", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-policy-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-policy-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const outside = path.join(os.tmpdir(), `outside-${Date.now()}.png`);
   const policy = new PolicyEngine();
@@ -405,7 +405,7 @@ test("image.generate requires approval for output or references outside the proj
 });
 
 test("image.generate does not require confirmation inside the project", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-policy-in-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-policy-in-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const policy = new PolicyEngine();
   const decision = await policy.evaluate({
@@ -421,7 +421,7 @@ test("image.generate does not require confirmation inside the project", async (t
 });
 
 test("ImageGenerationService falls back to auto for unsupported aspect ratios", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-aspect-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-aspect-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, "provider.png");
   await fs.writeFile(source, PNG_1X1);
@@ -484,7 +484,7 @@ test("ImageGenerationService enforces provider capabilities", async () => {
 });
 
 test("a local artifact failure after provider completion is not replay-safe", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-save-failure-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-save-failure-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, "provider.png");
   await fs.writeFile(source, PNG_1X1);
@@ -566,7 +566,7 @@ test("preferredImageUrl prefers a durable https image over a ChatGPT viewer or b
 });
 
 test("ChatGPT generate downloads the in-chat image URL without opening Library", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-chatgpt-chat-image-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-chatgpt-chat-image-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, "generated.png");
   await fs.writeFile(source, PNG_1X1);
@@ -699,7 +699,7 @@ test("parseGrokGeneratedImageUrl accepts only durable Grok generated assets", ()
 });
 
 test("Grok correlates a result with post-submit network plus prompt-matched conversation", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-grok-correlation-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-grok-correlation-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const historicalId = "11111111-1111-4111-8111-111111111111";
   const currentId = "22222222-2222-4222-8222-222222222222";
@@ -848,7 +848,7 @@ test("image sessions reuse the primary chat adapter without creating a page", as
   const pool = new BrowserImageSessionPool({
     primaryAdapter,
     primaryProvider: { id: "gemini", label: "Gemini" },
-    appDataDir: "/tmp/wtagent-test",
+    appDataDir: "/tmp/neuralforge-test",
     adapterFactory: () => {
       factoryCalls += 1;
       throw new Error("primary provider must not create another adapter");
@@ -873,7 +873,7 @@ test("secondary image providers start a fresh normal chat", async () => {
   const pool = new BrowserImageSessionPool({
     primaryAdapter: { context: {}, page: {} },
     primaryProvider: { id: "chatgpt", label: "ChatGPT" },
-    appDataDir: "/tmp/wtagent-test",
+    appDataDir: "/tmp/neuralforge-test",
     adapterFactory: () => adapter,
   });
 
@@ -899,7 +899,7 @@ test("secondary image provider waits through a transient authentication state", 
   const pool = new BrowserImageSessionPool({
     primaryAdapter: { context: {}, page: {} },
     primaryProvider: { id: "chatgpt", label: "ChatGPT" },
-    appDataDir: "/tmp/wtagent-test",
+    appDataDir: "/tmp/neuralforge-test",
     adapterFactory: () => adapter,
   });
 

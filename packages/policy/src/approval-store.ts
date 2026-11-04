@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { replaceFileAtomic } from "@wtagent/shared/atomic-write";
+import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
 
 // Persisted "always allow" decisions made at the approval prompt. Lives in the
 // app data directory so it survives session resumes and new sessions.

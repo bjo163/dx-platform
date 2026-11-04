@@ -18,9 +18,9 @@
     "resolveJsonModule": true,
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "paths": {
-      "@wtagent/types": ["../types/dist"],
-      "@wtagent/shared": ["../shared/dist"],
-      "@wtagent/job": ["../job/dist"]
+      "@neuralforge/types": ["../types/dist"],
+      "@neuralforge/shared": ["../shared/dist"],
+      "@neuralforge/job": ["../job/dist"]
     }
   },
   "include": ["src/**/*.ts"],

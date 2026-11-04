@@ -7,9 +7,9 @@ import {
   assertWindowsSafeName,
   isPathInside,
   resolveToolPath,
-} from "@wtagent/policy/path-guard";
-import { fallbackSearch } from "@wtagent/tools/search-fallback";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
+} from "@neuralforge/policy/path-guard";
+import { fallbackSearch } from "@neuralforge/tools/search-fallback";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
 
 test("Windows containment handles drive roots without admitting other drives or siblings", () => {
   const cases = [
@@ -29,7 +29,7 @@ test("Windows containment handles drive roots without admitting other drives or 
 });
 
 async function makeFixture(t) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-win-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-win-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   return root;
 }
@@ -114,7 +114,7 @@ test("javascript search supports fixed strings, regex, globs, limits, and skips 
 
 test("javascript search skips symlinked directories that escape the root", async (t) => {
   const root = await makeFixture(t);
-  const outside = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-win-outside-"));
+  const outside = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-win-outside-"));
   t.after(() => fs.rm(outside, { recursive: true, force: true }));
   const linkPath = path.join(root, "linked");
   await fs.mkdir(root, { recursive: true });
@@ -167,7 +167,7 @@ test("path guard validates every Windows component and containment comparisons a
 
 test("resolveToolPath rejects symlink escapes via real paths", async (t) => {
   const root = await makeFixture(t);
-  const outside = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-path-outside-"));
+  const outside = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-path-outside-"));
   t.after(() => fs.rm(outside, { recursive: true, force: true }));
   const linkPath = path.join(root, "escape");
   const linked = await createDirectorySymlink(t, outside, linkPath);

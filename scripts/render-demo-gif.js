@@ -20,13 +20,13 @@ function text(x, y, value, size = 36, fill = "#e8edf8", weight = 500) {
 function box(x, y, width, height, fill = "#222e44", stroke = "#3b4862") {
   return `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="22" fill="${fill}" stroke="${stroke}"/>`;
 }
-function svg(body, height = 780, title = "WTAgent scripted local demo", background = "#182032") {
+function svg(body, height = 780, title = "NeuralForge scripted local demo", background = "#182032") {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${height}" viewBox="0 0 1200 ${height}" role="img" aria-labelledby="title"><title id="title">${escape(title)}</title><rect width="1200" height="${height}" fill="${background}"/><g font-family="Arial, Helvetica, sans-serif">${body}</g></svg>`;
 }
 function frame(index, title, body) {
   const progress = [0, 1, 2, 3].map((step) =>
     `<rect x="${56 + step * 280}" y="207" width="264" height="5" rx="2" fill="${step <= index ? "#b9a9fb" : "#39465f"}"/>`).join("");
-  return svg(text(56, 69, "WTAgent", 29, "#c2b4ff", 750) +
+  return svg(text(56, 69, "NeuralForge", 29, "#c2b4ff", 750) +
     text(393, 69, "OFFLINE REPLAY · REAL LOCAL TOOLS", 26, "#b7c6dd", 650) +
     text(56, 165, title, 57, "#ffffff", 750) + progress +
     box(56, 250, 1088, 378) + body +
@@ -63,7 +63,7 @@ function demoFrames(report) {
 }
 function socialCard() {
   const ink = "#182033", purple = "#6146dc", muted = "#566176";
-  return svg(text(64, 62, "WTAgent", 32, purple, 750) +
+  return svg(text(64, 62, "NeuralForge", 32, purple, 750) +
     text(887, 62, "OPEN SOURCE · MIT", 23, muted, 650) +
     text(64, 151, "Turn web chats into", 68, ink, 750) +
     text(64, 235, "coding agents.", 78, purple, 750) +
@@ -74,7 +74,7 @@ function socialCard() {
     text(86, 477, "DeepSeek · Gemini · Grok · Kimi · GLM", 34, purple, 700) +
     text(64, 549, "Read files · Edit code · Run tests · No API key", 28, muted, 650) +
     text(64, 601, "Independent CLI. Not an official Codex or Claude Code client.", 24, muted),
-    630, "WTAgent — ChatGPT, Claude, DeepSeek, Gemini, Grok, Kimi and GLM for local coding", "#f7f8fb");
+    630, "NeuralForge — ChatGPT, Claude, DeepSeek, Gemini, Grok, Kimi and GLM for local coding", "#f7f8fb");
 }
 const { stdout } = await run(process.execPath, ["scripts/demo-session.js", "--json"], options);
 const report = JSON.parse(stdout.trim());
@@ -86,7 +86,7 @@ assert.deepEqual(report.verified, { exitCode: 0, passed: 3, failed: 0 });
 assert.equal(report.runtimeToolCompletions, 5);
 assert.deepEqual(report.steps.map((step) => step.name),
   ["fs.read", "terminal.exec", "fs.edit", "terminal.exec", "fs.read"]);
-const temporary = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-site-assets-"));
+const temporary = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-site-assets-"));
 try {
   const frames = demoFrames(report);
   const delays = [280, 320, 340, 480];

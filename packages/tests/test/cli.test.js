@@ -7,11 +7,11 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { cliEntry, cliManifestPath, testsTestDir, workspaceManifests } from "../src/layout.js";
-import { executeSession, promptToResolveProfileLock } from "wtagent/main";
-import { AgentSession } from "@wtagent/session/agent-session";
+import { executeSession, promptToResolveProfileLock } from "neuralforge/main";
+import { AgentSession } from "@neuralforge/session/agent-session";
 
 async function sessionHarness(t) {
-  const home = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-cli-session-"));
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-cli-session-"));
   t.after(() => fs.rm(home, { recursive: true, force: true }));
   const session = await AgentSession.create({ sessionsDir: path.join(home, "sessions"), projectRoot: home, task: "original" });
   return { home, session };
@@ -167,11 +167,11 @@ test("profile lock recovery refuses to terminate the current process", async (t)
 });
 
 const execFileAsync = promisify(execFile);
-test("package exposes only the wtagent executable", async () => {
+test("package exposes only the neuralforge executable", async () => {
   const manifest = JSON.parse(await fs.readFile(cliManifestPath, "utf8"));
 
-  assert.equal(manifest.name, "wtagent");
-  assert.deepEqual(manifest.bin, { wtagent: "./dist/main.js" });
+  assert.equal(manifest.name, "neuralforge");
+  assert.deepEqual(manifest.bin, { neuralforge: "./dist/main.js" });
   // One published executable, and every workspace package that carries a
   // version must carry the same one so a release cannot half-publish.
   for (const file of workspaceManifests()) {
@@ -230,7 +230,7 @@ for (const stateField of ["pendingOutbound", "pendingAssistantTurn"]) {
   });
 }
 
-test("CLI help and version use the WTAgent package identity", async () => {
+test("CLI help and version use the NeuralForge package identity", async () => {
   const entry = cliEntry;
   const manifest = JSON.parse(
     await fs.readFile(cliManifestPath, "utf8"),
@@ -240,7 +240,7 @@ test("CLI help and version use the WTAgent package identity", async () => {
     execFileAsync(process.execPath, [entry, "--version"]),
   ]);
 
-  assert.match(help, /^Usage: wtagent /);
+  assert.match(help, /^Usage: neuralforge /);
   assert.match(help, /Turn your web AI session into a local tool-using agent/);
   assert.match(help, /\[task\.\.\.\]/);
   assert.match(help, /-C, --project <path>/);
@@ -257,8 +257,8 @@ test("update command is documented and does not require a project", async () => 
     "--help",
   ]);
 
-  assert.match(stdout, /^Usage: wtagent update/);
-  assert.match(stdout, /Install the latest WTAgent from npm/);
+  assert.match(stdout, /^Usage: neuralforge update/);
+  assert.match(stdout, /Install the latest NeuralForge from npm/);
 });
 
 test("help documents the --model provider option", async () => {
@@ -349,7 +349,7 @@ test("a task is accepted directly without a run subcommand", async () => {
 
 test("logout --yes removes the dedicated Chrome profile", async () => {
   const entry = cliEntry;
-  const home = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-logout-"));
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-logout-"));
   try {
     const profileDir = path.join(home, "chrome-profile");
     await fs.mkdir(path.join(profileDir, "Default"), { recursive: true });
@@ -365,9 +365,9 @@ test("logout --yes removes the dedicated Chrome profile", async () => {
   }
 });
 
-test("logout refuses to delete a directory that is not a wtagent profile", async () => {
+test("logout refuses to delete a directory that is not a neuralforge profile", async () => {
   const entry = cliEntry;
-  const safe = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-safe-"));
+  const safe = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-safe-"));
   try {
     await fs.writeFile(path.join(safe, "important.txt"), "keep me");
 
@@ -376,7 +376,7 @@ test("logout refuses to delete a directory that is not a wtagent profile", async
         entry, "--profile-dir", safe, "logout", "--yes",
       ]),
       (error) => {
-        assert.match(error.stderr, /does not look like a wtagent Chrome profile/);
+        assert.match(error.stderr, /does not look like a neuralforge Chrome profile/);
         return true;
       },
     );

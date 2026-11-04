@@ -1,7 +1,7 @@
 
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { GrokWebAdapter } from "@wtagent/browser/grok-web-adapter";
+import { GrokWebAdapter } from "@neuralforge/browser/grok-web-adapter";
 
 class EmptyLocator {
   async count() { return 0; }

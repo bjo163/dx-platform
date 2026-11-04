@@ -1,6 +1,6 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { GeminiWebAdapter, isConnectionLostError } from "@wtagent/browser/gemini-web-adapter";
+import { GeminiWebAdapter, isConnectionLostError } from "@neuralforge/browser/gemini-web-adapter";
 
 class EmptyLocator {
   async count() { return 0; }

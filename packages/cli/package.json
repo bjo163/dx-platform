@@ -1,15 +1,15 @@
 {
-  "name": "wtagent",
+  "name": "neuralforge",
   "version": "1.0.3",
   "description": "Turn ChatGPT Web (including Pro) into Codex. Turn Claude Web into Claude Code. Also DeepSeek, Gemini, Grok, Kimi, GLM. No API key, no MCP, no tunnel, no plugin.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XiXian42/wtagent.git"
+    "url": "git+https://github.com/XiXian42/neuralforge.git"
   },
-  "homepage": "https://github.com/XiXian42/wtagent#readme",
+  "homepage": "https://github.com/XiXian42/neuralforge#readme",
   "bugs": {
-    "url": "https://github.com/XiXian42/wtagent/issues"
+    "url": "https://github.com/XiXian42/neuralforge/issues"
   },
   "keywords": [
     "agent",
@@ -31,7 +31,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "wtagent": "./dist/main.js"
+    "neuralforge": "./bin/cli.js",
+    "nforge": "./bin/cli.js"
   },
   "exports": {
     ".": {
@@ -57,18 +58,18 @@
     "dev": "node dist/main.js"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*",
-    "@wtagent/shared": "workspace:*",
-    "@wtagent/protocol": "workspace:*",
-    "@wtagent/policy": "workspace:*",
-    "@wtagent/platform": "workspace:*",
-    "@wtagent/browser": "workspace:*",
-    "@wtagent/tools": "workspace:*",
-    "@wtagent/artifacts": "workspace:*",
-    "@wtagent/audio": "workspace:*",
-    "@wtagent/image": "workspace:*",
-    "@wtagent/session": "workspace:*",
-    "@wtagent/runtime": "workspace:*",
+    "@neuralforge/types": "workspace:*",
+    "@neuralforge/shared": "workspace:*",
+    "@neuralforge/protocol": "workspace:*",
+    "@neuralforge/policy": "workspace:*",
+    "@neuralforge/platform": "workspace:*",
+    "@neuralforge/browser": "workspace:*",
+    "@neuralforge/tools": "workspace:*",
+    "@neuralforge/artifacts": "workspace:*",
+    "@neuralforge/audio": "workspace:*",
+    "@neuralforge/image": "workspace:*",
+    "@neuralforge/session": "workspace:*",
+    "@neuralforge/runtime": "workspace:*",
     "@inquirer/prompts": "^8.5.2",
     "commander": "^14.0.3",
     "fast-xml-parser": "^5.10.1",

@@ -4,14 +4,14 @@ import { EventEmitter } from "node:events";
 import {
   ensureCdpPageTarget,
   launchAndConnectCdpChrome,
-} from "@wtagent/browser/cdp-browser";
+} from "@neuralforge/browser/cdp-browser";
 
 function reusableState() {
   return {
     pid: 4242,
     port: 9333,
     endpoint: "http://127.0.0.1:9333",
-    profileDir: "/tmp/wtagent-test-profile",
+    profileDir: "/tmp/neuralforge-test-profile",
     webSocketDebuggerUrl:
       "ws://127.0.0.1:9333/devtools/browser/reused",
   };
@@ -324,7 +324,7 @@ test("times out a hung connect, kills the spawned Chrome, and clears state", asy
 
   await assert.rejects(connect, (error) => {
     assert.match(error.message, /Timed out connecting to Chrome CDP/);
-    assert.match(error.message, /wtagent logout/);
+    assert.match(error.message, /neuralforge logout/);
     return true;
   });
   // The hung instance we launched was killed and its stale state removed.
@@ -732,7 +732,7 @@ test("strict recovery never repairs or replaces missing CDP state", async () => 
   await assert.rejects(
     launchAndConnectCdpChrome({
       executablePath: "/fake/chrome",
-      profileDir: "/tmp/wtagent-test-profile",
+      profileDir: "/tmp/neuralforge-test-profile",
       preferredTargetId: "target-existing",
       exactTargetOnly: true,
     }, {
@@ -770,7 +770,7 @@ test("strict recovery validates its target before acquiring a profile lock", asy
   await assert.rejects(
     launchAndConnectCdpChrome({
       executablePath: "/fake/chrome",
-      profileDir: "/tmp/wtagent-test-profile",
+      profileDir: "/tmp/neuralforge-test-profile",
       exactTargetOnly: true,
     }, {
       acquireProfileLock: async () => {

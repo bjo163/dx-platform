@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   buildBootstrapPrompt,
   buildResumePrompt,
-} from "@wtagent/protocol/prompt-builder";
+} from "@neuralforge/protocol/prompt-builder";
 
 const tools = [{
   name: "fs.read",
@@ -43,7 +43,7 @@ test("bootstrap prompt defines current-run done semantics", () => {
     web,
     /run the appropriate verification \(build, tests, etc\.\) before finishing/,
   );
-  assert.match(web, /The user is running WTAgent/);
+  assert.match(web, /The user is running NeuralForge/);
   assert.match(web, /web AI conversation/);
   assert.doesNotMatch(web, /ChatGPT/);
   assert.doesNotMatch(web, /\bwebagent\b/i);
@@ -108,7 +108,7 @@ test("resume prompt keeps done semantics for an interrupted run", () => {
 
   assertPreciseDoneSemantics(web);
   assert.match(web, /Continue the interrupted run/);
-  assert.match(web, /Continue the same WTAgent session/);
+  assert.match(web, /Continue the same NeuralForge session/);
 });
 
 test("resume prompt treats a follow-up as the next message in an open session", () => {

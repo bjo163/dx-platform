@@ -1,4 +1,4 @@
-import { readConfig, writeConfig } from "@wtagent/shared/paths";
+import { readConfig, writeConfig } from "@neuralforge/shared/paths";
 
 export interface RuntimeConfig {
   provider: string;
@@ -37,7 +37,7 @@ export class ConfigAPI {
   private currentConfig: RuntimeConfig;
 
   constructor(options: ConfigAPIOptions = {}) {
-    this.configDir = options.configDir ?? ".wtagent";
+    this.configDir = options.configDir ?? ".neuralforge";
     this.defaultConfig = options.defaultConfig ?? {};
     this.currentConfig = this.#loadConfig();
   }

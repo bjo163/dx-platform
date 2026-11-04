@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { MCPServer } from "@wtagent/mcp";
+import { MCPServer } from "@neuralforge/mcp";
 
 test("debug cmd del grant", async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "wtagent-mcp-debug-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "neuralforge-mcp-debug-"));
   fs.writeFileSync(path.join(root, "victim.txt"), "keep");
   const server = new MCPServer({ projectRoot: root, allowedTools: ["terminal.exec"] });
   const response = await server.handleRequest({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "terminal.exec", arguments: { program: "cmd", argv: ["/c", "del", "victim.txt"], cwd: "." } } });

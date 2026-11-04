@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Requirements
+# NeuralForge Master Blueprint — Requirements
 
 ## Document: 03-requirements.md
 ## Status: **HISTORICAL** (archived 2024-01-15)

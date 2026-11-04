@@ -14,10 +14,10 @@ import type {
   ImageTurnResult,
   ImageTextResult,
 } from "./image-provider-driver.js";
-import { appendSystemReminder } from "@wtagent/protocol/markers";
+import { appendSystemReminder } from "@neuralforge/protocol/markers";
 
 const IMAGE_OUTBOUND_CORRELATION_PREFIX =
-  " Opaque WTAgent transport correlation ID (do not repeat): ";
+  " Opaque NeuralForge transport correlation ID (do not repeat): ";
 
 function parseRemoteFileId(value: string) {
   try {
@@ -140,8 +140,8 @@ export class BrowserImageDriver extends ImageProviderDriver {
     const outboundId = randomUUID();
     const message = appendSystemReminder(
       prompt,
-      "This is an internal WTAgent provider operation. Perform only the requested operation; "
-        + `do not emit the WTAgent XML protocol.${IMAGE_OUTBOUND_CORRELATION_PREFIX}${outboundId}.`,
+      "This is an internal NeuralForge provider operation. Perform only the requested operation; "
+        + `do not emit the NeuralForge XML protocol.${IMAGE_OUTBOUND_CORRELATION_PREFIX}${outboundId}.`,
     );
     let value: ImageTurnResult | undefined;
     try {
@@ -177,7 +177,7 @@ export class BrowserImageDriver extends ImageProviderDriver {
       page.waitForEvent("download", { timeout: timeoutMs }),
       button.click(),
     ]);
-    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-"));
+    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-"));
     const suggestedFilename = path.basename(
       download.suggestedFilename() || "generated-image",
     );
@@ -231,7 +231,7 @@ export class BrowserImageDriver extends ImageProviderDriver {
       contentType = response.headers()["content-type"] ?? "";
     }
 
-    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-"));
+    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-"));
     const suggestedFilename = `generated-image${extensionForContentType(contentType)}`;
     const temporaryPath = path.join(temporaryDir, suggestedFilename);
     try {

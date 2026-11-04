@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/database",
+  "name": "@neuralforge/database",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",

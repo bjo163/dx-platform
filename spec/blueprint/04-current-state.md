@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Current State Analysis
+# NeuralForge Master Blueprint — Current State Analysis
 
 ## Document: 04-current-state.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -14,7 +14,7 @@
 ## Repository Structure (VERIFIED)
 
 ```
-wtagent/
+neuralforge/
 ├── apps/
 │   ├── api/              # Fastify API server (src/app.ts, src/index.ts)
 │   └── web/              # Next.js 15 web interface (src/app/*.tsx)
@@ -156,7 +156,7 @@ wtagent/
 |----|-------|------|----------------|
 | **DEBT-001** | Hardcoded API URL fallback | Config fragility | Use `.env` template |
 | **DEBT-002** | No TypeScript project references | Slow type checking | Add `tsconfig` refs |
-| **DEBT-003** | No shared error types | Inconsistent error handling | Create `@wtagent/errors` |
+| **DEBT-003** | No shared error types | Inconsistent error handling | Create `@neuralforge/errors` |
 | **DEBT-004** | Browser pool not visible in UI | UX opacity | Add provider status panel |
 | **DEBT-005** | No job TTL configuration | Runaway job risk | Add timeout to job schema |
 
@@ -165,23 +165,23 @@ wtagent/
 ## Package Dependencies (VERIFIED)
 
 ```
-@wtagent/web ──────► @wtagent/api (HTTP)
+@neuralforge/web ──────► @neuralforge/api (HTTP)
                           │
          ┌────────────────┼────────────────┐
          │                │                │
-    @wtagent/job    @wtagent/browser   @wtagent/database
+    @neuralforge/job    @neuralforge/browser   @neuralforge/database
          │                │                │
-    @wtagent/runtime      │           (PGlite)
+    @neuralforge/runtime      │           (PGlite)
          │                │
-    @wtagent/session      │
+    @neuralforge/session      │
          │                │
-    @wtagent/protocol ◄───┘
+    @neuralforge/protocol ◄───┘
          │
-    @wtagent/tools
+    @neuralforge/tools
          │
-    @wtagent/policy
+    @neuralforge/policy
          │
-    @wtagent/platform
+    @neuralforge/platform
 ```
 
 ---

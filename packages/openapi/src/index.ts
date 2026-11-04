@@ -1,4 +1,4 @@
-// OpenAPI document generation for WTAgent
+// OpenAPI document generation for NeuralForge
 
 import type { FastifyInstance } from 'fastify';
 
@@ -93,9 +93,9 @@ export function generateOpenAPISpec(
     securitySchemes?: Record<string, any>;
     tags?: Record<string, { name: string; description: string }>;
   } = {
-    title: 'WTAgent API',
+    title: 'NeuralForge API',
     version: '1.0.0',
-    description: 'WTAgent API Service',
+    description: 'NeuralForge API Service',
     authHeader: 'Authorization',
   }
 ): OpenAPISpec {

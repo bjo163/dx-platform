@@ -2,7 +2,7 @@
 import path from "node:path";
 import { MCPServer } from "./mcp-server.js";
 
-const USAGE = `wtagent-mcp [options]
+const USAGE = `neuralforge-mcp [options]
 
   --project <dir>   Project root the tools may reach (default: current directory)
   --allow <tools>   Comma-separated tools to grant without a human, e.g. fs.write,terminal.exec

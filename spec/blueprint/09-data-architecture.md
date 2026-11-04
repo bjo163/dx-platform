@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Data Architecture
+# NeuralForge Master Blueprint — Data Architecture
 
 ## Document: 09-data-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Data Architecture Overview
 
-WTAgent uses PGlite (embedded PostgreSQL-compatible database) for structured data and JSONL files for audit logs. This document defines entities, relationships, data lifecycle, and integrity constraints.
+NeuralForge uses PGlite (embedded PostgreSQL-compatible database) for structured data and JSONL files for audit logs. This document defines entities, relationships, data lifecycle, and integrity constraints.
 
 ---
 
@@ -157,8 +157,8 @@ CREATE TABLE schema_migrations (
 
 | Phase | Storage | Operations | Retention |
 |-------|---------|------------|-----------|
-| Active | `.wtagent/data/audit/current.jsonl` | APPEND | 7 days |
-| Rotated | `.wtagent/data/audit/YYYY-MM-DD.jsonl.gz` | COMPRESS, RENAME | 30 days |
+| Active | `.neuralforge/data/audit/current.jsonl` | APPEND | 7 days |
+| Rotated | `.neuralforge/data/audit/YYYY-MM-DD.jsonl.gz` | COMPRESS, RENAME | 30 days |
 | Purged | DELETED | rm old files | Permanent |
 
 ---
@@ -216,9 +216,9 @@ CREATE TABLE schema_migrations (
 
 | Type | Frequency | Retention | Storage |
 |------|-----------|-----------|---------|
-| PGlite WAL | Continuous | Until checkpoint | `.wtagent/data/` |
-| Full snapshot | Daily | 7 days | `.wtagent/backups/` |
-| Audit log rotation | Daily | 30 days | `.wtagent/data/audit/` |
+| PGlite WAL | Continuous | Until checkpoint | `.neuralforge/data/` |
+| Full snapshot | Daily | 7 days | `.neuralforge/backups/` |
+| Audit log rotation | Daily | 30 days | `.neuralforge/data/audit/` |
 
 ### Recovery Procedures
 

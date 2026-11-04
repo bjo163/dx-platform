@@ -1,13 +1,13 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { hasCompleteAgentEnvelope } from "@wtagent/protocol/envelope";
+import { hasCompleteAgentEnvelope } from "@neuralforge/protocol/envelope";
 import {
   extractTrailingProse,
   parseAgentResponse,
   serializeProtocolError,
   serializeToolResult,
   stripUiNoiseLines,
-} from "@wtagent/protocol/xml-protocol";
+} from "@neuralforge/protocol/xml-protocol";
 
 test("CDATA transport-like tags preserve the whole file and trailing answer", () => {
   const content = 'const value = "</agent_response></tool_call><agent_response>";';
@@ -382,7 +382,7 @@ test("serializes oversized tool data within a UTF-8 byte budget", () => {
 
   assert.ok(Buffer.byteLength(xml, "utf8") <= maxBytes);
   assert.match(xml, /<tool_result[^>]+truncated="true"/);
-  assert.match(xml, /WTAgent omitted/);
+  assert.match(xml, /NeuralForge omitted/);
   assert.match(xml, /<\/tool_result>$/);
   assert.doesNotMatch(xml, /�/);
 });

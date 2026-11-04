@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { utf8PrefixBuffer } from "@wtagent/shared/text-budget";
+import { utf8PrefixBuffer } from "@neuralforge/shared/text-budget";
 
 export const DEFAULT_SEARCH_EXCLUDED_DIRS = new Set([
   ".git",

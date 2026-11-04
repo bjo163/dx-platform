@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/browser",
+  "name": "@neuralforge/browser",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,11 +22,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*",
-    "@wtagent/shared": "workspace:*",
-    "@wtagent/platform": "workspace:*",
-    "@wtagent/protocol": "workspace:*",
-    "@wtagent/tools": "workspace:*"
+    "@neuralforge/types": "workspace:*",
+    "@neuralforge/shared": "workspace:*",
+    "@neuralforge/platform": "workspace:*",
+    "@neuralforge/protocol": "workspace:*",
+    "@neuralforge/tools": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

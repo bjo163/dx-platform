@@ -1,39 +1,39 @@
-export class WTAgentError extends Error {
+export class NeuralForgeError extends Error {
     code;
     status;
     constructor(code, message, status = 500) {
         super(message);
-        this.name = 'WTAgentError';
+        this.name = 'NeuralForgeError';
         this.code = code;
         this.status = status;
     }
 }
-export class ValidationError extends WTAgentError {
+export class ValidationError extends NeuralForgeError {
     constructor(message, status = 400) {
         super('VALIDATION_ERROR', message, status);
     }
 }
-export class NotFoundError extends WTAgentError {
+export class NotFoundError extends NeuralForgeError {
     constructor(resource, id, status = 404) {
         super(`NOT_FOUND`, `${resource} with id ${id} not found`, status);
     }
 }
-export class ConflictError extends WTAgentError {
+export class ConflictError extends NeuralForgeError {
     constructor(message, status = 409) {
         super('CONFLICT_ERROR', message, status);
     }
 }
-export class ProviderError extends WTAgentError {
+export class ProviderError extends NeuralForgeError {
     constructor(provider, message, status = 409) {
         super('PROVIDER_ERROR', `Provider ${provider}: ${message}`, status);
     }
 }
-export class SandboxError extends WTAgentError {
+export class SandboxError extends NeuralForgeError {
     constructor(operation, path, status = 403) {
         super('SANDBOX_ERROR', `${operation} not allowed for path: ${path}`, status);
     }
 }
-export class ApprovalError extends WTAgentError {
+export class ApprovalError extends NeuralForgeError {
     constructor(tool, approvalId, status = 409) {
         super('APPROVAL_ERROR', `Approval required for ${tool} (ID: ${approvalId})`, status);
     }
@@ -51,8 +51,8 @@ export var ErrorCode;
     ErrorCode["AUTHENTICATION"] = "AUTHENTICATION";
     ErrorCode["AUTHORIZATION"] = "AUTHORIZATION";
 })(ErrorCode || (ErrorCode = {}));
-export function isWTAgentError(error) {
-    return error instanceof WTAgentError;
+export function isNeuralForgeError(error) {
+    return error instanceof NeuralForgeError;
 }
 export function errorCodeStatus(code) {
     const mapping = {

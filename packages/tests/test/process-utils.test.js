@@ -1,7 +1,7 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
-import { killProcessTree } from "@wtagent/tools/process-utils";
+import { killProcessTree } from "@neuralforge/tools/process-utils";
 
 function createSpawnStub() {
   const calls = [];

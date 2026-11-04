@@ -6,14 +6,14 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { cliEntry } from "../src/layout.js";
-import { AgentSession } from "@wtagent/session/agent-session";
-import { AgentRuntime } from "@wtagent/runtime/agent-runtime";
-import { FakeWebModelAdapter } from "@wtagent/browser/fake-web-model-adapter";
-import { GeminiWebAdapter } from "@wtagent/browser/gemini-web-adapter";
-import { NativeMusicReceiver, validateGenerationType } from "@wtagent/audio/native-music-receiver";
-import { inspectMusicBuffer } from "@wtagent/artifacts/music-artifact";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
+import { AgentSession } from "@neuralforge/session/agent-session";
+import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
+import { FakeWebModelAdapter } from "@neuralforge/browser/fake-web-model-adapter";
+import { GeminiWebAdapter } from "@neuralforge/browser/gemini-web-adapter";
+import { NativeMusicReceiver, validateGenerationType } from "@neuralforge/audio/native-music-receiver";
+import { inspectMusicBuffer } from "@neuralforge/artifacts/music-artifact";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
 
 function box(type, ...parts) {
   const payload = Buffer.concat(parts);
@@ -62,7 +62,7 @@ test("CLI rejects unsupported music providers before browser startup", () => {
 });
 
 async function setup(t, responses = [{ text: "Your track is ready.", nativeMusic: music }]) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-music-test-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-music-test-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const projectRoot = path.join(root, "project"); await fs.mkdir(projectRoot);
   const session = await AgentSession.create({ sessionsDir: path.join(root, "sessions"), projectRoot,

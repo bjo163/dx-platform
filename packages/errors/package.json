@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/errors",
+  "name": "@neuralforge/errors",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*"
+    "@neuralforge/types": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

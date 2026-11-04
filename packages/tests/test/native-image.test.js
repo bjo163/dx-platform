@@ -3,19 +3,19 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { AgentRuntime } from "@wtagent/runtime/agent-runtime";
-import { TaskSession } from "@wtagent/session/task-session";
-import { FakeWebModelAdapter } from "@wtagent/browser/fake-web-model-adapter";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { NativeImageReceiver } from "@wtagent/image/native-image-receiver";
-import { buildBootstrapPrompt, buildResumePrompt } from "@wtagent/protocol/prompt-builder";
+import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
+import { TaskSession } from "@neuralforge/session/task-session";
+import { FakeWebModelAdapter } from "@neuralforge/browser/fake-web-model-adapter";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { NativeImageReceiver } from "@neuralforge/image/native-image-receiver";
+import { buildBootstrapPrompt, buildResumePrompt } from "@neuralforge/protocol/prompt-builder";
 
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZQmcAAAAASUVORK5CYII=", "base64");
 const images = [{ source: "https://example.test/one.png", width: 512, height: 512 }, { source: "https://example.test/two.png", width: 512, height: 512 }];
 const done = '<agent_response><done>true</done><message>Saved both images.</message></agent_response>';
 async function setup(t, responses) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-native-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-native-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const projectRoot = path.join(root, "project");
   await fs.mkdir(projectRoot);

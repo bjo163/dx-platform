@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/gateway",
+  "name": "@neuralforge/gateway",
   "version": "1.0.3",
   "type": "module",
   "private": true,
@@ -16,7 +16,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/job": "workspace:*"
+    "@neuralforge/job": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

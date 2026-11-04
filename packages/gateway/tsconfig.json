@@ -17,31 +17,31 @@
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "paths": {
-      "@wtagent/types": [
+      "@neuralforge/types": [
         "../types/dist"
       ],
-      "@wtagent/shared": [
+      "@neuralforge/shared": [
         "../shared/dist"
       ],
-      "@wtagent/session": [
+      "@neuralforge/session": [
         "../session/dist"
       ],
-      "@wtagent/browser": [
+      "@neuralforge/browser": [
         "../browser/dist"
       ],
-      "@wtagent/runtime": [
+      "@neuralforge/runtime": [
         "../runtime/dist"
       ],
-      "@wtagent/policy": [
+      "@neuralforge/policy": [
         "../policy/dist"
       ],
-      "@wtagent/tools": [
+      "@neuralforge/tools": [
         "../tools/dist"
       ],
-      "@wtagent/platform": [
+      "@neuralforge/platform": [
         "../platform/dist"
       ],
-      "@wtagent/job": [
+      "@neuralforge/job": [
         "../job/dist"
       ]
     }

@@ -1,11 +1,11 @@
 import { createInterface } from "node:readline";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { ProcessManager } from "@wtagent/tools/process-manager";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import type { ToolRegistry } from "@wtagent/tools/registry";
-import { WTAgentError } from "@wtagent/shared/errors";
-import { resolveLimits, type Limits } from "@wtagent/shared/limits";
-import { getPackageVersion } from "@wtagent/shared/package-info";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { ProcessManager } from "@neuralforge/tools/process-manager";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import type { ToolRegistry } from "@neuralforge/tools/registry";
+import { NeuralForgeError } from "@neuralforge/shared/errors";
+import { resolveLimits, type Limits } from "@neuralforge/shared/limits";
+import { getPackageVersion } from "@neuralforge/shared/package-info";
 import { listMCPTools, mcpErrorResult, toMCPToolResult } from "./tool-definitions.js";
 
 // JSON-RPC 2.0 types
@@ -97,7 +97,7 @@ export class MCPServer {
         return buildRPCResult(id, {
           protocolVersion: MCP_PROTOCOL_VERSION,
           capabilities: { tools: { listChanged: false } },
-          serverInfo: { name: "wtagent-mcp", version: getPackageVersion() },
+          serverInfo: { name: "neuralforge-mcp", version: getPackageVersion() },
         });
       case "ping":
         return buildRPCResult(id, {});
@@ -159,7 +159,7 @@ export class MCPServer {
       operationKey: callKey,
       requestSignature: callKey,
       runAuxiliaryTurn: async () => {
-        throw new WTAgentError(
+        throw new NeuralForgeError(
           "This tool needs a model turn, but an MCP host supplies no browser session.",
           { code: "AUXILIARY_TURN_UNAVAILABLE", recoverable: false },
         );

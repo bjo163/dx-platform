@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/api",
+  "name": "@neuralforge/api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -12,15 +12,15 @@
     "test": "vitest run --root ../.. apps/api/test"
   },
   "dependencies": {
-    "@wtagent/browser": "workspace:*",
-    "@wtagent/artifacts": "workspace:*",
-    "@wtagent/job": "workspace:*",
-    "@wtagent/gateway": "workspace:*",
-    "@wtagent/database": "workspace:*",
-    "@wtagent/plugins": "workspace:*",
-    "@wtagent/platform": "workspace:*",
-    "@wtagent/session": "workspace:*",
-    "@wtagent/shared": "workspace:*",
+    "@neuralforge/browser": "workspace:*",
+    "@neuralforge/artifacts": "workspace:*",
+    "@neuralforge/job": "workspace:*",
+    "@neuralforge/gateway": "workspace:*",
+    "@neuralforge/database": "workspace:*",
+    "@neuralforge/plugins": "workspace:*",
+    "@neuralforge/platform": "workspace:*",
+    "@neuralforge/session": "workspace:*",
+    "@neuralforge/shared": "workspace:*",
     "fastify": "^5.12.8"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 import { exec } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { writeConfig, readConfig } from "@wtagent/shared/paths";
+import { writeConfig, readConfig } from "@neuralforge/shared/paths";
 
 export interface ModelProvider {
   name: "ollama" | "lmstudio";

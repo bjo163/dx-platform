@@ -2,9 +2,9 @@ import test from "../src/shim.js";
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
-import { resolveLaunchPlan, __internal } from "@wtagent/platform/command-launcher";
-import { runProgram } from "@wtagent/tools/terminal-exec";
-import { ProcessManager } from "@wtagent/tools/process-manager";
+import { resolveLaunchPlan, __internal } from "@neuralforge/platform/command-launcher";
+import { runProgram } from "@neuralforge/tools/terminal-exec";
+import { ProcessManager } from "@neuralforge/tools/process-manager";
 
 function createFsProbe(paths) {
   const normalized = new Set(paths.map((value) => value.toLowerCase()));

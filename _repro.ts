@@ -6,7 +6,7 @@ import { resolveLimits } from "./packages/shared/src/limits.ts";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-const root = fs.mkdtempSync(path.join(os.tmpdir(), "wtagent-mcp-repro-"));
+const root = fs.mkdtempSync(path.join(os.tmpdir(), "neuralforge-mcp-repro-"));
 fs.writeFileSync(path.join(root, "victim.txt"), "keep");
 const server = new MCPServer({ projectRoot: root, allowedTools: ["terminal.exec"] });
 const response = await server.handleRequest({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "terminal.exec", arguments: { program: "rm", argv: ["-rf", "victim.txt"], cwd: "." } } });

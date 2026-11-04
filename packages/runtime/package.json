@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/runtime",
+  "name": "@neuralforge/runtime",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,15 +22,15 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*",
-    "@wtagent/shared": "workspace:*",
-    "@wtagent/protocol": "workspace:*",
-    "@wtagent/browser": "workspace:*",
-    "@wtagent/session": "workspace:*",
-    "@wtagent/tools": "workspace:*",
-    "@wtagent/artifacts": "workspace:*",
-    "@wtagent/audio": "workspace:*",
-    "@wtagent/image": "workspace:*"
+    "@neuralforge/types": "workspace:*",
+    "@neuralforge/shared": "workspace:*",
+    "@neuralforge/protocol": "workspace:*",
+    "@neuralforge/browser": "workspace:*",
+    "@neuralforge/session": "workspace:*",
+    "@neuralforge/tools": "workspace:*",
+    "@neuralforge/artifacts": "workspace:*",
+    "@neuralforge/audio": "workspace:*",
+    "@neuralforge/image": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

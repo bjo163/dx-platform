@@ -108,7 +108,7 @@ async function executeRuntime(projectRoot, sessionsDir) {
     await adapter.close();
   }
 }
-const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-site-demo-"));
+const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-site-demo-"));
 const projectRoot = path.join(base, "demo-project");
 try {
   await fs.mkdir(path.join(projectRoot, "src"), { recursive: true });
@@ -131,7 +131,7 @@ try {
     disclosure: "Offline scripted AI replies; real local tools. Not an online recording or speed benchmark.",
   };
   console.log(jsonOnly ? JSON.stringify(report) : [
-    "WTAgent — SCRIPTED OFFLINE REPLIES / REAL LOCAL TOOLS", task,
+    "NeuralForge — SCRIPTED OFFLINE REPLIES / REAL LOCAL TOOLS", task,
     "Before: 2 passed, 1 failed. After: 3 passed, 0 failed.",
     "Verified: five runtime tool calls, exact source edit, unchanged tests.",
   ].join("\n"));

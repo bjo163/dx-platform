@@ -1,7 +1,7 @@
 import net from "node:net";
 import { spawn } from "node:child_process";
 import { chromium } from "playwright-core";
-import { killProcessTree } from "@wtagent/tools/process-utils";
+import { killProcessTree } from "@neuralforge/tools/process-utils";
 import {
   acquireCdpProfileLock,
   discoverReusableCdpState,
@@ -421,7 +421,7 @@ export async function launchAndConnectCdpChrome({
         await removeState(profileDir, state).catch(() => null);
         throw new Error(
           `${error.message} The Chrome profile may be held by another instance. `
-          + "Close other windows using this profile, or run `wtagent logout` to reset it, then retry.",
+          + "Close other windows using this profile, or run `neuralforge logout` to reset it, then retry.",
         );
       }
       throw error;
@@ -548,7 +548,7 @@ export async function launchAndConnectCdpChrome({
         );
       },
       // Leaves Chrome running (and its saved CDP state intact) but drops the
-      // Playwright transport and the profile lock so a later WTAgent process
+      // Playwright transport and the profile lock so a later NeuralForge process
       // can reuse the window. Used after a failed run that wants the page
       // left open for inspection without blocking the next launch.
       async detach() {
@@ -616,7 +616,7 @@ export async function launchAndConnectCdpChrome({
             }
             throw new Error(
               `Chrome pid=${state!.pid} did not exit; its verified CDP state `
-              + "was kept so the next WTAgent run can reuse it.",
+              + "was kept so the next NeuralForge run can reuse it.",
             );
           } finally {
             await releaseProfileLock();

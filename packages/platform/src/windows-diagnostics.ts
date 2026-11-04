@@ -9,7 +9,7 @@ import { discoverChromeExecutable } from "./chrome-discovery.js";
 import { resolveLaunchPlan } from "./command-launcher.js";
 import type { DiscoverChromeOptions } from "./chrome-discovery.js";
 import type { ResolvedLaunchPlan, ResolveLaunchPlanOptions } from "./command-launcher.js";
-import { getPackageInfo } from "@wtagent/shared/package-info";
+import { getPackageInfo } from "@neuralforge/shared/package-info";
 
 const execFileAsync = promisify(execFile);
 
@@ -214,7 +214,7 @@ export function getWslSupport({
     preview: true,
     reason:
       `WSL is detected with a ${env.WAYLAND_DISPLAY ? "Wayland" : "X11"} display environment configured. `
-      + "This preview check does not verify that the display is reachable; WTAgent confirms that only when Linux Chrome starts. "
+      + "This preview check does not verify that the display is reachable; NeuralForge confirms that only when Linux Chrome starts. "
       + "Windows-host Chrome is not used.",
   };
 }
@@ -237,7 +237,7 @@ export function getNativeWindowsSupport({
     return {
       supported: false,
       preview: false,
-      reason: `Windows ${osRelease} is unsupported; WTAgent requires Windows 10 1809 (build 17763) or newer.`,
+      reason: `Windows ${osRelease} is unsupported; NeuralForge requires Windows 10 1809 (build 17763) or newer.`,
     };
   }
   if (arch === "x64") {
@@ -261,7 +261,7 @@ export function assertNativeRuntimeSupported(context: RuntimeSupportContext = {}
   const version = context.version ?? process.version;
   if (!isSupportedNodeVersion(version)) {
     throw new Error(
-      `WTAgent requires Node.js ${getPackageInfo().engines.node}; current runtime is ${version}.`,
+      `NeuralForge requires Node.js ${getPackageInfo().engines.node}; current runtime is ${version}.`,
     );
   }
 
@@ -337,7 +337,7 @@ async function assessDirectoryTarget(targetPath: string, {
     await access(ancestor.path, fsConstants.W_OK);
     return {
       status: "pass",
-      detail: `${resolved} does not exist yet; ${ancestor.path} is writable so WTAgent can create it.`,
+      detail: `${resolved} does not exist yet; ${ancestor.path} is writable so NeuralForge can create it.`,
     };
   } catch (error) {
     return {
@@ -596,14 +596,14 @@ export async function collectDoctorReport({
     "git",
     "Optional Git",
     "info",
-    gitPath ? `Found at ${gitPath}.` : "Not found; Git-backed commands remain unavailable but WTAgent can still run.",
+    gitPath ? `Found at ${gitPath}.` : "Not found; Git-backed commands remain unavailable but NeuralForge can still run.",
   );
   const rgPath = await findExecutable(platform === "win32" ? "rg.exe" : "rg");
   add(
     "rg",
     "Optional ripgrep",
     "info",
-    rgPath ? `Found at ${rgPath}.` : "Not found; WTAgent will use its built-in file search fallback.",
+    rgPath ? `Found at ${rgPath}.` : "Not found; NeuralForge will use its built-in file search fallback.",
   );
 
   const exitCode = items.some((item) => item.required && item.status === "fail") ? 1 : 0;

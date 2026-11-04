@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Observability Strategy
+# NeuralForge Master Blueprint — Observability Strategy
 
 ## Document: 15-observability-strategy.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Observability Strategy Overview
 
-WTAgent implements comprehensive observability through structured logging, metrics collection, health checks, and debugging tools. This document defines observability infrastructure and practices.
+NeuralForge implements comprehensive observability through structured logging, metrics collection, health checks, and debugging tools. This document defines observability infrastructure and practices.
 
 ---
 

@@ -9,7 +9,7 @@ import {
   getNativeWindowsSupport,
   getWslSupport,
   isSupportedNodeVersion,
-} from "@wtagent/platform/windows-diagnostics";
+} from "@neuralforge/platform/windows-diagnostics";
 
 test("node version support follows the dependency-compatible release ranges", () => {
   for (const version of ["v18.20.0", "v20.16.9", "v21.7.0", "v22.1.0", "v22.12.0", "v23.4.0", "invalid", "v24.0.0-rc.1"]) {
@@ -137,9 +137,9 @@ test("findExecutableOnPath skips bundled Codex tool paths", async () => {
 
 test("doctor report marks configured WSL GUI support as an unverified preview", async () => {
   const paths = {
-    appDataDir: path.join("/tmp", "wtagent-home"),
-    sessionsDir: path.join("/tmp", "wtagent-home", "sessions"),
-    profileDir: path.join("/tmp", "wtagent-home", "chrome-profile"),
+    appDataDir: path.join("/tmp", "neuralforge-home"),
+    sessionsDir: path.join("/tmp", "neuralforge-home", "sessions"),
+    profileDir: path.join("/tmp", "neuralforge-home", "chrome-profile"),
   };
   const report = await collectDoctorReport(
     { paths, chromePath: undefined },
@@ -174,15 +174,15 @@ test("doctor report marks configured WSL GUI support as an unverified preview", 
 
 test("doctor report distinguishes required failures, degraded checks, and optional tools", async () => {
   const paths = {
-    appDataDir: path.join("/tmp", "wtagent-home"),
-    sessionsDir: path.join("/tmp", "wtagent-home", "sessions"),
-    profileDir: path.join("/tmp", "wtagent-home", "chrome-profile"),
+    appDataDir: path.join("/tmp", "neuralforge-home"),
+    sessionsDir: path.join("/tmp", "neuralforge-home", "sessions"),
+    profileDir: path.join("/tmp", "neuralforge-home", "chrome-profile"),
   };
   const access = async (target) => {
     if (target === "/tmp") {
       return;
     }
-    if (target === path.join("/tmp", "wtagent-home")) {
+    if (target === path.join("/tmp", "neuralforge-home")) {
       throw Object.assign(new Error("EACCES"), { code: "EACCES" });
     }
     throw Object.assign(new Error("EACCES"), { code: "EACCES" });
@@ -191,7 +191,7 @@ test("doctor report distinguishes required failures, degraded checks, and option
     if (target === "/tmp") {
       return { isDirectory: () => true };
     }
-    if (target === path.join("/tmp", "wtagent-home")) {
+    if (target === path.join("/tmp", "neuralforge-home")) {
       return { isDirectory: () => true };
     }
     throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });

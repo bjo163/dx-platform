@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { buildApp } from '../src/app';
-import { JobService } from '@wtagent/job';
-import { createJobService } from '@wtagent/job';
-import { WTagentDatabase } from '@wtagent/database';
-import type { JobService as JobServiceType } from '@wtagent/job';
-import type { WTagentDatabase as WTagentDatabaseType } from '@wtagent/database';
+import { JobService } from '@neuralforge/job';
+import { createJobService } from '@neuralforge/job';
+import { WTagentDatabase } from '@neuralforge/database';
+import type { JobService as JobServiceType } from '@neuralforge/job';
+import type { WTagentDatabase as WTagentDatabaseType } from '@neuralforge/database';
 import fastify from 'fastify';
-import { getAppDataDir } from '@wtagent/platform/paths';
-import { generateJwt } from '@wtagent/shared/jwt';
+import { getAppDataDir } from '@neuralforge/platform/paths';
+import { generateJwt } from '@neuralforge/shared/jwt';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -53,7 +53,7 @@ const mockDatabase = {
 
 describe('API Integration Tests', () => {
   let app: fastify.FastifyInstance;
-  const testDir = path.join(os.tmpdir(), 'wtagent-test-' + Date.now());
+  const testDir = path.join(os.tmpdir(), 'neuralforge-test-' + Date.now());
 
   beforeAll(async () => {
     // Create test temp directory
@@ -264,7 +264,7 @@ describe('API Integration Tests', () => {
       });
 
       describe('Backup endpoints', () => {
-        it('creates a backup under the configured WTAgent data directory', async () => {
+        it('creates a backup under the configured NeuralForge data directory', async () => {
           const response = await app.inject({
             method: 'POST',
             url: '/v1/backups',
@@ -276,7 +276,7 @@ describe('API Integration Tests', () => {
           expect(result.fileCount).toBe(1);
           const manifest = JSON.parse(await fs.readFile(path.join(result.path, 'manifest.json'), 'utf8'));
           expect(manifest).toMatchObject({
-            format: 'wtagent-pglite-backup',
+            format: 'neuralforge-pglite-backup',
             version: 1,
             files: [{ path: 'database.pglite.tar.gz' }],
           });

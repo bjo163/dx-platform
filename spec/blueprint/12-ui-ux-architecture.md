@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — UI/UX Architecture
+# NeuralForge Master Blueprint — UI/UX Architecture
 
 ## Document: 12-ui-ux-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## UI/UX Architecture Overview
 
-WTAgent uses Next.js 15 with App Router for a modern, responsive web interface. This document defines the UI architecture, component hierarchy, state management, and design system.
+NeuralForge uses Next.js 15 with App Router for a modern, responsive web interface. This document defines the UI architecture, component hierarchy, state management, and design system.
 
 ---
 

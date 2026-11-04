@@ -1,14 +1,14 @@
-# WTAgent Architecture Documentation
+# NeuralForge Architecture Documentation
 
 ## System Overview
 
-WTAgent is a local-first AI coding agent with web AI provider integration. The system is designed around a **job-based architecture** where user tasks are queued, executed, and tracked through completion.
+NeuralForge is a local-first AI coding agent with web AI provider integration. The system is designed around a **job-based architecture** where user tasks are queued, executed, and tracked through completion.
 
 ### Core Components
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    WTAgent Ecosystem                            │
+│                    NeuralForge Ecosystem                            │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐     HTTP     ┌────────────────────────┐ │
 │  │   Web UI        │ ───────────► │   API Server (Fastify) │ │
@@ -27,57 +27,57 @@ WTAgent is a local-first AI coding agent with web AI provider integration. The s
 │  ┌─────────────────────────────────────────────────────────┐ │
 │  │                    Package Ecosystem                    │ │
 │  │                                                       │ │
-│  │  @wtagent/browser   @wtagent/job   @wtagent/database │ │
-│  │  @wtagent/tools     @wtagent/policy @wtagent/platform │ │
-│  │  @wtagent/protocol  @wtagent/session @wtagent/runtime │ │
-│  │  @wtagent/types     @wtagent/shared @wtagent/mcp │ │
-│  │  @wtagent/image     @wtagent/audio  @wtagent/cli │ │
-│  │  @wtagent/sdk       @wtagent/artifacts @wkgents/config│ │
+│  │  @neuralforge/browser   @neuralforge/job   @neuralforge/database │ │
+│  │  @neuralforge/tools     @neuralforge/policy @neuralforge/platform │ │
+│  │  @neuralforge/protocol  @neuralforge/session @neuralforge/runtime │ │
+│  │  @neuralforge/types     @neuralforge/shared @neuralforge/mcp │ │
+│  │  @neuralforge/image     @neuralforge/audio  @neuralforge/cli │ │
+│  │  @neuralforge/sdk       @neuralforge/artifacts @wkgents/config│ │
 │  └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ## Package Ecosystem
 
-WTAgent uses a modular pnpm workspace with 23+ packages:
+NeuralForge uses a modular pnpm workspace with 23+ packages:
 
 ### Core Infrastructure Packages
 
 | Package | Description | Key Dependencies |
 |---------|-------------|------------------|
-| `@wtagent/types` | Shared TypeScript types | typescript |
-| `@wtagent/shared` | Shared utilities (fetch, usage limits, errors) | zod |
-| `@wtagent/platform` | OS abstraction (paths, windows diagnostics) | typescript |
-| `@wtagent/session` | Session management | typescript |
-| `@wtagent/protocol` | Agent-provider communication protocol | typescript |
+| `@neuralforge/types` | Shared TypeScript types | typescript |
+| `@neuralforge/shared` | Shared utilities (fetch, usage limits, errors) | zod |
+| `@neuralforge/platform` | OS abstraction (paths, windows diagnostics) | typescript |
+| `@neuralforge/session` | Session management | typescript |
+| `@neuralforge/protocol` | Agent-provider communication protocol | typescript |
 
 ### Execution & Tool Packages
 
 | Package | Description | Key Dependencies |
 |---------|-------------|------------------|
-| `@wtagent/tools` | Tool implementations (fs, terminal, search) | zodb, typescript |
-| `@wtagent/job` | Job queue, execution, lifecycle management | @wtagent/types, @wtagent/shared |
-| `@wtagent/browser` | Browser automation via CDP (Chrome DevTools Protocol) | playwright-core, typescript |
-| `@wtagent/policy` | Security policy engine & approval flow | typescript |
+| `@neuralforge/tools` | Tool implementations (fs, terminal, search) | zodb, typescript |
+| `@neuralforge/job` | Job queue, execution, lifecycle management | @neuralforge/types, @neuralforge/shared |
+| `@neuralforge/browser` | Browser automation via CDP (Chrome DevTools Protocol) | playwright-core, typescript |
+| `@neuralforge/policy` | Security policy engine & approval flow | typescript |
 
 ### Media & Specialized Packages
 
 | Package | Description | Key Dependencies |
 |---------|-------------|------------------|
-| `@wtagent/image` | Image generation providers (Gemini, Grok, ChatGPT) | typescript |
-| `@wtagent/audio` | Music generation via Gemini | typescript |
-| `@wtagent/mcp` | Model Context Protocol server | typescript |
-| `@wtagent/sdk` | External integration SDK (browser adapter) | typescript |
+| `@neuralforge/image` | Image generation providers (Gemini, Grok, ChatGPT) | typescript |
+| `@neuralforge/audio` | Music generation via Gemini | typescript |
+| `@neuralforge/mcp` | Model Context Protocol server | typescript |
+| `@neuralforge/sdk` | External integration SDK (browser adapter) | typescript |
 
 ### Application & Tool Packages
 
 | Package | Description | Key Dependencies |
 |---------|-------------|------------------|
-| `@wtagent/runtime` | Agent runtime orchestration | typescript |
-| `@wtagent/cli` | Command-line interface | typescript |
-| `@wtagent/plugins` | Plugin system for extensibility | typescript |
-| `@wtagent/artifacts` | Generated artifact handling | typescript |
-| `@wtagent/config-api` | Configuration API | typescript |
+| `@neuralforge/runtime` | Agent runtime orchestration | typescript |
+| `@neuralforge/cli` | Command-line interface | typescript |
+| `@neuralforge/plugins` | Plugin system for extensibility | typescript |
+| `@neuralforge/artifacts` | Generated artifact handling | typescript |
+| `@neuralforge/config-api` | Configuration API | typescript |
 
 ## Trust Boundary Model
 
@@ -91,7 +91,7 @@ WTAgent uses a modular pnpm workspace with 23+ packages:
 │  └─────────────────┘           └─────────────────────┘ │
 │                                                             │
 │  ┌─────────────────┐  TRUSTED  ┌─────────────────────┐ │
-│  │   Local Runtime │◄────────── │  WTAgent Core       │ │
+│  │   Local Runtime │◄────────── │  NeuralForge Core       │ │
 │  │  (Sandboxed)    │           │  (Approval Engine)  │ │
 │  └─────────────────┘           └─────────────────────┘ │
 │                                                             │

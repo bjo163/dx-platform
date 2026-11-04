@@ -1,24 +1,24 @@
-export declare class WTAgentError extends Error {
+export declare class NeuralForgeError extends Error {
     readonly code: string;
     readonly status: number;
     constructor(code: string, message: string, status?: number);
 }
-export declare class ValidationError extends WTAgentError {
+export declare class ValidationError extends NeuralForgeError {
     constructor(message: string, status?: number);
 }
-export declare class NotFoundError extends WTAgentError {
+export declare class NotFoundError extends NeuralForgeError {
     constructor(resource: string, id: string, status?: number);
 }
-export declare class ConflictError extends WTAgentError {
+export declare class ConflictError extends NeuralForgeError {
     constructor(message: string, status?: number);
 }
-export declare class ProviderError extends WTAgentError {
+export declare class ProviderError extends NeuralForgeError {
     constructor(provider: string, message: string, status?: number);
 }
-export declare class SandboxError extends WTAgentError {
+export declare class SandboxError extends NeuralForgeError {
     constructor(operation: string, path: string, status?: number);
 }
-export declare class ApprovalError extends WTAgentError {
+export declare class ApprovalError extends NeuralForgeError {
     constructor(tool: string, approvalId: string, status?: number);
 }
 export declare const enum ErrorCode {
@@ -33,5 +33,5 @@ export declare const enum ErrorCode {
     AUTHENTICATION = "AUTHENTICATION",
     AUTHORIZATION = "AUTHORIZATION"
 }
-export declare function isWTAgentError(error: unknown): error is WTAgentError;
+export declare function isNeuralForgeError(error: unknown): error is NeuralForgeError;
 export declare function errorCodeStatus(code: ErrorCode): number;

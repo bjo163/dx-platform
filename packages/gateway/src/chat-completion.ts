@@ -1,4 +1,4 @@
-import type { JobService } from "@wtagent/job";
+import type { JobService } from "@neuralforge/job";
 
 export interface GatewayChatMessage {
   role: "system" | "developer" | "user" | "assistant";

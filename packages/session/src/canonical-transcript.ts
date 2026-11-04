@@ -26,7 +26,7 @@ function outputText(text) {
   return [{ type: "output_text", text: String(text ?? "") }];
 }
 
-// A `developer` message carries WTAgent scaffolding (protocol + tool catalog).
+// A `developer` message carries NeuralForge scaffolding (protocol + tool catalog).
 // Exporters treat developer content as strippable / relocatable, never as user
 // intent.
 export function developerMessage(text) {
@@ -85,7 +85,7 @@ export function functionCallOutput({ callId, output }: any) {
   };
 }
 
-// Normalizes a WTAgent ToolResult (from the tool registry) into the compact
+// Normalizes a NeuralForge ToolResult (from the tool registry) into the compact
 // text Codex/CC expect for a tool output, keeping the machine-readable JSON but
 // avoiding the XML envelope used only for the web transport.
 export function toolResultOutput(result) {
@@ -122,8 +122,8 @@ export function sessionMeta({
     session_id: sessionId,
     timestamp: createdAt ?? null,
     cwd,
-    originator: "wtagent",
-    source: "wtagent",
+    originator: "neuralforge",
+    source: "neuralforge",
     base_instructions: baseInstructions ?? null,
     task: task ?? null,
     mode: mode ?? null,

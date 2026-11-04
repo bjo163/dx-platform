@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { confirm, select } from "@inquirer/prompts";
-import { launchNativeLoginBrowser } from "@wtagent/browser/native-login";
+import { launchNativeLoginBrowser } from "@neuralforge/browser/native-login";
 import {
   createWebAdapter,
   DEFAULT_PROVIDER,
@@ -13,32 +13,32 @@ import {
   isProviderProfileBasename,
   listActiveProviderIds,
   resolveProvider,
-} from "@wtagent/browser/provider-registry";
+} from "@neuralforge/browser/provider-registry";
 import {
   ensureDirectory,
   formatHomePath,
   getAppDataDir,
   getSessionsDir,
   getTasksDir,
-} from "@wtagent/platform/paths";
-import { discoverChromeExecutable } from "@wtagent/platform/chrome-discovery";
-import { inspectCdpProfileState, isProcessAlive } from "@wtagent/browser/cdp-state";
+} from "@neuralforge/platform/paths";
+import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
+import { inspectCdpProfileState, isProcessAlive } from "@neuralforge/browser/cdp-state";
 import {
   assertNativeRuntimeSupported,
   collectDoctorReport,
-} from "@wtagent/platform/windows-diagnostics";
-import { AgentRuntime } from "@wtagent/runtime/agent-runtime";
-import { AgentSession } from "@wtagent/session/agent-session";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { ApprovalStore } from "@wtagent/policy/approval-store";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { ProcessManager } from "@wtagent/tools/process-manager";
-import { NativeImageReceiver } from "@wtagent/image/native-image-receiver";
-import { NativeMusicReceiver, validateGenerationType } from "@wtagent/audio/native-music-receiver";
-import { resolveLimits } from "@wtagent/shared/limits";
-import { BrowserAdapterError } from "@wtagent/shared/errors";
-import { EXPORTERS } from "@wtagent/session/session-export";
-import { getPackageVersion } from "@wtagent/shared/package-info";
+} from "@neuralforge/platform/windows-diagnostics";
+import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
+import { AgentSession } from "@neuralforge/session/agent-session";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { ApprovalStore } from "@neuralforge/policy/approval-store";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { ProcessManager } from "@neuralforge/tools/process-manager";
+import { NativeImageReceiver } from "@neuralforge/image/native-image-receiver";
+import { NativeMusicReceiver, validateGenerationType } from "@neuralforge/audio/native-music-receiver";
+import { resolveLimits } from "@neuralforge/shared/limits";
+import { BrowserAdapterError } from "@neuralforge/shared/errors";
+import { EXPORTERS } from "@neuralforge/session/session-export";
+import { getPackageVersion } from "@neuralforge/shared/package-info";
 import { extractAtMentions } from "./at-files.js";
 import {
   classifyChatInput,
@@ -135,7 +135,7 @@ async function runLogin(options) {
 
 // Resets local login by deleting the dedicated Chrome profile. Login state for
 // this app lives entirely in that profile (provider cookies + localStorage), so
-// removing it returns wtagent to a clean guest state — useful for testing the
+// removing it returns neuralforge to a clean guest state — useful for testing the
 // full login → run flow. It never touches the real account server-side.
 async function runLogout(options) {
   // `logout` targets one provider's profile; unknown ids are rejected but a
@@ -415,7 +415,7 @@ class ConversationRunner {
 
   // Closes the browser and stops managed processes. After a failed run the
   // browser is kept alive so the page state can be inspected: the saved CDP
-  // state lets the next `wtagent resume` reuse the same window, and a later
+  // state lets the next `neuralforge resume` reuse the same window, and a later
   // launch reaps it if it has died in the meantime.
   async close({ keepBrowser = false }: any = {}) {
     if (this.closed) {
@@ -437,7 +437,7 @@ class ConversationRunner {
       console.log(
         "The run failed; Chrome was left open for debugging. "
           + "Inspect the page and close it manually, or just run "
-          + "`wtagent resume` again — it will reuse this window.",
+          + "`neuralforge resume` again — it will reuse this window.",
       );
       return;
     }
@@ -466,7 +466,7 @@ export async function promptToResolveProfileLock(error) {
   const pid = Number(error.details?.pid);
   if (pid === process.pid) {
     throw new Error(
-      "The current WTAgent process still holds its browser profile lock. Refusing to terminate itself.",
+      "The current NeuralForge process still holds its browser profile lock. Refusing to terminate itself.",
       { cause: error },
     );
   }
@@ -845,7 +845,7 @@ function printChatBanner(projectRoot, provider) {
   const DIM = "\x1b[2m";
   const RESET = "\x1b[0m";
   console.log("");
-  console.log(`${CYAN}WTAgent${RESET} ${DIM}· ${provider.label} · ${formatHomePath(projectRoot)}${RESET}`);
+  console.log(`${CYAN}NeuralForge${RESET} ${DIM}· ${provider.label} · ${formatHomePath(projectRoot)}${RESET}`);
   console.log(`${DIM}${t("banner.controls")}${RESET}`);
   console.log("");
 }
@@ -1003,7 +1003,7 @@ async function runExport(sessionId, options) {
 }
 
 const program = new Command()
-  .name("wtagent")
+  .name("neuralforge")
   .description(t("app.description"))
   .version(getPackageVersion())
   .option("--home <path>", t("option.home"))

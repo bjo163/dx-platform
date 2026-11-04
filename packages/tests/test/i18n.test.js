@@ -6,7 +6,7 @@ import {
   createI18n,
   hasNativeTranslation,
   resolveLocale,
-} from "wtagent/i18n";
+} from "neuralforge/i18n";
 
 test("all supported locales have native translations for every CLI message", () => {
   assert.equal(SUPPORTED_LOCALES.length, 10);

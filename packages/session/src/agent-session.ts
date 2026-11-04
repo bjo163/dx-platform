@@ -4,16 +4,16 @@ import net from "node:net";
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { isPathInside } from "@wtagent/policy/path-guard";
-import { processStartTimeMs } from "@wtagent/browser/cdp-state";
-import { replaceFileAtomic } from "@wtagent/shared/atomic-write";
+import { isPathInside } from "@neuralforge/policy/path-guard";
+import { processStartTimeMs } from "@neuralforge/browser/cdp-state";
+import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
 
 const DIRECTORY_MODE = 0o700;
 const FILE_MODE = 0o600;
 const NO_FOLLOW = process.platform === "win32"
   ? 0
   : (fsConstants.O_NOFOLLOW ?? 0);
-const STATE_LOCK_FILE = ".wtagent-state.lock";
+const STATE_LOCK_FILE = ".neuralforge-state.lock";
 const persistenceQueues = new Map();
 
 function stateRevision(state) {
@@ -61,7 +61,7 @@ async function openPersistenceLockServer({ port = 0, token }: any) {
   const address = server.address();
   if (!address || typeof address === "string") {
     await new Promise((resolve) => server.close(resolve));
-    throw new Error("Could not determine the WTAgent state-lock mutex port.");
+    throw new Error("Could not determine the NeuralForge state-lock mutex port.");
   }
   let closed = false;
   return {
@@ -147,7 +147,7 @@ async function acquirePersistenceLockMutex(
   }
 
   const error: any = new Error(
-    `Could not acquire the WTAgent session lock mutex: ${lastError?.message ?? "timeout"}`,
+    `Could not acquire the NeuralForge session lock mutex: ${lastError?.message ?? "timeout"}`,
   );
   error.code = "SESSION_STATE_LOCKED";
   throw error;
@@ -239,7 +239,7 @@ async function acquirePersistenceLock(
             continue;
           }
           const lockError: any = new Error(
-            `The WTAgent session lock at ${filePath} is malformed; refusing to replace it without a verifiable owner.`,
+            `The NeuralForge session lock at ${filePath} is malformed; refusing to replace it without a verifiable owner.`,
           );
           lockError.code = "SESSION_STATE_LOCKED";
           throw lockError;
@@ -253,7 +253,7 @@ async function acquirePersistenceLock(
           && Number.isFinite(Date.parse(existing.createdAt ?? ""));
         if (!validExisting) {
           const lockError: any = new Error(
-            `The WTAgent session lock at ${filePath} has no verifiable owner.`,
+            `The NeuralForge session lock at ${filePath} has no verifiable owner.`,
           );
           lockError.code = "SESSION_STATE_LOCKED";
           throw lockError;
@@ -290,7 +290,7 @@ async function acquirePersistenceLock(
     const current = await readPersistenceLock(filePath);
     if (current?.token !== token) {
       const error: any = new Error(
-        `Could not acquire the WTAgent session lock at ${filePath}.`,
+        `Could not acquire the NeuralForge session lock at ${filePath}.`,
       );
       error.code = "SESSION_STATE_LOCKED";
       throw error;
@@ -539,8 +539,8 @@ function sessionMetaRecord(state) {
       session_id: state.sessionId,
       timestamp: state.createdAt,
       cwd: state.projectRoot,
-      originator: "wtagent",
-      source: "wtagent",
+      originator: "neuralforge",
+      source: "neuralforge",
       base_instructions: null,
     },
   };
@@ -935,7 +935,7 @@ export class AgentSession {
     });
     const payload = JSON.parse(JSON.stringify(item));
     const matching = state.records.filter((record) => (
-      record?.wtagent?.idempotencyKey === idempotencyKey
+      record?.neuralforge?.idempotencyKey === idempotencyKey
     ));
     if (matching.length > 0) {
       const identical = matching.every((record) => (
@@ -953,7 +953,7 @@ export class AgentSession {
     const record = {
       timestamp: new Date().toISOString(),
       type: kind,
-      wtagent: { idempotencyKey },
+      neuralforge: { idempotencyKey },
       payload,
     };
     await appendOwnerOnly(
@@ -1013,8 +1013,8 @@ export class AgentSession {
         items.push({
           timestamp: record.timestamp,
           item: record.payload ?? record.item,
-          ...(record.wtagent?.idempotencyKey
-            ? { idempotencyKey: record.wtagent.idempotencyKey }
+          ...(record.neuralforge?.idempotencyKey
+            ? { idempotencyKey: record.neuralforge.idempotencyKey }
             : {}),
         });
       }

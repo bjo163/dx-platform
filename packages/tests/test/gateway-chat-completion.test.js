@@ -1,6 +1,6 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { executeGatewayChatCompletion } from "@wtagent/gateway";
+import { executeGatewayChatCompletion } from "@neuralforge/gateway";
 
 test("gateway chat requests become provider jobs and return their final answer", async () => {
   const submitted = [];

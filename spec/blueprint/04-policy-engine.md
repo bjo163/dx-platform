@@ -7,7 +7,7 @@
 > **Note**: This document is a historical draft from the project's early design phase. The current release-readiness plan is in `.plan/task.md` (updated November 2026). See the `.plan` directory for the active plan, release criteria, and M0-M5 milestones.
 
 ## Document: DRAFT
-## Owner: @wtagent/policy
+## Owner: @neuralforge/policy
 ## Related: JOB-SPEC-001, TOOL-SPEC-001, PROV-SPEC-001
 
 ---
@@ -18,9 +18,9 @@
 - **Name**: Policy Engine
 - **Version**: 1.0
 - **Status**: DRAFT
-- **Owner**: @wtagent/policy
+- **Owner**: @neuralforge/policy
 - **Related Requirements**: FR-005, FR-006, FR-007, FR-008, FR-012
-- **Dependencies**: @wtagent/types, @wtagent/shared, @wtagent/platform
+- **Dependencies**: @neuralforge/types, @neuralforge/shared, @neuralforge/platform
 
 ---
 
@@ -467,8 +467,8 @@ interface AuditLogger {
 
 ### Data Protection
 
-- Approval records stored in `.wtagent/data/approvals/`
-- Audit logs stored in `.wtagent/data/audit/`
+- Approval records stored in `.neuralforge/data/approvals/`
+- Audit logs stored in `.neuralforge/data/audit/`
 - No plaintext credentials in logs
 - File permissions: 0600 (owner only)
 

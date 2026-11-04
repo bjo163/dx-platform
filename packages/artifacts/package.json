@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/artifacts",
+  "name": "@neuralforge/artifacts",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,9 +22,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*",
-    "@wtagent/shared": "workspace:*",
-    "@wtagent/policy": "workspace:*"
+    "@neuralforge/types": "workspace:*",
+    "@neuralforge/shared": "workspace:*",
+    "@neuralforge/policy": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

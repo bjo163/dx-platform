@@ -2,8 +2,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildApp } from "./app.js";
 import type { FastifyInstance } from "fastify";
-import { WTagentDatabase } from "@wtagent/database";
-import { createJobService, JobStore, type JobService } from "@wtagent/job";
+import { WTagentDatabase } from "@neuralforge/database";
+import { createJobService, JobStore, type JobService } from "@neuralforge/job";
 import { PGliteJobStore } from "./pglite-job-store.js";
 
 let server: FastifyInstance | null = null;
@@ -20,26 +20,26 @@ export async function startApi(): Promise<FastifyInstance> {
     return server;
   }
 
-  const bindHost = process.env.WTAGENT_HOST?.trim() || "127.0.0.1";
-  const jwtSecret = process.env.WTAGENT_JWT_SECRET;
+  const bindHost = process.env.NEURALFORGE_HOST?.trim() || "127.0.0.1";
+  const jwtSecret = process.env.NEURALFORGE_JWT_SECRET;
   const isLoopback = ["127.0.0.1", "::1", "localhost"].includes(bindHost);
   if (!isLoopback && (!jwtSecret || jwtSecret.length < 32)) {
-    throw new Error("Remote API binding requires WTAGENT_JWT_SECRET to contain at least 32 characters.");
+    throw new Error("Remote API binding requires NEURALFORGE_JWT_SECRET to contain at least 32 characters.");
   }
 
   const apiDirectory = path.dirname(fileURLToPath(import.meta.url));
-  const configuredProjectRoot = process.env.WTAGENT_PROJECT_ROOT;
+  const configuredProjectRoot = process.env.NEURALFORGE_PROJECT_ROOT;
   const projectRoot = configuredProjectRoot && configuredProjectRoot !== "auto"
     ? path.resolve(configuredProjectRoot)
     : path.resolve(apiDirectory, "..", "..", "..");
 
-  const configuredTtl = process.env.WTAGENT_JOB_TTL_MS;
+  const configuredTtl = process.env.NEURALFORGE_JOB_TTL_MS;
   const jobTtlMs = configuredTtl === undefined ? DEFAULT_JOB_TTL_MS : Number(configuredTtl);
   if (!Number.isSafeInteger(jobTtlMs) || jobTtlMs < 1 || jobTtlMs > 8_640_000_000_000_000) {
-    throw new RangeError("WTAGENT_JOB_TTL_MS must be a positive safe integer within the supported date range.");
+    throw new RangeError("NEURALFORGE_JOB_TTL_MS must be a positive safe integer within the supported date range.");
   }
 
-  const dataDir = process.env.WTAGENT_DATA_DIR ?? path.join(projectRoot, ".wtagent");
+  const dataDir = process.env.NEURALFORGE_DATA_DIR ?? path.join(projectRoot, ".neuralforge");
   database = await WTagentDatabase.open({
     dataDir: path.join(dataDir, "data"),
   });
@@ -48,11 +48,11 @@ export async function startApi(): Promise<FastifyInstance> {
   const persistentJobStore = new PGliteJobStore(database);
   await persistentJobStore.importLegacyJobs(await legacyStore.list());
   jobService = createJobService(dataDir, {
-    provider: process.env.WTAGENT_PROVIDER ?? "chatgpt",
+    provider: process.env.NEURALFORGE_PROVIDER ?? "chatgpt",
     defaultAllowedTools: ["fs.list", "fs.read", "fs.search"],
-    executionTimeoutMs: process.env.WTAGENT_JOB_TIMEOUT_MS === undefined
+    executionTimeoutMs: process.env.NEURALFORGE_JOB_TIMEOUT_MS === undefined
       ? undefined
-      : Number(process.env.WTAGENT_JOB_TIMEOUT_MS),
+      : Number(process.env.NEURALFORGE_JOB_TIMEOUT_MS),
     store: persistentJobStore,
   });
   await jobService.initialize();
@@ -64,8 +64,8 @@ export async function startApi(): Promise<FastifyInstance> {
     projectRoot,
     jwtSecret,
     corsOptions: {
-      origins: process.env.WTAGENT_CORS_ORIGINS
-        ? process.env.WTAGENT_CORS_ORIGINS.split(",")
+      origins: process.env.NEURALFORGE_CORS_ORIGINS
+        ? process.env.NEURALFORGE_CORS_ORIGINS.split(",")
         : ["http://localhost:3000", "http://localhost:5173"],
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"],

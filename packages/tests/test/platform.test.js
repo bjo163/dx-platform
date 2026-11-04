@@ -3,35 +3,35 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { getAppDataDir } from "@wtagent/platform/paths";
-import { discoverChromeExecutable } from "@wtagent/platform/chrome-discovery";
+import { getAppDataDir } from "@neuralforge/platform/paths";
+import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
 
-test("new WTAgent home overrides the legacy environment variable", () => {
+test("new NeuralForge home overrides the legacy environment variable", () => {
   const result = getAppDataDir(undefined, {
     env: {
-      WTAGENT_HOME: "/tmp/wtagent-new",
-      WEBAGENT_HOME: "/tmp/wtagent-legacy",
+      WTAGENT_HOME: "/tmp/neuralforge-new",
+      WEBAGENT_HOME: "/tmp/neuralforge-legacy",
     },
     platform: "linux",
     homeDir: "/home/tester",
     exists: () => false,
   });
 
-  assert.equal(result, "/tmp/wtagent-new");
+  assert.equal(result, "/tmp/neuralforge-new");
 });
 
 test("legacy home remains a compatibility fallback", () => {
   const result = getAppDataDir(undefined, {
-    env: { WEBAGENT_HOME: "/tmp/wtagent-legacy" },
+    env: { WEBAGENT_HOME: "/tmp/neuralforge-legacy" },
     platform: "linux",
     homeDir: "/home/tester",
     exists: () => false,
   });
 
-  assert.equal(result, "/tmp/wtagent-legacy");
+  assert.equal(result, "/tmp/neuralforge-legacy");
 });
 
-test("fresh installs use the wtagent application data directory", () => {
+test("fresh installs use the neuralforge application data directory", () => {
   const result = getAppDataDir(undefined, {
     env: {},
     platform: "linux",
@@ -39,10 +39,10 @@ test("fresh installs use the wtagent application data directory", () => {
     exists: () => false,
   });
 
-  assert.equal(result, "/home/tester/.local/share/wtagent");
+  assert.equal(result, "/home/tester/.local/share/neuralforge");
 });
 
-test("an existing legacy WTAgent profile is reused without moving user data", () => {
+test("an existing legacy NeuralForge profile is reused without moving user data", () => {
   const legacySessions = "/home/tester/.local/share/webagent/sessions";
   const result = getAppDataDir(undefined, {
     env: {},
@@ -55,7 +55,7 @@ test("an existing legacy WTAgent profile is reused without moving user data", ()
 });
 
 test("WTAGENT_CHROME_PATH overrides the legacy Chrome path", async (t) => {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-platform-"));
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-platform-"));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const current = path.join(directory, "current-chrome");
   const legacy = path.join(directory, "legacy-chrome");

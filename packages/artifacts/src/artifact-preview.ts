@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
-import type { ArtifactRecord } from "@wtagent/types";
+import type { ArtifactRecord } from "@neuralforge/types";
 
 export interface PreviewOptions {
   secret: string;
@@ -59,7 +59,7 @@ export class ArtifactPreview {
     this.#secret = options.secret;
     this.#ttlMs = options.ttlMs ?? 3600 * 1000;
     this.#maxThumbnailSize = options.maxThumbnailSize ?? 256;
-    this.#thumbnailsDir = options.thumbnailsDir ?? path.join(process.cwd(), ".wtagent", "thumbnails");
+    this.#thumbnailsDir = options.thumbnailsDir ?? path.join(process.cwd(), ".neuralforge", "thumbnails");
   }
 
   async createSignedUrl(record: ArtifactRecord, ttlMs?: number): Promise<SignedUrl> {

@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { ArtifactStore, inspectImageBuffer } from "@wtagent/artifacts/artifact-store";
+import { ArtifactStore, inspectImageBuffer } from "@neuralforge/artifacts/artifact-store";
 import { createImageDriver, listImageProviderIds } from "./provider-registry.js";
 import { parseGrokGeneratedImageUrl } from "./providers/grok-image-driver.js";
-import type { ArtifactRecord } from "@wtagent/types";
+import type { ArtifactRecord } from "@neuralforge/types";
 import type { BrowserImageDriver } from "./browser-image-driver.js";
 import type { BrowserLocator, ImageWebAdapter } from "./image-provider-driver.js";
 

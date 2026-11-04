@@ -20,7 +20,7 @@ vi.mock('node:path', async (importOriginal) => {
   };
 });
 
-vi.mock('@wtagent/shared/atomic-write', () => ({
+vi.mock('@neuralforge/shared/atomic-write', () => ({
   replaceFileAtomic: vi.fn(),
 }));
 

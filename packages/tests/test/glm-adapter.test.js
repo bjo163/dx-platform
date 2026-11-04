@@ -1,7 +1,7 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { GLMWebAdapter } from "@wtagent/browser/glm-web-adapter";
-import { isConnectionLostError } from "@wtagent/browser/glm-web-adapter";
+import { GLMWebAdapter } from "@neuralforge/browser/glm-web-adapter";
+import { isConnectionLostError } from "@neuralforge/browser/glm-web-adapter";
 
 // Minimal Playwright-locator doubles, mirroring test/kimi-adapter.test.js.
 class EmptyLocator {

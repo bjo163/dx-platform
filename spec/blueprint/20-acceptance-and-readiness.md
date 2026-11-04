@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Acceptance & Readiness
+# NeuralForge Master Blueprint — Acceptance & Readiness
 
 ## Document: 20-acceptance-and-readiness.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Implementation Readiness Assessment
 
-This document evaluates the WTAgent project's readiness for implementation based on the Implementation Readiness Gate criteria defined in the ultra-planner methodology.
+This document evaluates the NeuralForge project's readiness for implementation based on the Implementation Readiness Gate criteria defined in the ultra-planner methodology.
 
 ---
 
@@ -47,7 +47,7 @@ This document evaluates the WTAgent project's readiness for implementation based
 | Condition | Description | Target |
 |-----------|-------------|--------|
 | **C1** | TypeScript project references configured | Phase 1 completion |
-| **C2** | @wtagent/errors package implemented | Phase 1 completion |
+| **C2** | @neuralforge/errors package implemented | Phase 1 completion |
 | **C3** | Vitest test infrastructure established | Phase 2 start |
 | **C4** | OpenAPI spec auto-generated from code | Phase 2 completion |
 | **C5** | Rate limiting middleware implemented | Phase 3 start |
@@ -176,7 +176,7 @@ None — all critical architecture decisions resolved.
 
 1. **Immediate (Week 1)**:
    - Complete TypeScript project references (C1)
-   - Create @wtagent/errors package (C2)
+   - Create @neuralforge/errors package (C2)
    - Finalize 20 blueprint documents
 
 2. **Short-term (Week 2-3)**:

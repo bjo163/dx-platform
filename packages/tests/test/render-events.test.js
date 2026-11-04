@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "../src/shim.js";
 
-import { Renderer } from "wtagent/render-events";
+import { Renderer } from "neuralforge/render-events";
 
 function captureStream() {
   let output = "";

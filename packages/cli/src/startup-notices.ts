@@ -1,5 +1,5 @@
-import { fetchJson, NETWORK_TIMEOUT_MS } from "@wtagent/shared/fetch-json";
-import { getPackageVersion } from "@wtagent/shared/package-info";
+import { fetchJson, NETWORK_TIMEOUT_MS } from "@neuralforge/shared/fetch-json";
+import { getPackageVersion } from "@neuralforge/shared/package-info";
 import { NoticeStore, getNoticeStorePath } from "./notice-store.js";
 import {
   MANUAL_INSTALL_COMMAND,
@@ -9,7 +9,7 @@ import {
 } from "./self-update.js";
 
 export const NOTICES_URL =
-  "https://raw.githubusercontent.com/XiXian42/wtagent/main/notices.json";
+  "https://raw.githubusercontent.com/XiXian42/neuralforge/main/notices.json";
 export const NOTICE_TIMEOUT_MS = NETWORK_TIMEOUT_MS;
 const MAX_NOTICE_TEXT = 2_000;
 const MAX_NOTICE_ID = 128;
@@ -125,17 +125,17 @@ export async function runStartupChecks({
   const latest = await latestPromise;
   if (needUpdateCheck && latest) {
     if (isRemoteNewer(latest, currentVersion)) {
-      write(`A newer WTAgent is available: ${currentVersion} → ${latest}`);
+      write(`A newer NeuralForge is available: ${currentVersion} → ${latest}`);
       const choice = await promptUpdate({ currentVersion, latest });
       if (choice == null) {
         return "aborted";
       }
       await store.markUpdatePrompted();
       if (choice) {
-        write(`Updating WTAgent ${currentVersion} → ${latest} ...`);
+        write(`Updating NeuralForge ${currentVersion} → ${latest} ...`);
         const result = await install();
         if (result.ok) {
-          write(`Updated to ${latest}. Restart wtagent to use the new version.`);
+          write(`Updated to ${latest}. Restart neuralforge to use the new version.`);
           return "updated";
         }
         writeError("Update failed.");

@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — System Boundaries
+# NeuralForge Master Blueprint — System Boundaries
 
 ## Document: 06-system-boundaries.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## System Boundaries Overview
 
-This document defines the architectural boundaries of the WTAgent system, specifying what belongs inside the system, what is external, and how they interact. Clear boundaries enable independent development, testing, and deployment.
+This document defines the architectural boundaries of the NeuralForge system, specifying what belongs inside the system, what is external, and how they interact. Clear boundaries enable independent development, testing, and deployment.
 
 ---
 
@@ -21,7 +21,7 @@ This document defines the architectural boundaries of the WTAgent system, specif
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    WTAgent Trust Boundary                       │
+│                    NeuralForge Trust Boundary                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌─────────────────┐   UNTRUSTED ────────────────────────────┐ │
@@ -36,7 +36,7 @@ This document defines the architectural boundaries of the WTAgent system, specif
 │         │ HTTP/CDP             │                              │ │
 │         ▼                      ▼                              │ │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │                    WTAgent Core (TRUSTED)                │  │
+│  │                    NeuralForge Core (TRUSTED)                │  │
 │  │                                                          │  │
 │  │  ┌─────────────────┐  ┌──────────────────────────────┐  │  │
 │  │  │  API Gateway    │  │  Policy Engine               │  │  │
@@ -108,7 +108,7 @@ This document defines the architectural boundaries of the WTAgent system, specif
 - No PII in audit logs (no credentials, no file content)
 - Job payloads serialized as JSON (no binary)
 - Profile directories encrypted at rest (future)
-- PGlite database file in `.wtagent/data/`
+- PGlite database file in `.neuralforge/data/`
 
 ### 3. Execution Boundary
 
@@ -142,17 +142,17 @@ This document defines the architectural boundaries of the WTAgent system, specif
 
 | Package | Public API | Internal | Consumers |
 |---------|------------|----------|-----------|
-| `@wtagent/types` | All types | None | All packages |
-| `@wtagent/shared` | fetch, errors, limits | utils | Most packages |
-| `@wtagent/platform` | paths, diagnostics | OS utils | Browser, tools |
-| `@wtagent/protocol` | envelope, markers | internals | Browser, runtime |
-| `@wtagent/tools` | Tool registry | executors | Job, runtime |
-| `@wtagent/policy` | PolicyEngine, ApprovalManager | rules | Job, API |
-| `@wtagent/browser` | WebAdapter, ProviderRegistry | adapters | Job, API |
-| `@wtagent/job` | JobService | workers | API |
-| `@wtagent/database` | WTagentDatabase | schema | API, Job |
-| `@wtagent/runtime` | AgentRuntime | orchestrator | CLI, Job |
-| `@wtagent/session` | SessionManager | storage | Runtime |
+| `@neuralforge/types` | All types | None | All packages |
+| `@neuralforge/shared` | fetch, errors, limits | utils | Most packages |
+| `@neuralforge/platform` | paths, diagnostics | OS utils | Browser, tools |
+| `@neuralforge/protocol` | envelope, markers | internals | Browser, runtime |
+| `@neuralforge/tools` | Tool registry | executors | Job, runtime |
+| `@neuralforge/policy` | PolicyEngine, ApprovalManager | rules | Job, API |
+| `@neuralforge/browser` | WebAdapter, ProviderRegistry | adapters | Job, API |
+| `@neuralforge/job` | JobService | workers | API |
+| `@neuralforge/database` | WTagentDatabase | schema | API, Job |
+| `@neuralforge/runtime` | AgentRuntime | orchestrator | CLI, Job |
+| `@neuralforge/session` | SessionManager | storage | Runtime |
 
 **Package Rules**:
 - No circular dependencies

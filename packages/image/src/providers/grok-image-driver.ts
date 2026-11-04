@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { BrowserImageDriver } from "../browser-image-driver.js";
-import type { ImageCapabilities } from "@wtagent/types";
+import type { ImageCapabilities } from "@neuralforge/types";
 import type {
   CompletedTextState,
   ImageDriverOptions,
@@ -189,7 +189,7 @@ export class GrokImageDriver extends BrowserImageDriver {
   }
 
   async downloadGeneratedImage(image: GrokGeneratedSelection) {
-    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-image-"));
+    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-image-"));
     const sourceUrl = new URL(image.source);
     const extension = path.extname(sourceUrl.pathname).toLowerCase() || ".jpg";
     const temporaryPath = path.join(temporaryDir, `generated-image${extension}`);

@@ -6,13 +6,13 @@
 // Anthropic Messages blocks (tool_use / tool_result) with the uuid/parentUuid
 // linkage that Claude Code's project JSONL uses.
 //
-// Both exporters strip WTAgent-specific scaffolding: `developer` messages
+// Both exporters strip NeuralForge-specific scaffolding: `developer` messages
 // (protocol + tool catalog) and any legacy/current protocol or reminder blocks
-// in user text. The WTAgent XML protocol and its tool set must never surface
+// in user text. The NeuralForge XML protocol and its tool set must never surface
 // in a Codex or Claude Code session — those runtimes drive their own tools.
 
 import { randomUUID } from "node:crypto";
-import { stripSystemMarkers } from "@wtagent/protocol/markers";
+import { stripSystemMarkers } from "@neuralforge/protocol/markers";
 import { isDeveloper, messageText } from "./canonical-transcript.js";
 
 function jsonl(records) {
@@ -44,7 +44,7 @@ function withAttachmentNote(text, item) {
 // Codex rollout export
 // ---------------------------------------------------------------------------
 // Produces `{timestamp, type, payload}` records: a leading `session_meta`, then
-// one `response_item` per transcript item. WTAgent's transport-only developer
+// one `response_item` per transcript item. NeuralForge's transport-only developer
 // scaffold is omitted entirely; it must not become Codex instructions.
 export function toCodexRollout(transcript, { now }: any = {}) {
   const meta = transcript.meta ?? {};
@@ -61,8 +61,8 @@ export function toCodexRollout(transcript, { now }: any = {}) {
       session_id: sessionId,
       timestamp: meta.createdAt ?? stamp,
       cwd: meta.cwd ?? null,
-      originator: "wtagent",
-      source: "wtagent",
+      originator: "neuralforge",
+      source: "neuralforge",
       base_instructions: meta.baseInstructions ?? null,
     },
   });
@@ -124,7 +124,7 @@ export function toClaudeCodeSession(transcript, { sessionId, now }: any = {}) {
       timestamp: timestamp ?? stamp,
       cwd,
       sessionId: session,
-      version: "wtagent-export",
+      version: "neuralforge-export",
       ...(partial.extra ?? {}),
     });
     parentUuid = uuid;

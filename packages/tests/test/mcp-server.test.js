@@ -5,12 +5,12 @@ import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { MCPServer, MCP_PROTOCOL_VERSION } from "@wtagent/mcp";
+import { MCPServer, MCP_PROTOCOL_VERSION } from "@neuralforge/mcp";
 
 let nextId = 1;
 
 async function harness(t, { allowedTools = [], files = {} } = {}) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-mcp-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-mcp-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   for (const [name, content] of Object.entries(files)) {
     await fs.writeFile(path.join(root, name), content);
@@ -45,7 +45,7 @@ test("initialize answers with the version and capabilities a host negotiates", a
 
   assert.equal(response.result.protocolVersion, MCP_PROTOCOL_VERSION);
   assert.deepEqual(response.result.capabilities, { tools: { listChanged: false } });
-  assert.equal(response.result.serverInfo.name, "wtagent-mcp");
+  assert.equal(response.result.serverInfo.name, "neuralforge-mcp");
   assert.match(response.result.serverInfo.version, /^\d+\.\d+\.\d+/);
 });
 
@@ -160,7 +160,7 @@ test("malformed frames and unknown methods keep their JSON-RPC codes", async (t)
 });
 
 test("the stdio entry point speaks MCP from a real process", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-mcp-proc-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-mcp-proc-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   await fs.writeFile(path.join(root, "note.txt"), "spawned\n");
   const entry = fileURLToPath(new URL("../../mcp/dist/main.js", import.meta.url));

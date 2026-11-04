@@ -1,9 +1,9 @@
-// Delimiters that mark WTAgent-specific control content inside the plain-text
+// Delimiters that mark NeuralForge-specific control content inside the plain-text
 // messages exchanged with a web AI. A normal web chat has no real system/tool
 // channel, so the protocol instructions, tool catalog, and per-turn reminders
 // all travel as ordinary chat text. These markers let the session exporters
 // deterministically strip that scaffolding when converting a transcript into a
-// Codex or Claude Code session, where the XML protocol and the WTAgent tool
+// Codex or Claude Code session, where the XML protocol and the NeuralForge tool
 // set must NOT be presented to the model.
 //
 // The markers are transparent to the web model (it simply reads the enclosed
@@ -13,7 +13,7 @@ export const SYSTEM_PROMPT_TAG = "agent_protocol";
 export const SYSTEM_REMINDER_TAG = "system_reminder";
 export const DEFAULT_SYSTEM_REMINDER: string = (
   [
-    "This is a reminder of the user's requested response format for the WTAgent integration, not a provider-native system message.",
+    "This is a reminder of the user's requested response format for the NeuralForge integration, not a provider-native system message.",
     "You do not need native tool access: write the XML request as text and the user's local Runtime will process it after your reply.",
     "Your next response must use the XML application protocol.",
     "It must contain exactly one <agent_response>...</agent_response> envelope.",

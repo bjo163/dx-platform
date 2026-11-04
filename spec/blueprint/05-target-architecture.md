@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Target Architecture
+# NeuralForge Master Blueprint — Target Architecture
 
 ## Document: 05-target-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -30,7 +30,7 @@ The target architecture evolves from the current state by addressing identified 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    WTAgent Target Ecosystem                      │
+│                    NeuralForge Target Ecosystem                      │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐     HTTP/SSE    ┌────────────────────────┐ │
 │  │   Web UI        │ ──────────────► │   API Server (Fastify) │ │
@@ -60,8 +60,8 @@ The target architecture evolves from the current state by addressing identified 
 │          ▼                                   ▼                │ │
 │  ┌─────────────────────────────────────────────────────────┐  │ │
 │  │                    Package Ecosystem                     │  │ │
-│  │  + New: @wtagent/errors  + New: @wtagent/metrics        │  │ │
-│  │  + New: @wtagent/observability  + New: @wtagent/docker  │  │ │
+│  │  + New: @neuralforge/errors  + New: @neuralforge/metrics        │  │ │
+│  │  + New: @neuralforge/observability  + New: @neuralforge/docker  │  │ │
 │  └─────────────────────────────────────────────────────────┘  │ │
 │                                                                │ │
 │  ┌──────────────────────────────────────────────────────────┐ │
@@ -103,7 +103,7 @@ The target architecture evolves from the current state by addressing identified 
 ### 4. Error Handling (`/packages/errors/`)
 - **Purpose**: Consistent error types across packages
 - **Exports**:
-  - `WTAgentError` base class
+  - `NeuralForgeError` base class
   - `ValidationError`, `NotFoundError`, `ConflictError`
   - Error codes registry
 
@@ -113,9 +113,9 @@ The target architecture evolves from the current state by addressing identified 
   - Stage 1: Build (Node.js 20)
   - Stage 2: Runtime (Node.js 20-slim)
 - **Services**:
-  - `wtagent-api`: Fastify server
-  - `wtagent-web`: Next.js server
-  - `wtagent-data`: Volume for PGlite
+  - `neuralforge-api`: Fastify server
+  - `neuralforge-web`: Next.js server
+  - `neuralforge-data`: Volume for PGlite
 
 ---
 

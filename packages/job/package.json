@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/job",
+  "name": "@neuralforge/job",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,14 +18,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*",
-    "@wtagent/shared": "workspace:*",
-    "@wtagent/session": "workspace:*",
-    "@wtagent/browser": "workspace:*",
-    "@wtagent/runtime": "workspace:*",
-    "@wtagent/policy": "workspace:*",
-    "@wtagent/tools": "workspace:*",
-    "@wtagent/platform": "workspace:*"
+    "@neuralforge/types": "workspace:*",
+    "@neuralforge/shared": "workspace:*",
+    "@neuralforge/session": "workspace:*",
+    "@neuralforge/browser": "workspace:*",
+    "@neuralforge/runtime": "workspace:*",
+    "@neuralforge/policy": "workspace:*",
+    "@neuralforge/tools": "workspace:*",
+    "@neuralforge/platform": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

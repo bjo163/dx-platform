@@ -5,11 +5,11 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { TaskSession } from "@wtagent/session/task-session";
-import { AgentSession } from "@wtagent/session/agent-session";
+import { TaskSession } from "@neuralforge/session/task-session";
+import { AgentSession } from "@neuralforge/session/agent-session";
 
 async function makeFixture(t) {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-session-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-session-"));
   const tasksDir = path.join(base, "tasks");
   const projectRoot = path.join(base, "project");
   await fs.mkdir(projectRoot);
@@ -185,8 +185,8 @@ test(
     const first = JSON.parse(rollout.trim().split("\n")[0]);
     assert.equal(first.type, "session_meta");
     assert.equal(first.payload.id, session.sessionId);
-    assert.equal(first.payload.originator, "wtagent");
-    assert.equal(first.payload.source, "wtagent");
+    assert.equal(first.payload.originator, "neuralforge");
+    assert.equal(first.payload.source, "neuralforge");
   },
 );
 
@@ -412,7 +412,7 @@ test("a malformed persistence lock is never removed without a verifiable owner",
     projectRoot,
     mode: null,
   });
-  const lockPath = path.join(session.directory, ".wtagent-state.lock");
+  const lockPath = path.join(session.directory, ".neuralforge-state.lock");
   await fs.writeFile(lockPath, "", { mode: 0o600 });
 
   await assert.rejects(
@@ -454,7 +454,7 @@ test("a state lock owns a majority of its recorded mutex ports", async (t) => {
 
   const update = session.update({ phase: "mutex-held" });
   await validationEntered;
-  const lockPath = path.join(session.directory, ".wtagent-state.lock");
+  const lockPath = path.join(session.directory, ".neuralforge-state.lock");
   const lock = JSON.parse(await fs.readFile(lockPath, "utf8"));
   assert.equal(lock.mutexPorts.length, 5);
   assert.equal(lock.heldMutexPorts.length, 3);
@@ -487,7 +487,7 @@ test("lock acquisition retries when the previous owner releases after EEXIST", a
     projectRoot,
     mode: null,
   });
-  const lockPath = path.join(session.directory, ".wtagent-state.lock");
+  const lockPath = path.join(session.directory, ".neuralforge-state.lock");
   await fs.writeFile(lockPath, `${JSON.stringify({
     pid: process.pid,
     token: "previous-owner",
@@ -530,7 +530,7 @@ test("a recycled live pid does not make a crashed state lock permanent", async (
     projectRoot,
     mode: null,
   });
-  const lockPath = path.join(session.directory, ".wtagent-state.lock");
+  const lockPath = path.join(session.directory, ".neuralforge-state.lock");
   await fs.writeFile(lockPath, `${JSON.stringify({
     pid: process.pid,
     token: "crashed-owner",
@@ -553,7 +553,7 @@ test("unrelated listeners cannot block a state-lock mutex quorum", async (t) => 
   t.after(() => Promise.all(servers.map((server) => closeServer(server))));
   await Promise.all(servers.slice(2).map((server) => closeServer(server)));
   await fs.writeFile(
-    path.join(session.directory, ".wtagent-state.lock"),
+    path.join(session.directory, ".neuralforge-state.lock"),
     `${JSON.stringify({
       pid: 2_147_483_647,
       token: "prior-format-stale-lock",
@@ -593,7 +593,7 @@ test("unavailable mutex ports do not lower the required majority", async (t) => 
     code: "SESSION_STATE_LOCKED",
   });
   assert.equal(JSON.parse(await fs.readFile(path.join(session.directory, "session.json"), "utf8")).phase, "two-unavailable");
-  assert.equal((await fs.readdir(session.directory)).includes(".wtagent-state.lock"), false);
+  assert.equal((await fs.readdir(session.directory)).includes(".neuralforge-state.lock"), false);
   unavailable = new Set();
   await session.update({ phase: "ports-released" });
 });
@@ -685,7 +685,7 @@ test("keyed transcript appends are serialized and idempotent", async (t) => {
   );
   const keyed = raw.trim().split("\n")
     .map((line) => JSON.parse(line))
-    .filter((record) => record.wtagent?.idempotencyKey === "assistant:h1");
+    .filter((record) => record.neuralforge?.idempotencyKey === "assistant:h1");
   assert.equal(keyed.length, 1);
 });
 

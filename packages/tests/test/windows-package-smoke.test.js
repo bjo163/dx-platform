@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { runProgram } from "@wtagent/tools/terminal-exec";
+import { runProgram } from "@neuralforge/tools/terminal-exec";
 import { cliManifestPath, repositoryRoot } from "../src/layout.js";
 
 function getManifest() {
@@ -12,13 +12,13 @@ function getManifest() {
 }
 
 // Dormant unless a tarball is provided: packing works, but installing it fails
-// with E404 until the @wtagent/* workspace dependencies are published, because
+// with E404 until the @neuralforge/* workspace dependencies are published, because
 // pnpm rewrites workspace:* to exact versions that the registry does not have.
 test("packed tarball installs globally on Windows with an isolated prefix", {
   skip: process.platform !== "win32" || !process.env.WTAGENT_PACKED_TGZ,
 }, async (t) => {
   const manifest = getManifest();
-  const prefix = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-pack-smoke-"));
+  const prefix = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-pack-smoke-"));
   t.after(() => fs.rm(prefix, { recursive: true, force: true }));
 
   const tarball = path.resolve(repositoryRoot, process.env.WTAGENT_PACKED_TGZ);
@@ -40,7 +40,7 @@ test("packed tarball installs globally on Windows with an isolated prefix", {
   });
   assert.equal(installed.ok, true, installed.stderr);
 
-  const shimPath = path.join(prefix, "wtagent.cmd");
+  const shimPath = path.join(prefix, "neuralforge.cmd");
   await fs.stat(shimPath);
 
   const version = await runProgram({

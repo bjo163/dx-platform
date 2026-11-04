@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { ApprovalStore } from "@wtagent/policy/approval-store";
+import { ApprovalStore } from "@neuralforge/policy/approval-store";
 
 test("round-trips always-allowed tools through the approvals file", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-approvals-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-approvals-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const filePath = path.join(dir, "approvals.json");
 
@@ -25,7 +25,7 @@ test("round-trips always-allowed tools through the approvals file", async (t) =>
 });
 
 test("allow-all survives a reload and covers every tool", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-approvals-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-approvals-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const filePath = path.join(dir, "approvals.json");
 
@@ -42,7 +42,7 @@ test("allow-all survives a reload and covers every tool", async (t) => {
 });
 
 test("a missing approvals file means no saved approvals", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-approvals-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-approvals-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
 
   const store = new ApprovalStore({
@@ -54,7 +54,7 @@ test("a missing approvals file means no saved approvals", async (t) => {
 });
 
 test("an unreadable approvals file is ignored instead of crashing", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-approvals-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-approvals-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const filePath = path.join(dir, "approvals.json");
   await fs.writeFile(filePath, "not-json{{", "utf8");

@@ -1,9 +1,9 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import { buildBootstrapPrompt, buildResumePrompt } from "@wtagent/protocol/prompt-builder";
-import { extractMarkedBlocks, wrapSystemPrompt } from "@wtagent/protocol/markers";
-import { assertWindowsSafeName, isPathInside } from "@wtagent/policy/path-guard";
+import { buildBootstrapPrompt, buildResumePrompt } from "@neuralforge/protocol/prompt-builder";
+import { extractMarkedBlocks, wrapSystemPrompt } from "@neuralforge/protocol/markers";
+import { assertWindowsSafeName, isPathInside } from "@neuralforge/policy/path-guard";
 import { cliManifestPath } from "../src/layout.js";
 
 // Angle brackets and CDATA markers are built by concatenation so this file
@@ -154,11 +154,11 @@ test("windows containment keeps the drive root and strips trailing separators", 
   assert.equal(isPathInside("/srv/app", "/srv/other"), false);
 });
 
-test("the published cli manifest is the single wtagent executable", async () => {
+test("the published cli manifest is the single neuralforge executable", async () => {
   const manifest = JSON.parse(await fs.readFile(cliManifestPath, "utf8"));
 
-  assert.equal(manifest.name, "wtagent");
-  assert.deepEqual(manifest.bin, { wtagent: "./dist/main.js" }, "cli must expose exactly one bin");
+  assert.equal(manifest.name, "neuralforge");
+  assert.deepEqual(manifest.bin, { neuralforge: "./dist/main.js" }, "cli must expose exactly one bin");
   assert.equal(manifest.type, "module");
   assert.ok(manifest.engines?.node, "engines.node is required so the CLI cannot be installed on an unsupported runtime");
   assert.match(manifest.engines.node, /20\.17\.0/);

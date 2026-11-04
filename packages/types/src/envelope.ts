@@ -1,6 +1,6 @@
 // XML envelope and protocol types exchanged with the web AI model.
 // Domain files own their types; this barrel re-exports them flat so consumers
-// import names directly: `import type { ParsedAgentResponse } from "@wtagent/types"`.
+// import names directly: `import type { ParsedAgentResponse } from "@neuralforge/types"`.
 
 export interface AgentToolCall {
   name: string;

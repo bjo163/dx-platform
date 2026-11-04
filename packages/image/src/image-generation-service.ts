@@ -1,5 +1,5 @@
-import { ArtifactStore } from "@wtagent/artifacts/artifact-store";
-import type { ArtifactRecord, ImageServiceContext } from "@wtagent/types";
+import { ArtifactStore } from "@neuralforge/artifacts/artifact-store";
+import type { ArtifactRecord, ImageServiceContext } from "@neuralforge/types";
 import type {
   CompletionUnknownError,
   ImageGenerationDriver,

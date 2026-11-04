@@ -3,13 +3,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { AgentRuntime } from "@wtagent/runtime/agent-runtime";
-import { TaskSession } from "@wtagent/session/task-session";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { FakeWebModelAdapter } from "@wtagent/browser/fake-web-model-adapter";
-import { DEFAULT_LIMITS } from "@wtagent/shared/limits";
-import { parseAgentResponse, serializeToolResults } from "@wtagent/protocol/xml-protocol";
+import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
+import { TaskSession } from "@neuralforge/session/task-session";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { FakeWebModelAdapter } from "@neuralforge/browser/fake-web-model-adapter";
+import { DEFAULT_LIMITS } from "@neuralforge/shared/limits";
+import { parseAgentResponse, serializeToolResults } from "@neuralforge/protocol/xml-protocol";
 
 // The protocol tags are assembled here so this file stays free of literal
 // envelopes while still asserting against the exact wire shape.
@@ -27,7 +27,7 @@ const FINAL = open("agent_response")
   + "<done>true</done><message>Done</message>" + close("agent_response");
 
 async function harness(t, responses, { approval = async () => true, prefix = "multi" } = {}) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), `wtagent-${prefix}-`));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), `neuralforge-${prefix}-`));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const session = await TaskSession.create({
     sessionsDir: path.join(root, "sessions"),

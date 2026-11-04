@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { writeConfig, readConfig } from "@wtagent/shared/paths";
+import { writeConfig, readConfig } from "@neuralforge/shared/paths";
 
 export const JiraPluginManifest = {
   name: "jira",
   version: "1.0.0",
   description: "Jira integration plugin",
-  author: "WTAgent",
+  author: "NeuralForge",
   tools: [],
   permissions: ["jira:read", "jira:write"],
   manifestVersion: 1,

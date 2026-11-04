@@ -1,23 +1,23 @@
 import { describe, it, expect } from 'vitest';
 
-import { WTAgentError, ValidationError, NotFoundError, ConflictError, ProviderError, SandboxError, ApprovalError, ErrorCode, isWTAgentError, errorCodeStatus } from '../src';
+import { NeuralForgeError, ValidationError, NotFoundError, ConflictError, ProviderError, SandboxError, ApprovalError, ErrorCode, isNeuralForgeError, errorCodeStatus } from '../src';
 
-describe('WTAgentError', () => {
+describe('NeuralForgeError', () => {
   it('should create error with code, message, and status', () => {
-    const error = new WTAgentError('TEST_ERROR', 'Test message', 400);
+    const error = new NeuralForgeError('TEST_ERROR', 'Test message', 400);
     expect(error.code).toBe('TEST_ERROR');
     expect(error.message).toBe('Test message');
     expect(error.status).toBe(400);
-    expect(error.name).toBe('WTAgentError');
+    expect(error.name).toBe('NeuralForgeError');
   });
 
   it('should default status to 500', () => {
-    const error = new WTAgentError('TEST_ERROR', 'Test message');
+    const error = new NeuralForgeError('TEST_ERROR', 'Test message');
     expect(error.status).toBe(500);
   });
 
   it('should extend Error', () => {
-    const error = new WTAgentError('TEST_ERROR', 'Test message');
+    const error = new NeuralForgeError('TEST_ERROR', 'Test message');
     expect(error instanceof Error).toBe(true);
   });
 });
@@ -120,23 +120,23 @@ describe('ErrorCode enum', () => {
   });
 });
 
-describe('isWTAgentError', () => {
-  it('should identify WTAgentError instances', () => {
-    const error = new WTAgentError('TEST', 'msg');
-    expect(isWTAgentError(error)).toBe(true);
+describe('isNeuralForgeError', () => {
+  it('should identify NeuralForgeError instances', () => {
+    const error = new NeuralForgeError('TEST', 'msg');
+    expect(isNeuralForgeError(error)).toBe(true);
   });
 
   it('should return false for regular Error', () => {
     const error = new Error('Regular error');
-    expect(isWTAgentError(error)).toBe(false);
+    expect(isNeuralForgeError(error)).toBe(false);
   });
 
   it('should return false for null', () => {
-    expect(isWTAgentError(null as any)).toBe(false);
+    expect(isNeuralForgeError(null as any)).toBe(false);
   });
 
   it('should return false for undefined', () => {
-    expect(isWTAgentError(undefined as any)).toBe(false);
+    expect(isNeuralForgeError(undefined as any)).toBe(false);
   });
 });
 

@@ -10,11 +10,11 @@ import {
   listActiveProviderIds,
   PROVIDERS,
   resolveProvider,
-} from "@wtagent/browser/provider-registry";
-import { ChatGPTWebAdapter } from "@wtagent/browser/chatgpt-web-adapter";
-import { ClaudeWebAdapter } from "@wtagent/browser/claude-web-adapter";
-import { GeminiWebAdapter } from "@wtagent/browser/gemini-web-adapter";
-import { GrokWebAdapter } from "@wtagent/browser/grok-web-adapter";
+} from "@neuralforge/browser/provider-registry";
+import { ChatGPTWebAdapter } from "@neuralforge/browser/chatgpt-web-adapter";
+import { ClaudeWebAdapter } from "@neuralforge/browser/claude-web-adapter";
+import { GeminiWebAdapter } from "@neuralforge/browser/gemini-web-adapter";
+import { GrokWebAdapter } from "@neuralforge/browser/grok-web-adapter";
 
 test("chatgpt is the default active provider", () => {
   assert.equal(DEFAULT_PROVIDER, "chatgpt");

@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { getEnvCaseInsensitive } from "./command-launcher.js";
 
-const APP_NAME = "wtagent";
+const APP_NAME = "neuralforge";
 const LEGACY_APP_NAME = "webagent";
 
 type PathApi = typeof path.posix;

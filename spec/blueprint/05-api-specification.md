@@ -7,7 +7,7 @@
 > **Note**: This document is a historical draft from the project's early design phase. The current release-readiness plan is in `.plan/task.md` (updated November 2026). See the `.plan` directory for the active plan, release criteria, and M0-M5 milestones.
 
 ## Document: DRAFT
-## Owner: @wtagent/api
+## Owner: @neuralforge/api
 ## Related: JOB-SPEC-001, PROV-SPEC-001, TOOL-SPEC-001, POLICY-SPEC-001
 
 ---
@@ -18,15 +18,15 @@
 - **Name**: OpenAPI Specification
 - **Version**: 1.0
 - **Status**: DRAFT
-- **Owner**: @wtagent/api
+- **Owner**: @neuralforge/api
 - **Related Requirements**: FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012
-- **Dependencies**: @wtagent/api, @wtagent/job, @wtagent/browser, @wtagent/tools, @wtagent/policy
+- **Dependencies**: @neuralforge/api, @neuralforge/job, @neuralforge/browser, @neuralforge/tools, @neuralforge/policy
 
 ---
 
 ## B. Purpose
 
-The OpenAPI specification defines the complete REST API contract for the WTAgent system. It enables:
+The OpenAPI specification defines the complete REST API contract for the NeuralForge system. It enables:
 - Automatic client code generation
 - API documentation (Swagger UI/Redoc)
 - Contract testing
@@ -249,15 +249,15 @@ import { OpenAPIV3 } from 'openapi-types';
 const openapiDoc: OpenAPIV3.Document = {
   openapi: '3.0.3',
   info: {
-    title: 'WTAgent API',
+    title: 'NeuralForge API',
     version: '1.0.0',
     description: 'Local AI coding agent API',
-    contact: { name: 'WTAgent Team', url: 'https://github.com/wtagent/wtagent' },
+    contact: { name: 'NeuralForge Team', url: 'https://github.com/neuralforge/neuralforge' },
     license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' }
   },
   servers: [
     { url: 'http://localhost:8080', description: 'Development server' },
-    { url: 'https://api.wtagent.local', description: 'Production server' }
+    { url: 'https://api.neuralforge.local', description: 'Production server' }
   ],
   paths: { /* all endpoints */ },
   components: {
@@ -763,7 +763,7 @@ data: {"jobId":"f47ac10b-...","stdout":"..."}
 // Configurable origins
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://app.wtagent.local'
+  'https://app.neuralforge.local'
 ];
 
 app.addHook('onSend', async (request, reply, payload) => {
@@ -791,7 +791,7 @@ app.register(rateLimit);
 |--------|-------------|
 | `X-Request-ID` | UUID for request tracing |
 | `X-Response-Time` | Response time in ms |
-| `Server` | `WTAgent/1.0.0` |
+| `Server` | `NeuralForge/1.0.0` |
 | `Cache-Control` | `no-cache, no-store, must-revalidate` |
 | `X-Content-Type-Options` | `nosniff` |
 | `X-Frame-Options` | `DENY` |

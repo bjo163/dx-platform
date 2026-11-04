@@ -1,5 +1,5 @@
 {
-  "name": "@wtagent/local",
+  "name": "@neuralforge/local",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,8 +18,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@wtagent/types": "workspace:*",
-    "@wtagent/shared": "workspace:*"
+    "@neuralforge/types": "workspace:*",
+    "@neuralforge/shared": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

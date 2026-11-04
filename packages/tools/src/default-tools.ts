@@ -2,18 +2,18 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { z } from "zod";
-import { DEFAULT_LIMITS } from "@wtagent/shared/limits";
-import type { Limits } from "@wtagent/shared/limits";
-import type { ToolContext } from "@wtagent/types";
-import { utf8PrefixBuffer } from "@wtagent/shared/text-budget";
-import { replaceFileAtomic } from "@wtagent/shared/atomic-write";
+import { DEFAULT_LIMITS } from "@neuralforge/shared/limits";
+import type { Limits } from "@neuralforge/shared/limits";
+import type { ToolContext } from "@neuralforge/types";
+import { utf8PrefixBuffer } from "@neuralforge/shared/text-budget";
+import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
 import {
   resolveCanonicalWriteTarget,
   resolveToolPath,
-} from "@wtagent/policy/path-guard";
+} from "@neuralforge/policy/path-guard";
 import { ToolRegistry, type ToolExecutionResult } from "./registry.js";
 import { runProgram } from "./terminal-exec.js";
-import { resolveLaunchPlan } from "@wtagent/platform/command-launcher";
+import { resolveLaunchPlan } from "@neuralforge/platform/command-launcher";
 import {
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   fallbackSearch,
@@ -145,7 +145,7 @@ async function writeTextAtomic(
   context: ToolContext,
 ): Promise<void> {
   const verifiedTarget = await canonicalWriteTarget(targetPath, context);
-  const temporary = `${verifiedTarget}.wtagent-${process.pid}.tmp`;
+  const temporary = `${verifiedTarget}.neuralforge-${process.pid}.tmp`;
   await fs.writeFile(temporary, content, "utf8");
   try {
     const recheckedTarget = await canonicalWriteTarget(

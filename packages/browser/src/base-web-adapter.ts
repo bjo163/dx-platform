@@ -10,11 +10,11 @@ import {
   type DomDriftReport,
   type DomStructure,
 } from "./dom-drift.js";
-import { discoverChromeExecutable } from "@wtagent/platform/chrome-discovery";
-import { ensureDirectory } from "@wtagent/platform/paths";
-import { BrowserAdapterError } from "@wtagent/shared/errors";
-import { hasCompleteAgentEnvelope } from "@wtagent/protocol/envelope";
-export { hasCompleteAgentEnvelope } from "@wtagent/protocol/envelope";
+import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
+import { ensureDirectory } from "@neuralforge/platform/paths";
+import { BrowserAdapterError } from "@neuralforge/shared/errors";
+import { hasCompleteAgentEnvelope } from "@neuralforge/protocol/envelope";
+export { hasCompleteAgentEnvelope } from "@neuralforge/protocol/envelope";
 
 // The CDP launcher owns the Chrome process, the Playwright transport and the
 // profile lock. Its shape is derived from its own return statement so this
@@ -319,7 +319,7 @@ function comparableMessageText(value: unknown) {
 const OUTBOUND_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const OUTBOUND_MARKER_PREFIX =
-  "Opaque WTAgent transport correlation ID (do not repeat): ";
+  "Opaque NeuralForge transport correlation ID (do not repeat): ";
 
 function renderedMessageContains(rendered: string, expected: string, outboundId: string | null = null) {
   const normalizedRendered = comparableMessageText(rendered);
@@ -327,7 +327,7 @@ function renderedMessageContains(rendered: string, expected: string, outboundId:
   const reminderStart = normalizedExpected.lastIndexOf("<system_reminder>");
   const reminder = reminderStart < 0 ? "" : normalizedExpected.slice(reminderStart);
   const correlation = reminder.match(
-    /(Opaque WTAgent transport correlation ID \(do not repeat\): ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.)<\/system_reminder>$/,
+    /(Opaque NeuralForge transport correlation ID \(do not repeat\): ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.)<\/system_reminder>$/,
   );
   if (!correlation) {
     return outboundId == null
@@ -380,7 +380,7 @@ export function renderedMessageContainsOutboundMarker(rendered: string, outbound
 // overridable "primitive" methods below. A concrete provider subclass supplies
 // its base URL, DOM locators, and message-identity extraction; it must NOT
 // re-implement the turn-completion loop, send/auth/reconnect flow, or the
-// WTAgent <agent_response> protocol timing. Model selection deliberately stays
+// NeuralForge <agent_response> protocol timing. Model selection deliberately stays
 // outside adapters: users choose their model directly on the provider website.
 //
 // IMPORTANT (JavaScript semantics): primitives that the base dispatches to a
@@ -1913,7 +1913,7 @@ export class BaseWebAdapter {
   }
 
   // Leave Chrome open for inspection, but drop the CDP transport and the
-  // profile lock so this Node process can exit and the next wtagent can reuse
+  // profile lock so this Node process can exit and the next neuralforge can reuse
   // the same window. close() would quit Chrome; disconnect() would keep the
   // lock held by this process.
   async detach() {

@@ -1,13 +1,13 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
-import { discoverChromeExecutable } from "@wtagent/platform/chrome-discovery";
-import { GeminiWebAdapter } from "@wtagent/browser/gemini-web-adapter";
-import { GrokWebAdapter } from "@wtagent/browser/grok-web-adapter";
-import { renderedMessageContainsOutboundMarker } from "@wtagent/browser/base-web-adapter";
-import { parseAgentResponse } from "@wtagent/protocol/xml-protocol";
-import { GeminiImageDriver } from "@wtagent/image/providers/gemini-image-driver";
-import { NativeMusicReceiver } from "@wtagent/audio/native-music-receiver";
+import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
+import { GeminiWebAdapter } from "@neuralforge/browser/gemini-web-adapter";
+import { GrokWebAdapter } from "@neuralforge/browser/grok-web-adapter";
+import { renderedMessageContainsOutboundMarker } from "@neuralforge/browser/base-web-adapter";
+import { parseAgentResponse } from "@neuralforge/protocol/xml-protocol";
+import { GeminiImageDriver } from "@neuralforge/image/providers/gemini-image-driver";
+import { NativeMusicReceiver } from "@neuralforge/audio/native-music-receiver";
 
 test("real Gemini music DOM waits for completion and ignores media from old replies", {
   skip: process.env.WTAGENT_DOM_TESTS !== "1",
@@ -59,7 +59,7 @@ test("real DOM preserves provider text, code, and completion boundaries", {
     + '<path>file.js</path><content><![CDATA[' + content
     + ']]></content></args></tool_call></agent_response>';
   const nonce = "11111111-1111-4111-8111-111111111111";
-  const marker = '<system_reminder>Opaque WTAgent transport correlation ID '
+  const marker = '<system_reminder>Opaque NeuralForge transport correlation ID '
     + `(do not repeat): ${nonce}.</system_reminder>`;
   await page.setContent(`
     <style>model-response, message-content { display: block; }</style>
@@ -139,7 +139,7 @@ test("real Gemini DOM returns a completed image refusal, but waits during genera
 test("real Gemini main turn receives multiple native images and waits for completion", {
   skip: process.env.WTAGENT_DOM_TESTS !== "1",
 }, async (t) => {
-  const { NativeImageReceiver } = await import("@wtagent/image/native-image-receiver");
+  const { NativeImageReceiver } = await import("@neuralforge/image/native-image-receiver");
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());
   const page = await browser.newPage();
@@ -185,13 +185,13 @@ test("real Gemini main turn receives multiple native images and waits for comple
 test("modern ChatGPT downloads only the completed turn's images to verified local paths", {
   skip: process.env.WTAGENT_DOM_TESTS !== "1",
 }, async (t) => {
-  const { ChatGPTWebAdapter } = await import("@wtagent/browser/chatgpt-web-adapter");
-  const { NativeImageReceiver } = await import("@wtagent/image/native-image-receiver");
-  const { inspectImageBuffer } = await import("@wtagent/artifacts/artifact-store");
+  const { ChatGPTWebAdapter } = await import("@neuralforge/browser/chatgpt-web-adapter");
+  const { NativeImageReceiver } = await import("@neuralforge/image/native-image-receiver");
+  const { inspectImageBuffer } = await import("@neuralforge/artifacts/artifact-store");
   const fs = await import("node:fs/promises");
   const os = await import("node:os");
   const path = await import("node:path");
-  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-chatgpt-images-"));
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-chatgpt-images-"));
   t.after(() => fs.rm(projectRoot, { recursive: true, force: true }));
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());

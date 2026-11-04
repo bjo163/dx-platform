@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { MusicInspection } from "@wtagent/types";
+import type { MusicInspection } from "@neuralforge/types";
 
 // One ISO-BMFF box inside a music container; start/end bound the payload.
 interface MusicBox {

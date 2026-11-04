@@ -3,21 +3,21 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { NoticeStore, getNoticeStorePath, localDateString } from "wtagent/notice-store";
+import { NoticeStore, getNoticeStorePath, localDateString } from "neuralforge/notice-store";
 import {
   parseNoticeDocument,
   runStartupChecks,
   sanitizeNoticeText,
   selectNotice,
-} from "wtagent/startup-notices";
-import { getPackageVersion } from "@wtagent/shared/package-info";
+} from "neuralforge/startup-notices";
+import { getPackageVersion } from "@neuralforge/shared/package-info";
 
 function dateAt(isoDate) {
   return new Date(`${isoDate}T12:00:00`);
 }
 
 async function withStore(t, isoDate) {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   return {
     dir,
@@ -90,7 +90,7 @@ test("notice impressions persist across reloads", async (t) => {
 });
 
 test("a notice with times=3 appears on the first three opening days", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const days = [
     "2026-08-10",
@@ -123,7 +123,7 @@ test("a notice with times=3 appears on the first three opening days", async (t) 
 });
 
 test("the same notice is not shown twice on one day", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   let fetches = 0;
   const run = () => runStartupChecks({
@@ -142,7 +142,7 @@ test("the same notice is not shown twice on one day", async (t) => {
 });
 
 test("startup update prompts at most once a day and can install immediately", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const prompts = [];
   let installs = 0;
@@ -182,7 +182,7 @@ test("startup update prompts at most once a day and can install immediately", as
 });
 
 test("declining an update still consumes the daily prompt", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   let prompts = 0;
   const first = await runStartupChecks({
@@ -214,7 +214,7 @@ test("declining an update still consumes the daily prompt", async (t) => {
 });
 
 test("an already-current version is not checked again the same day", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   let checks = 0;
   const run = () => runStartupChecks({
@@ -236,7 +236,7 @@ test("an already-current version is not checked again the same day", async (t) =
 });
 
 test("network failures are skipped without blocking startup", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const result = await runStartupChecks({
     appDataDir: dir,
@@ -265,7 +265,7 @@ test("non-interactive sessions skip startup checks", async () => {
 });
 
 test("cancelling the update prompt aborts startup without recording it", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const result = await runStartupChecks({
     appDataDir: dir,
@@ -290,7 +290,7 @@ test("localDateString uses the local calendar day", () => {
 });
 
 test("a corrupt notices file is ignored instead of crashing", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   await fs.writeFile(getNoticeStorePath(dir), "not-json{{", "utf8");
 
@@ -314,7 +314,7 @@ test("a corrupt notices file is ignored instead of crashing", async (t) => {
 });
 
 test("a successful update exits before showing a notice", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const lines = [];
   const result = await runStartupChecks({
@@ -333,7 +333,7 @@ test("a successful update exits before showing a notice", async (t) => {
 });
 
 test("a failed update still shows the notice", async (t) => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-notices-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-notices-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const lines = [];
   const errors = [];

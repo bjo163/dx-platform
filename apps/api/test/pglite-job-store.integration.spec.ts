@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { WTagentDatabase } from "@wtagent/database";
-import type { JobRecord } from "@wtagent/job";
-import { JobRunner, JobService } from "@wtagent/job";
+import { WTagentDatabase } from "@neuralforge/database";
+import type { JobRecord } from "@neuralforge/job";
+import { JobRunner, JobService } from "@neuralforge/job";
 import { PGliteJobStore } from "../src/pglite-job-store";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -12,7 +12,7 @@ describe("PGlite job store", () => {
   const directories: string[] = [];
 
   async function createStore() {
-    const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-pglite-jobs-"));
+    const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-pglite-jobs-"));
     directories.push(dataDir);
     const database = await WTagentDatabase.open({ dataDir });
     databases.push(database);

@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Migration Strategy
+# NeuralForge Master Blueprint — Migration Strategy
 
 ## Document: 17-migration-strategy.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Migration Strategy Overview
 
-WTAgent's migration strategy addresses scenarios involving framework upgrades, provider changes, data model evolution, and architecture modifications. This document defines current-state analysis, target-state design, and transition plans.
+NeuralForge's migration strategy addresses scenarios involving framework upgrades, provider changes, data model evolution, and architecture modifications. This document defines current-state analysis, target-state design, and transition plans.
 
 ---
 
@@ -110,10 +110,10 @@ WTAgent's migration strategy addresses scenarios involving framework upgrades, p
 
 | Scenario | Change | Impact |
 |----------|--------|--------|
-| Add new package | `pnpm add @wtagent/new-package` | New exports |
-| Remove package | `pnpm remove @wtagent/old` | Remove imports |
+| Add new package | `pnpm add @neuralforge/new-package` | New exports |
+| Remove package | `pnpm remove @neuralforge/old` | Remove imports |
 | Version pin | `pnpm lockfile` update | Reinstall deps |
-| Switch package | Replace `@wtagent/a` with `@wtagent/b` | Update imports |
+| Switch package | Replace `@neuralforge/a` with `@neuralforge/b` | Update imports |
 
 ### 3. Schema Migration
 
@@ -174,7 +174,7 @@ COMMIT;
 
 ```typescript
 // scripts/migrate.ts
-import { migrate } from '@wtagent/database';
+import { migrate } from '@neuralforge/database';
 
 async function main() {
   const db = await migrate({

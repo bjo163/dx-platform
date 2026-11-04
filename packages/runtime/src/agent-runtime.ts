@@ -6,16 +6,16 @@ import {
   serializeProtocolError,
   serializeToolResult,
   serializeToolResults,
-} from "@wtagent/protocol/xml-protocol";
+} from "@neuralforge/protocol/xml-protocol";
 import {
   appendSystemReminder,
   DEFAULT_SYSTEM_REMINDER,
   NATIVE_IMAGE_SYSTEM_REMINDER,
-} from "@wtagent/protocol/markers";
+} from "@neuralforge/protocol/markers";
 import {
   buildBootstrapPrompt,
   buildResumePrompt,
-} from "@wtagent/protocol/prompt-builder";
+} from "@neuralforge/protocol/prompt-builder";
 import {
   assistantMessage,
   functionCall,
@@ -23,20 +23,20 @@ import {
   messageText,
   toolResultOutput,
   userMessage,
-} from "@wtagent/session/canonical-transcript";
-import { DEFAULT_LIMITS } from "@wtagent/shared/limits";
-import { MUSIC_SYSTEM_REMINDER } from "@wtagent/audio/native-music-receiver";
-import { utf8ByteLength } from "@wtagent/shared/text-budget";
+} from "@neuralforge/session/canonical-transcript";
+import { DEFAULT_LIMITS } from "@neuralforge/shared/limits";
+import { MUSIC_SYSTEM_REMINDER } from "@neuralforge/audio/native-music-receiver";
+import { utf8ByteLength } from "@neuralforge/shared/text-budget";
 import {
   BrowserAdapterError,
   ProtocolError,
   ToolValidationError,
-} from "@wtagent/shared/errors";
+} from "@neuralforge/shared/errors";
 import {
   isConnectionLostError,
   isValidOutboundCorrelationId,
-} from "@wtagent/browser/base-web-adapter";
-import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
+} from "@neuralforge/browser/base-web-adapter";
+import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
 
 const EMPTY_ASSISTANT_CONTINUE_MESSAGE =
   "The previous assistant response was empty. Continue the immediately preceding task "
@@ -54,7 +54,7 @@ const GENERATION_FAILED_CONTINUE_MESSAGE =
   + "repeat any local tool operation whose result is already present. Reply using the "
   + "required <agent_response> XML protocol.";
 const OUTBOUND_CORRELATION_PREFIX =
-  " Opaque WTAgent transport correlation ID (do not repeat): ";
+  " Opaque NeuralForge transport correlation ID (do not repeat): ";
 const OUTBOUND_CORRELATION_RESERVE_BYTES = utf8ByteLength(
   `${OUTBOUND_CORRELATION_PREFIX}${"0".repeat(36)}.`,
 );
@@ -769,7 +769,7 @@ export class AgentRuntime {
   }
 
   // Runs a provider-native helper turn (currently used by image.generate) in
-  // the same web conversation without exposing that turn as another WTAgent
+  // the same web conversation without exposing that turn as another NeuralForge
   // protocol exchange. The send still goes through the adapter's full causal
   // checks, and both provider message identities are checkpointed before the
   // caller is allowed to send the tool result.
@@ -786,7 +786,7 @@ export class AgentRuntime {
     const outboundId = randomUUID();
     const message = appendSystemReminder(
       text,
-      `This is an internal WTAgent provider operation. Perform only the requested operation; do not emit the WTAgent XML protocol.${OUTBOUND_CORRELATION_PREFIX}${outboundId}.`,
+      `This is an internal NeuralForge provider operation. Perform only the requested operation; do not emit the NeuralForge XML protocol.${OUTBOUND_CORRELATION_PREFIX}${outboundId}.`,
     );
     const pendingOutbound = {
       kind: "auxiliary_tool_turn",
@@ -875,7 +875,7 @@ export class AgentRuntime {
       ));
       return value;
     } catch (error) {
-      // A provider can finish the visible assistant turn yet fail while WTAgent
+      // A provider can finish the visible assistant turn yet fail while NeuralForge
       // downloads or validates its artifact. Close that browser-turn checkpoint
       // when its final boundary is still provable; otherwise retain it so a
       // later resume cannot blindly submit a duplicate image request.
@@ -1128,7 +1128,7 @@ export class AgentRuntime {
     if (pendingAuxiliaryAtStart != null) {
       throw new BrowserAdapterError(
         "An image/provider auxiliary turn was interrupted after submission. "
-          + "WTAgent will not replay it automatically because that could create a duplicate remote artifact.",
+          + "NeuralForge will not replay it automatically because that could create a duplicate remote artifact.",
         { code: "AUXILIARY_TURN_RECOVERY_REQUIRED", recoverable: false },
       );
     }
@@ -1348,7 +1348,7 @@ export class AgentRuntime {
     // Optional setup after authentication and the target conversation are
     // ready, but before the first message is sent. Interactive CLI runs use
     // this to let the user choose a model directly on the provider website.
-    // WTAgent never names, selects, or overrides a provider-specific model.
+    // NeuralForge never names, selects, or overrides a provider-specific model.
     // Existing conversations keep their model context. A verified fresh rebuild
     // is a genuinely new web chat, so interactive runs offer the same browser-side
     // model choice as an ordinary bootstrap.
@@ -1403,7 +1403,7 @@ export class AgentRuntime {
     let initialMessage;
     let initialKind;
     // The web transport gets `.web` (XML/marked text). The portable rollout
-    // records only confirmed user messages; WTAgent scaffolding stays transport-only.
+    // records only confirmed user messages; NeuralForge scaffolding stays transport-only.
     let initialTranscript: any[] = [];
     if (!legacyAssistantRecoveryAtStart) {
     if (this.nativeMusicReceiver) {

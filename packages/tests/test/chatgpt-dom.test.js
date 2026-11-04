@@ -2,15 +2,15 @@ import test from "../src/shim.js";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { summarizeChatGPTDom } from "@wtagent/browser/chatgpt-dom";
+import { summarizeChatGPTDom } from "@neuralforge/browser/chatgpt-dom";
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
-import { discoverChromeExecutable } from "@wtagent/platform/chrome-discovery";
-import { ChatGPTWebAdapter } from "@wtagent/browser/chatgpt-web-adapter";
+import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
+import { ChatGPTWebAdapter } from "@neuralforge/browser/chatgpt-web-adapter";
 
 const outboundId = "f67c046a-ab28-41e8-a04c-79a99806dafa";
 const response = "<agent_response><assistant_message>OK</assistant_message><task_complete>true</task_complete></agent_response>";
-const userText = `Transport test\n<system_reminder>Opaque WTAgent transport correlation ID (do not repeat): ${outboundId}.</system_reminder>`;
+const userText = `Transport test\n<system_reminder>Opaque NeuralForge transport correlation ID (do not repeat): ${outboundId}.</system_reminder>`;
 const fixture = (name) => fs.readFile(new URL(`./fixtures/chatgpt/${name}.html`, import.meta.url), "utf8");
 const modernRows = await fixture("modern");
 
@@ -91,7 +91,7 @@ test("structural reports distinguish missing identity from empty history without
 });
 
 test("diagnostic collection is bounded when CDP hangs and does not mask failures", async (t) => {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-diagnostics-"));
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-diagnostics-"));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const adapter = new ChatGPTWebAdapter({ profileDir: path.join(directory, "profile") });
   adapter.page = { evaluate: () => new Promise(() => {}) };
@@ -116,7 +116,7 @@ test("offline ChatGPT fixtures exercise capabilities and failure diagnostics", {
   const page = await browser.newPage();
   await page.route("**/*", (route) => route.fulfill({ contentType: "text/html", body: "<main></main>" }));
   await page.goto("https://chatgpt.com/c/fixture?private-query=secret");
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-dom-"));
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-dom-"));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const adapter = new ChatGPTWebAdapter({ profileDir: path.join(directory, "profile") });
   adapter.page = page;
@@ -251,7 +251,7 @@ for (const collapsed of [false, true]) {
       </script>`;
     await page.route("**/*", (route) => route.fulfill({ contentType: "text/html", body: app }));
     await page.goto("https://chatgpt.com/");
-    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-send-dom-"));
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-send-dom-"));
     t.after(() => fs.rm(directory, { recursive: true, force: true }));
     class FastAdapter extends ChatGPTWebAdapter {
       restorationCorrelationWindowMs() { return 20; }
@@ -316,7 +316,7 @@ test("recovery reveals only the pending long user message and still requires its
         pendingUser.setAttribute('data-chatgpt-search-unit-key', 'fallback-turn-1:0:user');
         pendingUser.setAttribute('data-chatgpt-search-message-ids', 'user-2');
         addBubble(pendingUser, 'Long tool result. '.repeat(900)
-          + `<system_reminder>Opaque WTAgent transport correlation ID (do not repeat): ${outboundId}.</system_reminder>`, 'pending');
+          + `<system_reminder>Opaque NeuralForge transport correlation ID (do not repeat): ${outboundId}.</system_reminder>`, 'pending');
         const assistant = document.createElement('section');
         assistant.setAttribute('data-chatgpt-search-unit-key', 'fallback-turn-1:3:assistant');
         assistant.setAttribute('data-chatgpt-search-message-ids', 'assistant-2');
@@ -397,7 +397,7 @@ test("modern ChatGPT waits for its enabled send control instead of pressing Ente
     restorationCorrelationWindowMs() { return 10; }
     sendConfirmationTimeoutMs() { return 1500; }
   }
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'wtagent-ready-send-'));
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'neuralforge-ready-send-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const adapter = new FastAdapter({ profileDir: path.join(directory, 'profile') });
   adapter.page = page;

@@ -13,7 +13,7 @@ import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import type { WTagentDatabase } from "./index.js";
 
-const BACKUP_FORMAT = "wtagent-pglite-backup";
+const BACKUP_FORMAT = "neuralforge-pglite-backup";
 const BACKUP_VERSION = 1;
 const DATABASE_ARCHIVE = "database.pglite.tar.gz";
 
@@ -153,7 +153,7 @@ async function readAndValidateManifest(backupDir: string): Promise<{
     || !("files" in parsed)
     || !Array.isArray(parsed.files)
   ) {
-    throw new Error("Unsupported or invalid WTAgent backup manifest.");
+    throw new Error("Unsupported or invalid NeuralForge backup manifest.");
   }
   const manifest = parsed as BackupManifest;
   const files = new Map<string, Uint8Array>();
@@ -168,10 +168,10 @@ async function readAndValidateManifest(backupDir: string): Promise<{
       || !/^[a-f0-9]{64}$/.test(file.sha256)
       || files.has(file.path)
     ) {
-      throw new Error("Invalid file entry in WTAgent backup manifest.");
+      throw new Error("Invalid file entry in NeuralForge backup manifest.");
     }
     if (file.path !== DATABASE_ARCHIVE && !file.path.startsWith("sessions/")) {
-      throw new Error(`Unexpected file in WTAgent backup manifest: ${file.path}`);
+      throw new Error(`Unexpected file in NeuralForge backup manifest: ${file.path}`);
     }
     const filePath = resolveManifestPath(backupDir, file.path);
     const details = await lstat(filePath);
@@ -185,7 +185,7 @@ async function readAndValidateManifest(backupDir: string): Promise<{
     files.set(file.path, data);
   }
   if (!files.has(DATABASE_ARCHIVE)) {
-    throw new Error("WTAgent backup is missing its PGlite database archive.");
+    throw new Error("NeuralForge backup is missing its PGlite database archive.");
   }
   return { manifest, files };
 }
@@ -195,7 +195,7 @@ export async function createWTagentBackup(
 ): Promise<CreateBackupResult> {
   const destinationDir = path.resolve(options.destinationDir);
   const parentDir = path.dirname(destinationDir);
-  const stagingDir = path.join(parentDir, `.wtagent-backup-${randomUUID()}.tmp`);
+  const stagingDir = path.join(parentDir, `.neuralforge-backup-${randomUUID()}.tmp`);
   const createdAt = new Date().toISOString();
   await mkdir(parentDir, { recursive: true, mode: 0o700 });
 
@@ -267,7 +267,7 @@ export async function restoreWTagentBackup(
       }
     }
 
-    const stagedDatabasePath = path.join(stagedDataDir, "wtagent.pglite");
+    const stagedDatabasePath = path.join(stagedDataDir, "neuralforge.pglite");
     const archiveBuffer = new Uint8Array(archive);
     const validationDatabase = new PGlite(stagedDatabasePath, {
       loadDataDir: new Blob([archiveBuffer]),
@@ -278,7 +278,7 @@ export async function restoreWTagentBackup(
         "SELECT to_regclass('public.schema_migrations') AS migrations",
       );
       if (!validation.rows[0]?.migrations) {
-        throw new Error("The backup does not contain a WTAgent PGlite schema.");
+        throw new Error("The backup does not contain a NeuralForge PGlite schema.");
       }
     } finally {
       await validationDatabase.close();
@@ -317,7 +317,7 @@ export async function restoreWTagentBackup(
     if (rollbackErrors.length > 0) {
       throw new AggregateError(
         [error, ...rollbackErrors],
-        "WTAgent backup restore failed and rollback was incomplete.",
+        "NeuralForge backup restore failed and rollback was incomplete.",
       );
     }
     throw error;

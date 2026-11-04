@@ -5,21 +5,21 @@ import os from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { z } from "zod";
-import { AgentRuntime } from "@wtagent/runtime/agent-runtime";
-import { FakeWebModelAdapter } from "@wtagent/browser/fake-web-model-adapter";
-import { createDefaultToolRegistry } from "@wtagent/tools/default-tools";
-import { ToolRegistry } from "@wtagent/tools/registry";
-import { PolicyEngine } from "@wtagent/policy/policy-engine";
-import { TaskSession } from "@wtagent/session/task-session";
+import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
+import { FakeWebModelAdapter } from "@neuralforge/browser/fake-web-model-adapter";
+import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
+import { ToolRegistry } from "@neuralforge/tools/registry";
+import { PolicyEngine } from "@neuralforge/policy/policy-engine";
+import { TaskSession } from "@neuralforge/session/task-session";
 import {
   DEFAULT_LIMITS,
   resolveLimits,
-} from "@wtagent/shared/limits";
-import { BrowserAdapterError } from "@wtagent/shared/errors";
+} from "@neuralforge/shared/limits";
+import { BrowserAdapterError } from "@neuralforge/shared/errors";
 
 function outboundCorrelationId(message) {
   return String(message).match(
-    /Opaque WTAgent transport correlation ID \(do not repeat\): ([0-9a-f-]{36})\./,
+    /Opaque NeuralForge transport correlation ID \(do not repeat\): ([0-9a-f-]{36})\./,
   )?.[1] ?? null;
 }
 
@@ -53,7 +53,7 @@ async function createInterruptedResumeSession(t, {
   state = {},
   transcriptItems = [transcriptUser(task)],
 } = {}) {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-resume-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-resume-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -122,7 +122,7 @@ for (const [name, responses] of [
   ["mixed syntax and semantic errors", [invalidEnvelope, invalidDoneMessage]],
 ]) {
   test(`protocol retry budget terminates repeated ${name}`, async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-protocol-budget-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-protocol-budget-"));
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const session = await TaskSession.create({ sessionsDir: path.join(root, "sessions"), projectRoot: root, task: "test" });
     const adapter = new FakeWebModelAdapter([...responses, "must not be read"]);
@@ -143,7 +143,7 @@ for (const [name, responses] of [
 }
 
 test("a fully valid tool turn resets the consecutive protocol retry budget", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-protocol-reset-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-protocol-reset-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   await fs.writeFile(path.join(root, "input.txt"), "test");
   const session = await TaskSession.create({ sessionsDir: path.join(root, "sessions"), projectRoot: root, task: "read" });
@@ -163,7 +163,7 @@ test("a fully valid tool turn resets the consecutive protocol retry budget", asy
 });
 
 test("runs a full model-tool-model loop", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -266,7 +266,7 @@ const noBackoffLimits = {
 };
 
 test("asks ChatGPT to continue after empty replies without resending the task", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -316,7 +316,7 @@ test("asks ChatGPT to continue after empty replies without resending the task", 
 });
 
 test("stops after three empty-response continuations and preserves a pending tool result", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -371,7 +371,7 @@ test("stops after three empty-response continuations and preserves a pending too
 });
 
 test("in-place recovery continues without resending a persisted pending result", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -416,7 +416,7 @@ test("in-place recovery continues without resending a persisted pending result",
 });
 
 test("continues beyond the former 36-step run limit", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -469,7 +469,7 @@ test("continues beyond the former 36-step run limit", async (t) => {
 });
 
 test("runtime never invokes provider model selection", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -512,7 +512,7 @@ test("runtime never invokes provider model selection", async (t) => {
 });
 
 test("keeps the final browser tool-result message within 24 KiB", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -560,12 +560,12 @@ test("keeps the final browser tool-result message within 24 KiB", async (t) => {
       <= DEFAULT_LIMITS.maxBrowserToolResultBytes,
   );
   assert.match(resultMessage, /<tool_result[^>]+truncated="true"/);
-  assert.match(resultMessage, /WTAgent omitted/);
+  assert.match(resultMessage, /NeuralForge omitted/);
   assertOneTrailingReminder(resultMessage);
 });
 
 test("records @file attachments on the opening message and passes them to the adapter", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -610,7 +610,7 @@ test("records @file attachments on the opening message and passes them to the ad
 });
 
 test("restores the window for manual login, then re-minimizes", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -661,7 +661,7 @@ test("restores the window for manual login, then re-minimizes", async (t) => {
 });
 
 test("conversation.started stays model-agnostic for fresh and resumed sessions", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -719,7 +719,7 @@ test("conversation.started stays model-agnostic for fresh and resumed sessions",
 });
 
 test("returns invalid tool calls to the model instead of executing them", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -762,7 +762,7 @@ test("returns invalid tool calls to the model instead of executing them", async 
 });
 
 test("returns policy path errors to the model instead of ending the CLI", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -830,7 +830,7 @@ test("returns policy path errors to the model instead of ending the CLI", async 
 });
 
 test("resumes the saved conversation with a follow-up instruction", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1293,7 +1293,7 @@ test("fresh fallback fails closed for any committed model or tool history", asyn
 });
 
 test("resends a pending tool result before continuing a recovered task", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1346,7 +1346,7 @@ test("resends a pending tool result before continuing a recovered task", async (
 });
 
 test("does not reuse an identical read across different turns", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1393,7 +1393,7 @@ test("does not reuse an identical read across different turns", async (t) => {
 
 
 test("allows a direct done=true answer without forcing a tool call", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1430,7 +1430,7 @@ test("allows a direct done=true answer without forcing a tool call", async (t) =
 });
 
 test("completes done=true even when the task wording implies commands", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -1465,7 +1465,7 @@ test("completes done=true even when the task wording implies commands", async (t
 });
 
 test("merges the trailing markdown report into the done=true final answer", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1512,7 +1512,7 @@ test("merges the trailing markdown report into the done=true final answer", asyn
 });
 
 test("requires an explicit completion envelope after a plain reply", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1555,7 +1555,7 @@ test("requires an explicit completion envelope after a plain reply", async (t) =
 });
 
 test("a broken envelope still triggers a protocol retry (never guessed as done)", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1592,7 +1592,7 @@ test("a broken envelope still triggers a protocol retry (never guessed as done)"
 });
 
 test("a tool call written inside a done=true message is re-prompted, not swallowed", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1634,7 +1634,7 @@ test("a tool call written inside a done=true message is re-prompted, not swallow
 });
 
 test("a bare tool_calls reply without an envelope is a tool request, not a plain answer", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1671,7 +1671,7 @@ test("a bare tool_calls reply without an envelope is a tool request, not a plain
 });
 
 test("done ends the current run but the same session accepts a follow-up", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -1728,7 +1728,7 @@ test("done ends the current run but the same session accepts a follow-up", async
 });
 
 test("does not carry an older assistant id past an unidentified reply", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -1781,7 +1781,7 @@ test("does not carry an older assistant id past an unidentified reply", async (t
 });
 
 test("still rejects done=true with an empty final message", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -1821,7 +1821,7 @@ test("still rejects done=true with an empty final message", async (t) => {
 });
 
 test("keeps a completed tool result pending when sending it crashes", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -2232,7 +2232,7 @@ test("recovery rejects an outcome labeled with a substitute target", async (t) =
 });
 
 test("a crash after assistant receipt resumes from the durable raw response", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-handoff-crash-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-handoff-crash-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2292,7 +2292,7 @@ test("a crash after assistant receipt resumes from the durable raw response", as
 });
 
 test("commit-unknown tool results are checkpointed and never replayed", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2345,7 +2345,7 @@ test("commit-unknown tool results are checkpointed and never replayed", async (t
 });
 
 test("direct native text is returned to the agent without an auxiliary query", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-native-text-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-native-text-"));
   t.after(() => fs.rm(base, { recursive: true, force: true }));
   const refusal = "I can't depict some public figures. Is there anyone else you'd like to try?";
   const adapter = new FakeWebModelAdapter([
@@ -2368,7 +2368,7 @@ test("direct native text is returned to the agent without an auxiliary query", a
 });
 
 test("image generation uses an auxiliary turn and checkpoints it before the tool result", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-image-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-image-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2411,7 +2411,7 @@ test("image generation uses an auxiliary turn and checkpoints it before the tool
   const result = await runtime.run();
   assert.equal(result.message, "Saved.");
   assert.equal(adapter.sentMessages.length, 3);
-  assert.match(adapter.sentMessages[1], /internal WTAgent provider operation/);
+  assert.match(adapter.sentMessages[1], /internal NeuralForge provider operation/);
   assert.match(adapter.sentMessages[2], /<tool_result/);
   assert.equal(session.state.pendingAuxiliaryTurn, null);
   assert.equal(session.state.lastUserMessageId, "user-3");
@@ -2420,11 +2420,11 @@ test("image generation uses an auxiliary turn and checkpoints it before the tool
 
 for (const status of ["not-submitted", "commit-unknown"]) {
   test(`auxiliary send failure preserves ${status} semantics`, async (t) => {
-    const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-aux-send-"));
+    const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-aux-send-"));
     t.after(() => fs.rm(base, { recursive: true, force: true }));
     class FailedSubmitAdapter extends FakeWebModelAdapter {
       async sendMessage(text, options) {
-        if (text.includes("internal WTAgent provider operation")) {
+        if (text.includes("internal NeuralForge provider operation")) {
           this.lastSendStatus = status;
           throw new BrowserAdapterError("simulated submit failure", {
             code: status === "commit-unknown" ? "SEND_COMMIT_UNKNOWN" : "COMPOSER_NOT_FOUND",
@@ -2504,7 +2504,7 @@ test("an unproven interrupted auxiliary turn blocks resume without replay", asyn
 });
 
 test("an unproven auxiliary failure stops before sending a tool result", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-image-failure-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-image-failure-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2560,7 +2560,7 @@ test("an unproven auxiliary failure stops before sending a tool result", async (
 });
 
 test("persists the concrete conversation URL when the first send crashes", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2593,7 +2593,7 @@ test("persists the concrete conversation URL when the first send crashes", async
 });
 
 test("persists a late canonical URL even when the model turn times out", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2645,7 +2645,7 @@ test("persists a late canonical URL even when the model turn times out", async (
 });
 
 test("a final assistant checkpoint cannot overwrite a newer canonical URL", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2694,7 +2694,7 @@ test("a final assistant checkpoint cannot overwrite a newer canonical URL", asyn
 });
 
 test("a navigation callback stays newer than an in-flight stale identity read", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2742,7 +2742,7 @@ test("a navigation callback stays newer than an in-flight stale identity read", 
 });
 
 test("a failed URL observation does not discard a completed model reply", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2774,7 +2774,7 @@ test("a failed URL observation does not discard a completed model reply", async 
 });
 
 test("a transient non-conversation redirect cannot poison the saved URL", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const sessionsDir = path.join(base, "sessions");
   await fs.mkdir(projectRoot);
@@ -2813,7 +2813,7 @@ test("a transient non-conversation redirect cannot poison the saved URL", async 
 });
 
 test("keeps a sent tool result pending when waiting for the next turn crashes", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -2876,7 +2876,7 @@ test("keeps a sent tool result pending when waiting for the next turn crashes", 
 });
 
 test("treats identical writes in later assistant messages as separate operations", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -2924,7 +2924,7 @@ test("treats identical writes in later assistant messages as separate operations
 });
 
 test("treats identical commands in later assistant messages as separate operations", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -2970,7 +2970,7 @@ test("treats identical commands in later assistant messages as separate operatio
 });
 
 test("ignores model-provided call ids and treats a later message as a new operation", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3015,7 +3015,7 @@ test("ignores model-provided call ids and treats a later message as a new operat
 });
 
 test("marks a non-cooperative side-effect timeout as recoverable and unknown", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3085,7 +3085,7 @@ function deadAssistantRequest() {
 }
 
 test("asks ChatGPT to continue after a silently dead request", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3166,7 +3166,7 @@ class ConnectionDroppingAdapter extends FakeWebModelAdapter {
 }
 
 test("reconnects and resends when the browser connection dies during send", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3206,7 +3206,7 @@ test("reconnects and resends when the browser connection dies during send", asyn
 });
 
 test("a pre-submit reconnect checkpoints the replacement target for recovery", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3282,7 +3282,7 @@ test("a pre-submit reconnect checkpoints the replacement target for recovery", a
 });
 
 test("does not resend after a connection loss with unknown commit status", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3318,7 +3318,7 @@ test("does not resend after a connection loss with unknown commit status", async
 });
 
 test("reconnects and resumes waiting when the connection dies mid-turn", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3363,7 +3363,7 @@ test("reconnects and resumes waiting when the connection dies mid-turn", async (
 });
 
 test("ChatGPT mid-turn connection loss reattaches the exact target", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3405,7 +3405,7 @@ test("ChatGPT mid-turn connection loss reattaches the exact target", async (t) =
 });
 
 test("mid-turn reconnect refuses to continue on a verified fresh page", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3440,7 +3440,7 @@ test("mid-turn reconnect refuses to continue on a verified fresh page", async (t
 });
 
 test("gives up after one reconnect attempt instead of looping forever", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3489,7 +3489,7 @@ test("gives up after one reconnect attempt instead of looping forever", async (t
 });
 
 test("stops immediately when ChatGPT reports a usage limit instead of retrying the format", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3528,7 +3528,7 @@ test("stops immediately when ChatGPT reports a usage limit instead of retrying t
 });
 
 test("emits the limit event when the adapter detects a usage-limit card", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3569,7 +3569,7 @@ test("emits the limit event when the adapter detects a usage-limit card", async 
 });
 
 test("resume ignores legacy mode overrides and keeps the browser-selected model", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3608,7 +3608,7 @@ test("resume ignores legacy mode overrides and keeps the browser-selected model"
 });
 
 test("does not retry a submitted message whose DOM confirmation is missing", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3648,7 +3648,7 @@ test("does not retry a submitted message whose DOM confirmation is missing", asy
 });
 
 test("resume launches with the conversation URL so an existing tab can be reused", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3681,7 +3681,7 @@ test("resume launches with the conversation URL so an existing tab can be reused
 });
 
 test("uses the same default timeout regardless of legacy session mode", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3727,7 +3727,7 @@ test("uses the same default timeout regardless of legacy session mode", async (t
 });
 
 test("an explicit --model-turn-timeout-ms overrides the default timeout", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);
@@ -3758,7 +3758,7 @@ test("an explicit --model-turn-timeout-ms overrides the default timeout", async 
 });
 
 test("recovers after a provider-side generation failure", async (t) => {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-runtime-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-runtime-"));
   const projectRoot = path.join(base, "project");
   const tasksDir = path.join(base, "tasks");
   await fs.mkdir(projectRoot);

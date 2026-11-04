@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createArtifactPreview, ArtifactPreview } from '../src/artifact-preview.js';
-import type { ArtifactRecord } from '@wtagent/types';
+import type { ArtifactRecord } from '@neuralforge/types';
 
 const secret = 'test-secret-key-12345';
 
@@ -53,7 +53,7 @@ describe('ArtifactPreview', () => {
   });
 
   it('should generate thumbnails for images with dimensions', async () => {
-    const tmpDir = `/tmp/wtagent-preview-test-${Date.now()}`;
+    const tmpDir = `/tmp/neuralforge-preview-test-${Date.now()}`;
     const preview = createArtifactPreview({ secret, thumbnailsDir: tmpDir });
     const record = makeRecord();
     const thumb = await preview.generateThumbnail(record);

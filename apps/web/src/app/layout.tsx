@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WTAgent",
-  description: "Local coding workspace powered by web AI providers",
+  title: "NeuralForge | Omni-Nexus",
+  description: "Local-first agentic AI gateway foundry. Omni-Nexus swarm orchestrator. Fuse every web AI subscription into one unified mesh. No API keys. No cloud. No telemetry.",
 };
 
 export default function RootLayout({

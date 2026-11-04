@@ -1,5 +1,5 @@
 import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
-import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
+import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
 
 export { isConnectionLostError } from "./base-web-adapter.js";
 
@@ -16,10 +16,10 @@ const GLM_URL = "https://chat.z.ai/";
 //   - assistant answer markdown is `.markdown-prose` / `.prose`; a "思考过程"
 //     (deep-thinking) block may precede it and is excluded when reading the reply
 //   - a live conversation URL is /c/<uuid>
-//   - model choice is intentionally left to the user on chat.z.ai; WTAgent does
+//   - model choice is intentionally left to the user on chat.z.ai; NeuralForge does
 //     not inspect or override the site's current model selection
 //   - Cloudflare guards the site; the base throwIfBlockedPage surfaces the
-//     window so the user can pass the check (wtagent's own CDP launch is not
+//     window so the user can pass the check (neuralforge's own CDP launch is not
 //     fingerprinted the way headless automation is)
 export class GLMWebAdapter extends BaseWebAdapter {
   constructor(options: any = {}) {

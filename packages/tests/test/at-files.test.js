@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { extractAtMentions } from "wtagent/at-files";
+import { extractAtMentions } from "neuralforge/at-files";
 
 async function withProject(run) {
-  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-at-")));
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-at-")));
   try {
     await run(root);
   } finally {
@@ -47,7 +47,7 @@ test("accepts an absolute path outside the project (web upload, not a local read
   await withProject(async (root) => {
     // A file the user points at with an absolute path outside the project must
     // be attachable: this is a web upload to their own ChatGPT session.
-    const outside = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-out-")));
+    const outside = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "neuralforge-out-")));
     try {
       const abs = path.join(outside, "photo.jpeg");
       await fs.writeFile(abs, "img");
@@ -122,12 +122,12 @@ test("resolves quoted Windows paths with spaces and backslashes", async () => {
 test("expands ~ to the user home directory on Windows-style paths", async () => {
   await withProject(async (root) => {
     const home = os.homedir();
-    const target = path.join(home, "wtagent-at-home-test.txt");
+    const target = path.join(home, "neuralforge-at-home-test.txt");
     await fs.writeFile(target, "x");
     try {
-      const result = await extractAtMentions("read @~\\wtagent-at-home-test.txt", root);
+      const result = await extractAtMentions("read @~\\neuralforge-at-home-test.txt", root);
       assert.equal(result.files.length, 1);
-      assert.equal(result.files[0].name, "wtagent-at-home-test.txt");
+      assert.equal(result.files[0].name, "neuralforge-at-home-test.txt");
     } finally {
       await fs.rm(target, { force: true });
     }

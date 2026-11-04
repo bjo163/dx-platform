@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
-import type { WTagentDatabase } from "@wtagent/database";
+import type { WTagentDatabase } from "@neuralforge/database";
 import type {
   JobActivityRecord,
   JobCreateInput,
   JobRecord,
   JobStatus,
   JobStoreBackend,
-} from "@wtagent/job";
+} from "@neuralforge/job";
 
 type JobRow = { payload: JobRecord | string };
 type Queryable = {

@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Security Architecture
+# NeuralForge Master Blueprint — Security Architecture
 
 ## Document: 11-security-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Security Architecture Overview
 
-WTAgent implements a defense-in-depth security model with trust boundaries, sandbox enforcement, approval workflows, and audit logging. This document defines the security model, threat landscape, and controls.
+NeuralForge implements a defense-in-depth security model with trust boundaries, sandbox enforcement, approval workflows, and audit logging. This document defines the security model, threat landscape, and controls.
 
 ---
 
@@ -25,7 +25,7 @@ WTAgent implements a defense-in-depth security model with trust boundaries, sand
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌─────────────────┐   UNTRUSTED (External)    ┌─────────────────┐ │
-│  │   Web AI        │ ──────────────────────►   │   WTAgent Core  │ │
+│  │   Web AI        │ ──────────────────────►   │   NeuralForge Core  │ │
 │  │   Providers     │  (ChatGPT, Gemini, etc.)  │  (API Server)   │ │
 │  │   (CDP)         │                            │               │ │
 │  └─────────────────┘                            └─────────────────┘ │
@@ -202,8 +202,8 @@ interface ApprovalRecord {
 
 ### Retention
 
-- **Active**: `.wtagent/data/audit/current.jsonl` (7 days)
-- **Rotated**: `.wtagent/data/audit/YYYY-MM-DD.jsonl.gz` (30 days)
+- **Active**: `.neuralforge/data/audit/current.jsonl` (7 days)
+- **Rotated**: `.neuralforge/data/audit/YYYY-MM-DD.jsonl.gz` (30 days)
 - **Purged**: `rm -f` old files
 
 ---

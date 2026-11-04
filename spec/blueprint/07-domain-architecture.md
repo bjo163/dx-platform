@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Domain Architecture
+# NeuralForge Master Blueprint — Domain Architecture
 
 ## Document: 07-domain-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,14 +13,14 @@
 
 ## Domain Architecture Overview
 
-WTAgent applies Domain-Driven Design (DDD) principles to identify core domains, bounded contexts, and their relationships. This ensures clear ownership, reduces coupling, and enables independent evolution.
+NeuralForge applies Domain-Driven Design (DDD) principles to identify core domains, bounded contexts, and their relationships. This ensures clear ownership, reduces coupling, and enables independent evolution.
 
 ---
 
 ## Core Domains
 
 ### 1. Job Execution Domain
-**Bounded Context**: `@wtagent/job` + `@wtagent/runtime`
+**Bounded Context**: `@neuralforge/job` + `@neuralforge/runtime`
 
 | Concept | Type | Description |
 |---------|------|-------------|
@@ -47,7 +47,7 @@ WTAgent applies Domain-Driven Design (DDD) principles to identify core domains, 
 ---
 
 ### 2. Provider Integration Domain
-**Bounded Context**: `@wtagent/browser`
+**Bounded Context**: `@neuralforge/browser`
 
 | Concept | Type | Description |
 |---------|------|-------------|
@@ -74,7 +74,7 @@ WTAgent applies Domain-Driven Design (DDD) principles to identify core domains, 
 ---
 
 ### 3. Tool Execution Domain
-**Bounded Context**: `@wtagent/tools`
+**Bounded Context**: `@neuralforge/tools`
 
 | Concept | Type | Description |
 |---------|------|-------------|
@@ -101,7 +101,7 @@ WTAgent applies Domain-Driven Design (DDD) principles to identify core domains, 
 ---
 
 ### 4. Policy & Security Domain
-**Bounded Context**: `@wtagent/policy`
+**Bounded Context**: `@neuralforge/policy`
 
 | Concept | Type | Description |
 |---------|------|-------------|
@@ -126,7 +126,7 @@ WTAgent applies Domain-Driven Design (DDD) principles to identify core domains, 
 ---
 
 ### 5. Data Persistence Domain
-**Bounded Context**: `@wtagent/database`
+**Bounded Context**: `@neuralforge/database`
 
 | Concept | Type | Description |
 |---------|------|-------------|
@@ -150,7 +150,7 @@ WTAgent applies Domain-Driven Design (DDD) principles to identify core domains, 
 ---
 
 ### 6. Session Management Domain
-**Bounded Context**: `@wtagent/session`
+**Bounded Context**: `@neuralforge/session`
 
 | Concept | Type | Description |
 |---------|------|-------------|

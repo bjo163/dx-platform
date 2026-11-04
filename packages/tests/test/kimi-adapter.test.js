@@ -1,7 +1,7 @@
 import test from "../src/shim.js";
 import assert from "node:assert/strict";
-import { KimiWebAdapter } from "@wtagent/browser/kimi-web-adapter";
-import { isConnectionLostError } from "@wtagent/browser/kimi-web-adapter";
+import { KimiWebAdapter } from "@neuralforge/browser/kimi-web-adapter";
+import { isConnectionLostError } from "@neuralforge/browser/kimi-web-adapter";
 
 // Minimal Playwright-locator doubles, mirroring test/deepseek-adapter.test.js.
 class EmptyLocator {

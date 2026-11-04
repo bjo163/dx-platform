@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Project Scope
+# NeuralForge Master Blueprint — Project Scope
 
 ## Document: 02-project-scope.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Project Scope Definition
 
-This document defines the exact boundaries of the WTAgent project, separating in-scope deliverables from out-of-scope features to prevent scope creep and maintain architectural focus.
+This document defines the exact boundaries of the NeuralForge project, separating in-scope deliverables from out-of-scope features to prevent scope creep and maintain architectural focus.
 
 ### Scope Matrix
 

@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Infrastructure Architecture
+# NeuralForge Master Blueprint — Infrastructure Architecture
 
 ## Document: 13-infrastructure-architecture.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Infrastructure Architecture Overview
 
-WTAgent's infrastructure architecture defines the deployment environment, containerization, networking, configuration management, and operational tooling. This document covers the infrastructure required for production deployment.
+NeuralForge's infrastructure architecture defines the deployment environment, containerization, networking, configuration management, and operational tooling. This document covers the infrastructure required for production deployment.
 
 ---
 
@@ -71,10 +71,10 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./wtagent-data:/app/.wtagent
+      - ./neuralforge-data:/app/.neuralforge
     environment:
       - PORT=8080
-      - WTAGENT_DATA_DIR=/app/.wtagent
+      - WTAGENT_DATA_DIR=/app/.neuralforge
       - WTAGENT_PROJECT_ROOT=/app
     restart: unless-stopped
 
@@ -84,7 +84,7 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_WTAGENT_API_URL=http://localhost:8080
-    command: pnpm --filter @wtagent/web dev
+    command: pnpm --filter @neuralforge/web dev
     volumes:
       - ./apps/web/src:/app/apps/web/src
       - ./packages/:/app/packages/
@@ -93,7 +93,7 @@ services:
   data:
     image: busybox
     volumes:
-      - ./wtagent-data:/app/.wtagent
+      - ./neuralforge-data:/app/.neuralforge
     command: ["sleep", "infinity"]
 ```
 
@@ -103,20 +103,20 @@ services:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wtagent-api
+  name: neuralforge-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: wtagent-api
+      app: neuralforge-api
   template:
     metadata:
       labels:
-        app: wtagent-api
+        app: neuralforge-api
     spec:
       containers:
       - name: api
-        image: wtagent/api:latest
+        image: neuralforge/api:latest
         ports:
         - containerPort: 8080
         env:
@@ -130,7 +130,7 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: wtagent-data-pvc
+          claimName: neuralforge-data-pvc
 ```
 
 ---
@@ -142,7 +142,7 @@ spec:
 | Variable | Default | Description | Scope |
 |----------|---------|-------------|-------|
 | `PORT` | `8080` | API server port | API |
-| `WTAGENT_DATA_DIR` | `.wtagent` | Data directory | API |
+| `WTAGENT_DATA_DIR` | `.neuralforge` | Data directory | API |
 | `WTAGENT_PROJECT_ROOT` | `auto` | Project root directory | API |
 | `WTAGENT_PROVIDER` | `chatgpt` | Default provider | API |
 | `NEXT_PUBLIC_WTAGENT_API_URL` | `http://localhost:8080` | API URL for web | Web |
@@ -186,7 +186,7 @@ spec:
 ### Data Directory Structure
 
 ```
-.wtagent/
+.neuralforge/
 ├── data/
 │   ├── jobs.db          # PGlite database
 │   └── migrations/      # Schema migrations

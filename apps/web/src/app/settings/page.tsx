@@ -16,7 +16,7 @@ export default function SettingsPage() {
         <dl className="settings-grid">
           <dt>API URL</dt><dd><code>{apiUrl}</code></dd>
           <dt>API state</dt><dd>{apiState === "loading" ? "Checking API..." : apiState === "connected" ? "Connected" : "Unavailable"}</dd>
-          <dt>Data directory</dt><dd><code>WTAGENT_DATA_DIR / data / wtagent.pglite</code></dd>
+          <dt>Data directory</dt><dd><code>WTAGENT_DATA_DIR / data / neuralforge.pglite</code></dd>
           <dt>Default tools</dt><dd><code>fs.read · fs.search · fs.write · fs.edit · terminal.exec</code></dd>
         </dl>
       </section>

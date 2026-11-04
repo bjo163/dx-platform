@@ -6,7 +6,7 @@ import {
   wrapSystemPrompt,
   wrapSystemReminder,
   SYSTEM_PROMPT_TAG,
-} from "@wtagent/protocol/markers";
+} from "@neuralforge/protocol/markers";
 import {
   developerMessage,
   userMessage,
@@ -14,12 +14,12 @@ import {
   functionCall,
   functionCallOutput,
   toolResultOutput,
-} from "@wtagent/session/canonical-transcript";
+} from "@neuralforge/session/canonical-transcript";
 import {
   toCodexRollout,
   toClaudeCodeSession,
-} from "@wtagent/session/session-export";
-import { buildBootstrapPrompt } from "@wtagent/protocol/prompt-builder";
+} from "@neuralforge/session/session-export";
+import { buildBootstrapPrompt } from "@neuralforge/protocol/prompt-builder";
 
 const NOW = "2026-07-29T00:00:00.000Z";
 
@@ -56,14 +56,14 @@ test("codex export removes transport scaffold and keeps the body clean", () => {
 
   assert.equal(lines[0].type, "session_meta");
   assert.equal(lines[0].payload.base_instructions, null);
-  assert.equal(lines[0].payload.originator, "wtagent");
-  assert.equal(lines[0].payload.source, "wtagent");
+  assert.equal(lines[0].payload.originator, "neuralforge");
+  assert.equal(lines[0].payload.source, "neuralforge");
   assert.doesNotMatch(JSON.stringify(lines[0]), /PROTOCOL|agent_response/);
 
   const body = lines.slice(1);
   // Developer scaffolding is not replayed as a turn.
   assert.equal(body.every((l) => l.payload.role !== "developer"), true);
-  // No WTAgent XML/markers leak into the exported body.
+  // No NeuralForge XML/markers leak into the exported body.
   const serialized = JSON.stringify(body);
   assert.doesNotMatch(serialized, /system_prompt|system_reminder|agent_response/);
   // The user turn carries only the real task text.
@@ -108,7 +108,7 @@ test("production bootstrap export never leaks the XML protocol into Codex", () =
 test("claude code export maps tools and links parentUuid", () => {
   const lines = toClaudeCodeSession(transcript(), { sessionId: "sess-1", now: NOW })
     .trim().split("\n").map((l) => JSON.parse(l));
-  assert.equal(lines.every((line) => line.version === "wtagent-export"), true);
+  assert.equal(lines.every((line) => line.version === "neuralforge-export"), true);
 
   // tool_use and tool_result blocks are present.
   const toolUse = lines.find((l) => Array.isArray(l.message?.content)

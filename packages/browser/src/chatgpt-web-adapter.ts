@@ -6,8 +6,8 @@ import {
   isValidOutboundCorrelationId,
   renderedMessageContainsOutboundMarker,
 } from "./base-web-adapter.js";
-import { BrowserAdapterError } from "@wtagent/shared/errors";
-import { isUsageLimitNotice } from "@wtagent/shared/usage-limit";
+import { BrowserAdapterError } from "@neuralforge/shared/errors";
+import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
 
 // Re-exported so existing importers (the runtime and browser-adapter tests)
 // keep importing it from here even though it now lives on the provider-agnostic

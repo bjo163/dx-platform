@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Risk Register
+# NeuralForge Master Blueprint — Risk Register
 
 ## Document: 18-risk-register.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Risk Register Overview
 
-This document identifies, assesses, and tracks risks to the WTAgent project. Each risk includes probability, impact, mitigation strategy, and contingency plans.
+This document identifies, assesses, and tracks risks to the NeuralForge project. Each risk includes probability, impact, mitigation strategy, and contingency plans.
 
 ---
 
@@ -247,7 +247,7 @@ This document identifies, assesses, and tracks risks to the WTAgent project. Eac
 | **Score** | 4 (Medium) |
 | **Owner** | Platform Team |
 
-**Description**: WTAgent depends entirely on Chrome/Chromium availability; browser issues block all operations.
+**Description**: NeuralForge depends entirely on Chrome/Chromium availability; browser issues block all operations.
 
 **Triggers**:
 - Chrome update breaks CDP

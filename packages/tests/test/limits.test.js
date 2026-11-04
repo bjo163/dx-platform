@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_LIMITS,
   resolveLimits,
-} from "@wtagent/shared/limits";
+} from "@neuralforge/shared/limits";
 
 test("model turn timeout defaults to ten minutes", () => {
   assert.equal(DEFAULT_LIMITS.modelTurnTimeoutMs, 10 * 60_000);

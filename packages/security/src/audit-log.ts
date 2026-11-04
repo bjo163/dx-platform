@@ -1,4 +1,4 @@
-// Audit logging for WTAgent
+// Audit logging for NeuralForge
 
 import fs from 'node:fs/promises';
 import path from 'node:path';

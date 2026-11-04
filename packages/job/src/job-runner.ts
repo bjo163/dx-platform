@@ -1,5 +1,5 @@
-import { AgentSession } from "@wtagent/session/agent-session";
-import { BrowserAdapterError } from "@wtagent/shared/errors";
+import { AgentSession } from "@neuralforge/session/agent-session";
+import { BrowserAdapterError } from "@neuralforge/shared/errors";
 import { createHeadlessRuntime, type HeadlessRuntime } from "./headless-runtime.js";
 import type { JobRecord, JobStoreBackend } from "./job-store.js";
 
@@ -137,7 +137,7 @@ export class JobRunner {
       if (await built.adapter.getAuthState() !== "authenticated") {
         throw new BrowserAdapterError(
           `No authenticated ${record.provider} session for job ${record.jobId}. `
-            + "Run `wtagent login` before submitting jobs.",
+            + "Run `neuralforge login` before submitting jobs.",
           { code: "PROVIDER_NOT_AUTHENTICATED", recoverable: false },
         );
       }

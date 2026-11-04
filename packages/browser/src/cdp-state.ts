@@ -3,11 +3,11 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { promisify } from "node:util";
-import { replaceFileAtomic } from "@wtagent/shared/atomic-write";
+import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
 
 const execFileAsync = promisify(execFile);
-const CDP_STATE_FILE = ".wtagent-cdp.json";
-const PROFILE_LOCK_FILE = ".wtagent-session.lock";
+const CDP_STATE_FILE = ".neuralforge-cdp.json";
+const PROFILE_LOCK_FILE = ".neuralforge-session.lock";
 const STATE_VERSION = 1;
 const LOCK_INITIALIZATION_GRACE_MS = 5_000;
 
@@ -178,7 +178,7 @@ export async function saveCdpState(profileDir, state) {
   const resolvedProfile = path.resolve(profileDir);
   const normalized = normalizeCandidate(state, resolvedProfile);
   if (!normalized) {
-    throw new Error("Refusing to save invalid WTAgent CDP state.");
+    throw new Error("Refusing to save invalid NeuralForge CDP state.");
   }
   const value = {
     ...normalized,
@@ -393,7 +393,7 @@ export async function discoverReusableCdpState(profileDir, {
 
   throw new Error(
     `Multiple live CDP Chrome instances use ${resolvedProfile}; `
-    + "close the extra instances before starting WTAgent.",
+    + "close the extra instances before starting NeuralForge.",
   );
 }
 
@@ -483,7 +483,7 @@ export async function inspectCdpProfileState(profileDir, {
         : `stale profile lock references dead pid=${lock.pid}`,
     );
   } else {
-    diagnostics.push("no WTAgent profile lock");
+    diagnostics.push("no NeuralForge profile lock");
   }
 
   const saved = await readJson(statePath(resolvedProfile));
@@ -626,7 +626,7 @@ export async function acquireCdpProfileLock(profileDir, {
           && startedAt > lockCreatedAt + 2_000;
         if (!recycled) {
           const error: any = new Error(
-            `Another WTAgent session (pid=${existing.pid}) is already using `
+            `Another NeuralForge session (pid=${existing.pid}) is already using `
             + `${resolvedProfile}.`,
           );
           error.code = "PROFILE_LOCKED";
@@ -644,7 +644,7 @@ export async function acquireCdpProfileLock(profileDir, {
           && Date.now() - stat.mtimeMs < LOCK_INITIALIZATION_GRACE_MS
         ) {
           throw new Error(
-            `The WTAgent profile lock at ${filePath} is still being initialized.`,
+            `The NeuralForge profile lock at ${filePath} is still being initialized.`,
           );
         }
       }
@@ -652,5 +652,5 @@ export async function acquireCdpProfileLock(profileDir, {
     }
   }
 
-  throw new Error(`Could not acquire the WTAgent profile lock at ${filePath}.`);
+  throw new Error(`Could not acquire the NeuralForge profile lock at ${filePath}.`);
 }

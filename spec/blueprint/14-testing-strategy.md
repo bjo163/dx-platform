@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Testing Strategy
+# NeuralForge Master Blueprint — Testing Strategy
 
 ## Document: 14-testing-strategy.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -13,7 +13,7 @@
 
 ## Testing Strategy Overview
 
-WTAgent uses Vitest for unit testing, Playwright for E2E testing, and MSW for API mocking. This document defines the testing approach, test organization, coverage targets, and test data management.
+NeuralForge uses Vitest for unit testing, Playwright for E2E testing, and MSW for API mocking. This document defines the testing approach, test organization, coverage targets, and test data management.
 
 ---
 
@@ -78,7 +78,7 @@ import { fsRead } from '../../src';
 describe('fs.read', () => {
   it('reads a file successfully', async () => {
     // Arrange
-    const tempDir = await fs.promises.mkdtemp('/tmp/wtagent-test-');
+    const tempDir = await fs.promises.mkdtemp('/tmp/neuralforge-test-');
     const testFile = path.join(tempDir, 'test.txt');
     await fs.promises.writeFile(testFile, 'Hello World');
 
@@ -132,7 +132,7 @@ describe('fs.read', () => {
 // packages/job/test/job-integration.spec.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createJobService } from '../../src';
-import { createMemoryStore } from '@wtagent/database';
+import { createMemoryStore } from '@neuralforge/database';
 
 describe('Job Service Integration', () => {
   let jobService: any;

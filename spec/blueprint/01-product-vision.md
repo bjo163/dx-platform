@@ -1,4 +1,4 @@
-# WTAgent Master Blueprint — Product Vision
+# NeuralForge Master Blueprint — Product Vision
 
 ## Document: 01-product-vision.md
 ## Status: **HISTORICAL** (archived 2024-01-15)
@@ -33,7 +33,7 @@ Every developer should have access to AI-augmented coding without:
 
 ### Target Users
 
-| User Type | Pain Points | WTAgent Solution |
+| User Type | Pain Points | NeuralForge Solution |
 |-----------|-------------|------------------|
 | Independent Developer | API costs, privacy concerns | Free, local, no key needed |
 | Enterprise Team | Compliance, data sovereignty | Local execution, audit logs |
@@ -91,7 +91,7 @@ Step 4: Task resumes with new provider
 
 ### Competitive Positioning
 
-| Competitor | Approach | WTAgent Differentiator |
+| Competitor | Approach | NeuralForge Differentiator |
 |------------|----------|----------------------|
 | GitHub Copilot | VS Code extension, cloud | Local execution, provider choice |
 | Claude Code | Standalone, API key | No API key, browser session |

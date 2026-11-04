@@ -1,6 +1,6 @@
-import type { ToolRegistry, ToolRunResult } from "@wtagent/tools/registry";
+import type { ToolRegistry, ToolRunResult } from "@neuralforge/tools/registry";
 
-// MCP hosts are JSON-RPC clients that never see WTAgent's XML envelope, so the
+// MCP hosts are JSON-RPC clients that never see NeuralForge's XML envelope, so the
 // bridge below turns the real tool registry into MCP descriptors and turns a
 // tool run into MCP content blocks.
 

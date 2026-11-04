@@ -7,7 +7,7 @@
 > **Note**: This document is a historical draft from the project's early design phase. The current release-readiness plan is in `.plan/task.md` (updated November 2026). See the `.plan` directory for the active plan, release criteria, and M0-M5 milestones.
 
 ## Document: DRAFT
-## Owner: @wtagent/tools
+## Owner: @neuralforge/tools
 ## Related: JOB-SPEC-001, POLICY-SPEC-001
 
 ---
@@ -18,9 +18,9 @@
 - **Name**: File System Tools
 - **Version**: 1.0
 - **Status**: DRAFT
-- **Owner**: @wtagent/tools
+- **Owner**: @neuralforge/tools
 - **Related Requirements**: FR-001, FR-003, FR-004, FR-005, FR-011
-- **Dependencies**: @wtagent/types, @wtagent/shared, @wtagent/policy, @wtagent/platform
+- **Dependencies**: @neuralforge/types, @neuralforge/shared, @neuralforge/policy, @neuralforge/platform
 
 ---
 
