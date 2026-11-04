@@ -44,10 +44,19 @@
       "path": "./packages/mcp"
     },
     {
-      "path": "./packages/gateway"
+      "path": "./packages/sdk"
     },
     {
       "path": "./packages/tests"
+    },
+    {
+      "path": "./packages/database"
+    },
+    {
+      "path": "./packages/errors"
+    },
+    {
+      "path": "./packages/gateway"
     }
   ]
 }

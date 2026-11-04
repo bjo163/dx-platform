@@ -5,7 +5,7 @@ import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { JobStore, JobRunner, createHeadlessRuntime } from "@wtagent/job";
-import { GatewayServer } from "@wtagent/gateway";
+import { GatewayServer } from "../../packages/gateway/dist/index.js";
 import { TaskSession } from "@wtagent/session/task-session";
 
 const HOUR = 3_600_000;
@@ -65,10 +65,14 @@ test("a live lease blocks a second claimant until it goes stale", async (t) => {
   assert.equal(second.jobId, "job-2", "the held job-1 is skipped, not double-claimed");
   assert.equal(await store.claimNext("owner-c"), null, "a fresh lease is still held");
 
-  const reclaimed = await store.claimNext("owner-b", { now: Date.now() + HOUR, leaseStaleAfterMs: 60_000 });
-  assert.equal(reclaimed.jobId, "job-1");
-  assert.equal(reclaimed.attempts, 2);
-  assert.equal(reclaimed.lease.owner, "owner-b");
+  const next = await store.claimNext("owner-b", { now: Date.now() + HOUR, leaseStaleAfterMs: 60_000 });
+  assert.equal(next, null, "stale attempts are failed instead of reclaimed");
+  const interrupted = await store.read("job-1");
+  assert.equal(interrupted.status, "failed");
+  assert.equal(interrupted.error.code, "JOB_INTERRUPTED");
+  const secondInterrupted = await store.read("job-2");
+  assert.equal(secondInterrupted.status, "failed");
+  assert.equal(secondInterrupted.error.code, "JOB_INTERRUPTED");
 });
 
 test("only the lease holder can settle a job", async (t) => {
@@ -131,6 +135,7 @@ function fakeRuntime({ auth = "authenticated", run } = {}) {
   const buildRuntime = ({ record }) => {
     const adapter = {
       escCancelRequested: false,
+      launch: async () => {},
       getAuthState: async () => auth,
       close: async () => { state.closed.push(record.jobId); },
     };
@@ -161,6 +166,7 @@ async function runnerHarness(t, options = {}) {
     pollIntervalMs: 5,
     heartbeatIntervalMs: HOUR,
     leaseStaleAfterMs: HOUR,
+    executionTimeoutMs: options.executionTimeoutMs,
     loadSession: async () => ({}),
     buildRuntime: fake.buildRuntime,
   });
@@ -226,6 +232,22 @@ test("an interrupted run is recorded as cancelled, not failed", async (t) => {
   assert.equal(record.result, null);
 });
 
+test("a job that exceeds its execution timeout ends as a failure", async (t) => {
+  const { store, settle } = await runnerHarness(t, {
+    executionTimeoutMs: 10,
+    run: async (adapter) => {
+      while (!adapter.escCancelRequested) await new Promise((resolve) => setTimeout(resolve, 5));
+      throw new Error("interrupted by timeout");
+    },
+  });
+  await queued(store, "job-1");
+  await settle();
+
+  const record = await store.read("job-1");
+  assert.equal(record.status, "failed");
+  assert.equal(record.error.code, "JOB_TIMEOUT");
+});
+
 test("a cancel that outlived its holder is honoured on reclaim instead of re-run", async (t) => {
   const { store, fake, settle } = await runnerHarness(t);
   await queued(store, "job-1");
@@ -240,7 +262,7 @@ test("a cancel that outlived its holder is honoured on reclaim instead of re-run
   assert.equal(fake.state.runs, 0);
   const record = await store.read("job-1");
   assert.equal(record.status, "cancelled");
-  assert.equal(record.attempts, 2);
+  assert.equal(record.attempts, 1, "the cancelled holder is not reclaimed for another attempt");
   assert.equal(record.error.code, "JOB_CANCELLED");
 });
 
@@ -269,10 +291,11 @@ test("a restarted process settles the job its predecessor left running", async (
   await loop;
 
   const record = await store.read("job-1");
-  assert.equal(record.status, "completed");
-  assert.equal(record.attempts, 2, "the reclaim is charged as a second attempt");
-  assert.equal(record.result.message, "finished");
-  assert.equal(fake.state.runs, 1);
+  assert.equal(record.status, "failed");
+  assert.equal(record.attempts, 1, "an interrupted side-effecting attempt is not replayed");
+  assert.equal(record.error.code, "JOB_INTERRUPTED");
+  assert.equal(record.result, null);
+  assert.equal(fake.state.runs, 0);
 });
 
 test("a runtime that throws leaves a readable failure on the record", async (t) => {
@@ -325,7 +348,7 @@ test("the headless approval grants only the tools the job was created with", asy
   assert.equal(await decide("terminal.exec"), false, "a shell was never granted");
 });
 
-async function request(port, method, route, body) {
+async function request(port, method, route, body, headers = {}) {
   const payload = body === undefined ? null : JSON.stringify(body);
   const response = await new Promise((resolve, reject) => {
     const req = http.request({
@@ -333,44 +356,82 @@ async function request(port, method, route, body) {
       port,
       method,
       path: route,
-      headers: payload
-        ? { "content-type": "application/json", "content-length": String(Buffer.byteLength(payload)) }
-        : {},
+      headers: {
+        ...headers,
+        ...(payload
+          ? { "content-type": "application/json", "content-length": String(Buffer.byteLength(payload)) }
+          : {}),
+      },
     }, (res) => {
       let text = "";
       res.setEncoding("utf8");
       res.on("data", (chunk) => { text += chunk; });
-      res.on("end", () => resolve({ status: res.statusCode, text }));
+      res.on("end", () => resolve({ status: res.statusCode, text, headers: res.headers }));
     });
     req.on("error", reject);
     if (payload) req.write(payload);
     req.end();
   });
-  return { status: response.status, json: JSON.parse(response.text) };
+  return {
+    status: response.status,
+    json: response.text ? JSON.parse(response.text) : null,
+    headers: response.headers,
+  };
 }
 
 async function gatewayHarness(t) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "wtagent-gateway-"));
-  const server = new GatewayServer({ port: 0, baseDir: root, runJobs: false });
+  const server = new GatewayServer({ port: 0, baseDir: root, projectRoot: root, runJobs: false });
   await server.listen();
   // Registered before the rm so it runs first: a listening server holds the dir.
-  t.after(() => server.close());
+  t.after(async () => {
+    try {
+      await server.close();
+    } catch (err) {
+      console.error('Gateway close error:', err);
+      // Continue anyway to avoid hanging tests
+    }
+  });
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   return { root, server, port: server.boundPort };
 }
 
-test("the job routes accept an id but refuse a traversal path", async (t) => {
+test("the standalone gateway only grants browser CORS to local applications", async (t) => {
   const { port } = await gatewayHarness(t);
+  const blocked = await request(port, "GET", "/health", undefined, { origin: "https://attacker.example" });
+  assert.equal(blocked.status, 403);
+  assert.equal(blocked.headers["access-control-allow-origin"], undefined);
+  const blockedPreflight = await request(port, "OPTIONS", "/v1/jobs", undefined, {
+    origin: "https://attacker.example",
+  });
+  assert.equal(blockedPreflight.status, 403);
+  assert.equal(blockedPreflight.headers["access-control-allow-origin"], undefined);
+
+  const allowedOrigin = "http://localhost:3000";
+  const allowed = await request(port, "GET", "/health", undefined, { origin: allowedOrigin });
+  assert.equal(allowed.status, 200);
+  assert.equal(allowed.headers["access-control-allow-origin"], allowedOrigin);
+  const allowedPreflight = await request(port, "OPTIONS", "/v1/jobs", undefined, {
+    origin: allowedOrigin,
+  });
+  assert.equal(allowedPreflight.status, 204);
+  assert.equal(allowedPreflight.headers["access-control-allow-origin"], allowedOrigin);
+  assert.match(allowedPreflight.headers["access-control-allow-methods"], /POST/);
+});
+
+test("the job routes accept an id but refuse a traversal path", async (t) => {
+  const { root, port } = await gatewayHarness(t);
   const created = await request(port, "POST", "/v1/jobs", {
     task: "read the readme",
-    allowedTools: ["fs.read"],
+    projectRoot: path.join(root, "outside"),
   });
   assert.equal(created.status, 201);
   const jobId = created.json.jobId;
   assert.match(created.json.sessionId, /^session_/, "the job records its own session id");
-  assert.deepEqual(created.json.allowedTools, ["fs.read"]);
+  assert.deepEqual(created.json.allowedTools, [], "callers cannot grant tools to background jobs");
   assert.equal(created.json.status, "pending");
   assert.equal(created.json.attempts, 0);
+  assert.equal(created.json.projectRoot, root, "job requests cannot replace the server-owned project root");
 
   const logs = await request(port, "GET", `/v1/jobs/${jobId}/logs`);
   assert.equal(logs.status, 200, "the id is read from its own segment, not the last one");
@@ -384,12 +445,16 @@ test("the job routes accept an id but refuse a traversal path", async (t) => {
   assert.equal((await request(port, "GET", "/v1/jobs")).json.length, 1);
 });
 
-test("a submitted job needs a task and a well-formed grant list", async (t) => {
+test("a submitted job needs a task and cannot provide tool grants", async (t) => {
   const { port } = await gatewayHarness(t);
   assert.equal((await request(port, "POST", "/v1/jobs", { task: "   " })).status, 400);
   assert.equal((await request(port, "POST", "/v1/jobs", {})).status, 400);
-  assert.equal((await request(port, "POST", "/v1/jobs", { task: "x", allowedTools: "fs.read" })).status, 400);
-  assert.equal((await request(port, "POST", "/v1/jobs", { task: "x", allowedTools: [1] })).status, 400);
+  const grantAttempt = await request(port, "POST", "/v1/jobs", {
+    task: "edit source",
+    allowedTools: ["fs.write", "terminal.exec"],
+  });
+  assert.equal(grantAttempt.status, 400);
+  assert.match(grantAttempt.json.error.message, /controlled by the server/);
   assert.deepEqual((await request(port, "GET", "/v1/jobs")).json, []);
 });
 

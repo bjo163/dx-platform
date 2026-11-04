@@ -1,0 +1,29 @@
+{
+  "name": "@wtagent/sdk",
+  "version": "1.0.3",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@wtagent/types": "workspace:*",
+    "@wtagent/shared": "workspace:*",
+    "@wtagent/runtime": "workspace:*",
+    "@wtagent/browser": "workspace:*",
+    "@wtagent/job": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

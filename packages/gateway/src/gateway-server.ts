@@ -3,16 +3,12 @@ import { URL } from "node:url";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { JobService, isValidJobId } from "@wtagent/job";
-
-// Minimal OpenAI-compatible gateway stub with Job API
-// Full agent integration will be added in a follow-up iteration
+import { executeGatewayChatCompletion, type GatewayChatMessage } from "./chat-completion.js";
 
 export interface OpenAIChatCompletionRequest {
   model: string;
   messages: { role: string; content: string }[];
   stream?: boolean;
-  temperature?: number;
-  max_tokens?: number;
 }
 
 export interface OpenAIChatCompletionResponse {
@@ -25,7 +21,7 @@ export interface OpenAIChatCompletionResponse {
     message: { role: "assistant"; content: string };
     finish_reason: "stop";
   }[];
-  usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
+  usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
 }
 
 export interface GatewayOptions {
@@ -42,18 +38,27 @@ export interface GatewayOptions {
   runJobs?: boolean;
 }
 
+const ALLOWED_BROWSER_ORIGINS = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
 // One job at a time is a property of the shared Chrome profile, not a tuning
 // choice, so the runner is a single lease-holding loop rather than a pool.
 export class GatewayServer {
   private server: http.Server;
   private port: number;
   readonly jobService: JobService;
+  readonly #projectRoot: string;
   private readonly runJobs: boolean;
   #runnerLoop: Promise<void> | null = null;
 
   constructor(options: GatewayOptions = {}) {
     this.port = options.port ?? 8080;
     this.runJobs = options.runJobs ?? true;
+    this.#projectRoot = path.resolve(options.projectRoot ?? process.cwd());
     const baseDir = options.baseDir ?? path.join(options.projectRoot ?? ".", "wtagent-gateway");
     this.jobService = new JobService(baseDir, {
       provider: options.provider,
@@ -90,6 +95,9 @@ export class GatewayServer {
   async close(): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       this.server.close((err) => (err ? reject(err) : resolve()));
+      // Add timeout to prevent hanging on Windows
+      const timeout = setTimeout(() => reject(new Error('Server close timeout')), 5000);
+      timeout.unref?.();
     });
     if (this.#runnerLoop) {
       await this.jobService.stop();
@@ -112,7 +120,6 @@ export class GatewayServer {
   #reject(res: http.ServerResponse, status: number, message: string): void {
     res.writeHead(status, {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     });
     res.end(JSON.stringify({ error: { message } }));
   }
@@ -120,11 +127,19 @@ export class GatewayServer {
   async #handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     const url = new URL(req.url || "/", `http://${req.headers.host}`);
     const method = req.method;
+    const origin = req.headers.origin;
+    if (origin && !ALLOWED_BROWSER_ORIGINS.has(origin)) {
+      this.#reject(res, 403, "Origin not allowed.");
+      return;
+    }
+    if (origin) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+    }
 
     // CORS preflight
     if (method === "OPTIONS") {
       res.writeHead(204, {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       });
@@ -182,68 +197,85 @@ export class GatewayServer {
 
   async #handleChatCompletion(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     let body = "";
+    let bodyBytes = 0;
     for await (const chunk of req) {
+      bodyBytes += Buffer.byteLength(chunk);
+      if (bodyBytes > 1_048_576) {
+        this.#reject(res, 413, "Request body exceeds the 1 MiB limit.");
+        return;
+      }
       body += chunk;
     }
 
     let request: OpenAIChatCompletionRequest;
     try {
-      request = JSON.parse(body);
-    } catch (e) {
-      res.writeHead(400, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: { message: "Invalid JSON" } }));
+      request = JSON.parse(body) as OpenAIChatCompletionRequest;
+    } catch {
+      this.#reject(res, 400, "Invalid JSON.");
       return;
     }
 
-    const stream = request.stream ?? false;
+    if (typeof request?.model !== "string" || !request.model.trim() || !Array.isArray(request.messages)) {
+      this.#reject(res, 400, "A model and non-empty text messages are required.");
+      return;
+    }
+    if (Object.keys(request).some((key) => !["model", "messages", "stream"].includes(key))) {
+      this.#reject(res, 400, "The request contains unsupported fields.");
+      return;
+    }
+    const messages = request.messages.filter((message): message is GatewayChatMessage => (
+      typeof message === "object"
+      && message !== null
+      && ["system", "developer", "user", "assistant"].includes(message.role)
+      && typeof message.content === "string"
+      && Object.keys(message).every((key) => key === "role" || key === "content")
+    ));
+    if (messages.length === 0 || messages.length !== request.messages.length) {
+      this.#reject(res, 400, "A model and non-empty text messages are required.");
+      return;
+    }
+    if (!messages.some((message) => message.role === "user")) {
+      this.#reject(res, 400, "At least one user message is required.");
+      return;
+    }
+    if (request.stream) {
+      this.#reject(res, 501, "Streaming chat completions are not supported.");
+      return;
+    }
 
-    if (stream) {
-      res.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-        "Access-Control-Allow-Origin": "*",
+    try {
+      const completion = await executeGatewayChatCompletion({
+        jobService: this.jobService,
+        model: request.model,
+        messages,
+        projectRoot: this.#projectRoot,
       });
-
-      // Send a single chunk then close
-      const chunk: any = {
-        id: `chatcmpl-${randomUUID()}`,
-        object: "chat.completion.chunk",
-        created: Math.floor(Date.now() / 1000),
-        model: request.model || "wtagent",
-        choices: [{
-          index: 0,
-          delta: { content: "WTAgent gateway response (stub)" },
-          finish_reason: "stop",
-        }],
-      };
-
-      res.write(`data: ${JSON.stringify(chunk)}\n\n`);
-      res.write("data: [DONE]\n\n");
-      res.end();
-    } else {
+      if (completion.status === "timeout") {
+        this.#reject(res, 504, "The provider did not complete before the request timeout.");
+        return;
+      }
+      if (completion.status === "failed") {
+        this.#reject(res, 502, completion.message);
+        return;
+      }
       const response: OpenAIChatCompletionResponse = {
         id: `chatcmpl-${randomUUID()}`,
         object: "chat.completion",
         created: Math.floor(Date.now() / 1000),
-        model: request.model || "wtagent",
+        model: request.model,
         choices: [{
           index: 0,
-          message: { role: "assistant", content: "WTAgent gateway response (stub)" },
+          message: { role: "assistant", content: completion.message },
           finish_reason: "stop",
         }],
-        usage: {
-          prompt_tokens: 10,
-          completion_tokens: 10,
-          total_tokens: 20,
-        },
       };
-
       res.writeHead(200, {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(response));
+    } catch (error) {
+      console.error("Gateway chat completion failed:", error);
+      this.#reject(res, 500, "The provider request could not be completed.");
     }
   }
 
@@ -253,7 +285,12 @@ export class GatewayServer {
       body += chunk;
     }
 
-    let request: { task: string; provider?: string; projectRoot?: string; allowedTools?: string[]; metadata?: Record<string, unknown> };
+    let request: {
+      task: string;
+      provider?: string;
+      projectRoot?: string;
+      metadata?: Record<string, unknown>;
+    };
     try {
       request = JSON.parse(body);
     } catch (e) {
@@ -266,17 +303,20 @@ export class GatewayServer {
       this.#reject(res, 400, "`task` must be a non-empty string");
       return;
     }
-    if (request.allowedTools !== undefined
-      && (!Array.isArray(request.allowedTools) || request.allowedTools.some((name) => typeof name !== "string"))) {
-      this.#reject(res, 400, "`allowedTools` must be an array of tool names");
+    if (Object.hasOwn(request, "allowedTools")) {
+      this.#reject(res, 400, "Tool permissions are controlled by the server.");
       return;
     }
 
     try {
-      const job = await this.jobService.createJob(request);
+      const job = await this.jobService.createJob({
+        task: request.task,
+        provider: request.provider,
+        metadata: request.metadata,
+        projectRoot: this.#projectRoot,
+      });
       res.writeHead(201, {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(job));
     } catch (err: any) {
@@ -290,7 +330,6 @@ export class GatewayServer {
       const jobs = await this.jobService.listJobs();
       res.writeHead(200, {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(jobs));
     } catch (err: any) {
@@ -309,7 +348,6 @@ export class GatewayServer {
       }
       res.writeHead(200, {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(job));
     } catch (err: any) {
@@ -328,7 +366,6 @@ export class GatewayServer {
       }
       res.writeHead(200, {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(status));
     } catch (err: any) {
@@ -347,7 +384,6 @@ export class GatewayServer {
       }
       res.writeHead(200, {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(logs));
     } catch (err: any) {
@@ -365,7 +401,6 @@ export class GatewayServer {
       }
       res.writeHead(200, {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(job));
     } catch (err: any) {

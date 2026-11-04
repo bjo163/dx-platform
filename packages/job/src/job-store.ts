@@ -30,6 +30,7 @@ export interface JobLease {
 
 export interface JobRecord {
   jobId: string;
+  projectId: string;
   task: string;
   status: JobStatus;
   sessionId: string;
@@ -51,6 +52,7 @@ export interface JobRecord {
 
 export interface JobCreateInput {
   jobId: string;
+  projectId: string;
   task: string;
   sessionId: string;
   projectRoot: string;
@@ -59,11 +61,54 @@ export interface JobCreateInput {
   metadata?: Record<string, unknown>;
 }
 
+export interface JobActivityRecord {
+  id: string;
+  jobId: string;
+  kind: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface JobStoreBackend {
+  initialize(): Promise<void>;
+  create(input: JobCreateInput): Promise<JobRecord>;
+  read(jobId: string): Promise<JobRecord | null>;
+  update(
+    jobId: string,
+    mutate: (record: JobRecord) => Partial<JobRecord> | void,
+  ): Promise<JobRecord | null>;
+  list(): Promise<JobRecord[]>;
+  listByProject(projectId: string): Promise<JobRecord[]>;
+  listByStatus(...statuses: JobStatus[]): Promise<JobRecord[]>;
+  listByProjectAndStatus(projectId: string, ...statuses: JobStatus[]): Promise<JobRecord[]>;
+  deleteExpired(cutoff: string): Promise<JobRecord[]>;
+  claimNext(
+    owner: string,
+    options?: { leaseStaleAfterMs?: number; now?: number },
+  ): Promise<JobRecord | null>;
+  isLeaseStale(job: JobRecord, leaseStaleAfterMs: number, now?: number): boolean;
+  renewLease(jobId: string, owner: string): Promise<JobRecord | null>;
+  finalize(
+    jobId: string,
+    owner: string,
+    status: JobStatus,
+    outcome?: { result?: JobRecord["result"]; error?: JobRecord["error"] },
+  ): Promise<JobRecord | null>;
+  requestCancel(jobId: string): Promise<JobRecord | null>;
+  retry(jobId: string): Promise<JobRecord | null>;
+  appendActivity?(jobId: string, kind: string, message: string, createdAt?: string): Promise<void>;
+  listActivity?(jobId: string): Promise<JobActivityRecord[]>;
+  listAllActivity?(): Promise<JobActivityRecord[]>;
+  correctStartedActivity?(jobId: string, createdAt: string): Promise<void>;
+  needsLegacyActivityImport?(): Promise<boolean>;
+  markLegacyActivityImported?(): Promise<void>;
+}
+
 function isTerminal(status: JobStatus): boolean {
   return JOB_TERMINAL_STATUSES.includes(status);
 }
 
-export class JobStore {
+export class JobStore implements JobStoreBackend {
   readonly jobsDir: string;
   // Read-modify-write cycles are serialized in-process so two concurrent
   // updates cannot interleave and lose one another's write.
@@ -91,6 +136,7 @@ export class JobStore {
     const now = new Date().toISOString();
     const record: JobRecord = {
       jobId: assertValidJobId(input.jobId),
+      projectId: input.projectId,
       task: input.task,
       status: "pending",
       sessionId: input.sessionId,
@@ -107,7 +153,7 @@ export class JobStore {
       result: null,
       error: null,
       ...(input.metadata ? { metadata: input.metadata } : {}),
-    } as JobRecord & { metadata?: Record<string, unknown> };
+    } as JobRecord;
     await this.#write(record);
     return record;
   }
@@ -161,14 +207,37 @@ export class JobStore {
     return jobs.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   }
 
+  async listByProject(projectId: string): Promise<JobRecord[]> {
+    const jobs = await this.list();
+    return jobs.filter(job => job.projectId === projectId);
+  }
+
   async listByStatus(...statuses: JobStatus[]): Promise<JobRecord[]> {
     const jobs = await this.list();
     return jobs.filter((job) => statuses.includes(job.status));
   }
 
-  // Claims the oldest queued job. A `running` record whose lease went stale is
-  // treated as a crashed attempt and becomes claimable again, which is what
-  // makes a restart pick up where the previous process died.
+  async listByProjectAndStatus(projectId: string, ...statuses: JobStatus[]): Promise<JobRecord[]> {
+    const jobs = await this.listByProject(projectId);
+    return jobs.filter((job) => statuses.includes(job.status));
+  }
+
+  async deleteExpired(cutoff: string): Promise<JobRecord[]> {
+    const cutoffTime = Date.parse(cutoff);
+    if (!Number.isFinite(cutoffTime)) throw new RangeError("Job retention cutoff must be a valid timestamp.");
+    return this.#serialize(async () => {
+      const expired = (await this.list()).filter(
+        (job) => isTerminal(job.status) && Date.parse(job.updatedAt) < cutoffTime,
+      );
+      for (const job of expired) {
+        await fs.unlink(this.#path(job.jobId));
+      }
+      return expired;
+    });
+  }
+
+  // Interrupted runs are failed, not replayed, because tools may have already
+  // produced side effects before the process stopped.
   async claimNext(
     owner: string,
     { leaseStaleAfterMs = 120_000, now = Date.now() }: {
@@ -182,6 +251,24 @@ export class JobStore {
         if (job.status === "running" && !this.isLeaseStale(job, leaseStaleAfterMs, now)) {
           continue;
         }
+        if (job.status === "running") {
+          const cancelled = job.cancelRequested;
+          await this.#write({
+            ...job,
+            status: cancelled ? "cancelled" : "failed",
+            lease: null,
+            completedAt: new Date(now).toISOString(),
+            result: null,
+            error: cancelled
+              ? { code: "JOB_CANCELLED", message: "Cancelled while the previous holder was running it." }
+              : {
+                code: "JOB_INTERRUPTED",
+                message: "The previous run stopped before it completed. Review its activity before retrying.",
+              },
+            updatedAt: new Date(now).toISOString(),
+          });
+          continue;
+        }
         const claimedAt = new Date(now).toISOString();
         const next: JobRecord = {
           ...job,
@@ -190,8 +277,6 @@ export class JobStore {
           startedAt: job.startedAt ?? claimedAt,
           completedAt: null,
           error: null,
-          // A cancel requested before the previous holder died survives the
-          // reclaim, so the new holder honours it instead of re-running.
           lease: { owner, pid: process.pid, heartbeatAt: claimedAt },
           updatedAt: claimedAt,
         };
@@ -259,5 +344,26 @@ export class JobStore {
             : {}),
         }
     ));
+  }
+
+  async retry(jobId: string): Promise<JobRecord | null> {
+    return this.#serialize(async () => {
+      const current = await this.read(jobId);
+      if (!current || !["failed", "cancelled"].includes(current.status)) return current;
+      const next: JobRecord = {
+        ...current,
+        status: "pending",
+        startedAt: null,
+        completedAt: null,
+        attempts: 0,
+        lease: null,
+        cancelRequested: false,
+        result: null,
+        error: null,
+        updatedAt: new Date().toISOString(),
+      };
+      await this.#write(next);
+      return next;
+    });
   }
 }

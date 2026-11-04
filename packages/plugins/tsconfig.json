@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022"],
+    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "composite": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "paths": {
+      "@wtagent/types": ["../types/dist"],
+      "@wtagent/shared": ["../shared/dist"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../types" },
+    { "path": "../shared" }
+  ]
+}

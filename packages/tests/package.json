@@ -12,7 +12,6 @@
     "@wtagent/audio": "workspace:*",
     "@wtagent/browser": "workspace:*",
     "@wtagent/image": "workspace:*",
-    "@wtagent/gateway": "workspace:*",
     "@wtagent/job": "workspace:*",
     "@wtagent/mcp": "workspace:*",
     "@wtagent/platform": "workspace:*",
@@ -23,7 +22,8 @@
     "@wtagent/shared": "workspace:*",
     "@wtagent/tools": "workspace:*",
     "@wtagent/types": "workspace:*",
-    "wtagent": "workspace:*"
+    "wtagent": "workspace:*",
+    "@wtagent/gateway": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

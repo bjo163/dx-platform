@@ -10,9 +10,9 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "pnpm --filter wtagent dev",
+    "dev": "concurrently \"pnpm --filter @wtagent/api dev\" \"pnpm --filter @wtagent/web dev\"",
     "build": "tsc -b",
-    "test": "pnpm --filter @wtagent/tests test",
+    "test": "pnpm --filter @wtagent/tests test && pnpm exec vitest run",
     "watch": "pnpm --filter @wtagent/tests watch",
     "check": "tsc -b --force",
     "doctor": "pnpm --filter wtagent doctor",
@@ -22,8 +22,11 @@
     "postinstall": "pnpm build"
   },
   "devDependencies": {
+    "@types/node": "^22.15.0",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4",
-    "@types/node": "^22.15.0"
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "concurrently": "^10.0.6"
   }
 }

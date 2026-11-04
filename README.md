@@ -1,278 +1,336 @@
 # WTAgent
 
-Turn ChatGPT Web (including Pro) into Codex.
-Turn Claude Web into Claude Code.
+**Local coding workspace powered by web AI providers**
 
-Also DeepSeek, Gemini, Grok, Kimi, GLM.
+WTAgent is a local-first AI coding agent that runs entirely on your machine. It connects to web-based AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) through browser automation, giving you full control over your code, data, and execution environment.
 
-No API key. No MCP. No tunnel. No plugin.
+## Features
 
-https://xixian42.github.io/wtagent/
+- **Local-first**: All code, data, and execution stays on your machine
+- **Provider-agnostic**: Works with ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi
+- **No API keys needed**: Uses your existing browser sessions
+- **Secure sandbox**: File system access controlled by approval policies
+- **Job-based execution**: Long-running tasks with status tracking and logs
+- **Web UI**: Modern Next.js interface for task management
+- **Project browser**: Read-only file tree and bounded UTF-8 previews from the configured project root
+- **Extensible**: Plugin system for custom tools and integrations
 
-[中文](#中文)
+## Architecture
 
-## Quick start
+```
+┌─────────────────┐     HTTP      ┌─────────────────┐
+│   Web UI        │ ────────────► │   API Server    │
+│   (Next.js)     │               │   (Fastify)     │
+│   :3000         │               │   :8080         │
+└─────────────────┘               └────────┬────────┘
+                                            │
+                    ┌───────────────────────┼───────────────────────┐
+                    │                       │                       │
+             ┌──────▼──────┐        ┌───────▼───────┐       ┌──────▼──────┐
+             │  Job Svc    │        │  Database     │       │  Browser    │
+             │  (Queue)    │        │  (PGlite)     │       │  Pool       │
+             └─────────────┘        └───────────────┘       └─────────────┘
+```
 
-Requires Node.js 20.x ≥20.17, 22.x ≥22.13, or ≥23.5, and Chrome/Chromium. WTAgent supports macOS, Linux, native Windows, and preview support for WSL2 with WSLg. WSL1 and external X11 configurations are best effort.
+## Quick Start
 
-On WSL, install the Linux Chrome/Chromium package inside the distribution and launch WTAgent from WSL. WTAgent keeps file and command execution in the WSL environment and connects to that Linux browser over local CDP. Display environment variables are only configuration hints; actual GUI availability is confirmed when Chrome starts. Windows-host Chrome is not supported from WSL yet.
+### Prerequisites
+
+- Node.js 20+
+- pnpm 9+
+- Chrome/Chromium browser installed
+
+### Installation
 
 ```bash
-npm install -g wtagent
+# Clone the repository
+git clone <repository-url>
+cd wtagent
+
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm run build
+
+# Start development servers (terminal 1 - API)
+pnpm --filter @wtagent/api dev
+
+# Start development servers (terminal 2 - Web)
+pnpm --filter @wtagent/web dev
 ```
 
-Open a working directory and start WTAgent:
+### Environment Configuration
+
+Copy the example environment files and adjust as needed:
 
 ```bash
-mkdir wtagent-demo
-cd wtagent-demo
-wtagent
+# API server configuration
+cp apps/api/.env.example apps/api/.env
+
+# Web UI configuration
+cp apps/web/.env.example apps/web/.env
 ```
 
-After login, interactive runs give you five seconds to choose a model in the browser. Press Enter to continue immediately, or wait to keep the current selection. Then type a task:
+### First Run
 
-```text
-$ wtagent
-you › Create hello.js that writes "Hello from WTAgent" to hello.txt. Run it with Node.js and verify the result.
+1. Open http://localhost:3000 in your browser
+2. Navigate to **Providers** page
+3. Click **Connect** for your desired AI provider
+4. Complete authentication in the opened browser window
+5. Return to **Workspace** and start giving tasks
+
+## Project Structure
+
+```
+wtagent/
+├── apps/
+│   ├── api/              # Fastify API server
+│   └── web/              # Next.js web interface
+├── packages/
+│   ├── browser/          # Browser automation (CDP)
+│   ├── job/              # Job queue & execution
+│   ├── database/         # PGlite persistence
+│   ├── tools/            # Tool implementations (fs, terminal)
+│   ├── protocol/         # Agent-provider communication
+│   ├── policy/           # Security & approval engine
+│   ├── platform/         # OS abstraction
+│   ├── session/          # Session management
+│   ├── runtime/          # Agent runtime orchestration
+│   ├── artifacts/        # Generated artifact handling
+│   ├── image/            # Image generation providers
+│   ├── audio/            # Audio/music generation
+│   ├── mcp/              # Model Context Protocol server
+│   ├── sdk/              # External integration SDK
+│   ├── cli/              # Command-line interface
+│   ├── types/            # Shared TypeScript types
+│   ├── shared/           # Shared utilities
+│   ├── config-api/       # Configuration API
+│   ├── ws-server/        # WebSocket server
+│   ├── tests/            # Test utilities
+│   ├── plugins/          # Plugin system
+│   ├── local/            # Local utilities
+│   └── database/         # Database package
+├── pnpm-workspace.yaml   # pnpm workspace config
+└── README.md             # This file
 ```
 
-WTAgent creates the files in the current directory, runs the script locally, and checks its output. You can continue chatting in the same terminal after the task finishes.
-
-Choose a provider with `--model` (ChatGPT is the default). Supported values are `chatgpt`, `claude`, `deepseek`, `gemini`, `grok`, `kimi`, and `glm`:
+## Available Scripts
 
 ```bash
-wtagent --model claude "inspect this project and summarize its architecture"
-wtagent --model gemini "inspect this project and summarize its architecture"
+# Build all packages
+pnpm run build
+
+# Run tests
+pnpm run test
+
+# Lint code
+pnpm run lint
+
+# Clean build artifacts
+pnpm run clean
+
+# Start API server (production)
+pnpm --filter @wtagent/api start
+
+# Start Web UI (production)
+pnpm --filter @wtagent/web start
 ```
 
-### Generate and save images
+## Configuration
 
-Use ChatGPT, Gemini, or Grok to generate images in the current conversation. No
-extra image flag is needed; describe the image in your task:
+### API Server (`apps/api/.env`)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8080` | API server port |
+| `WTAGENT_HOST` | `127.0.0.1` | API bind address; non-loopback binding requires a 32-character `WTAGENT_JWT_SECRET` |
+| `WTAGENT_DATA_DIR` | `.wtagent` | Data directory |
+| `WTAGENT_PROJECT_ROOT` | `auto` | Project root directory |
+| `WTAGENT_PROVIDER` | `chatgpt` | Default provider |
+| `WTAGENT_JWT_SECRET` | unset | Enables bearer-token authentication for every API request |
+| `WTAGENT_JOB_TIMEOUT_MS` | `1800000` | Maximum provider execution time per job attempt, in milliseconds |
+| `WTAGENT_JOB_TTL_MS` | `86400000` | Time to retain completed, failed, and cancelled jobs, in milliseconds |
+
+The timeout starts after the provider session is authenticated. A timeout ends the attempt as failed with `JOB_TIMEOUT`; it does not retry automatically, and the job can be retried explicitly.
+Expired terminal jobs and their activity records are removed automatically, with cleanup running hourly after the API starts. Their session transcript files are removed with them. Pending and running jobs are never removed by retention cleanup.
+`WTAGENT_PROJECT_ROOT=auto` uses the repository root; a configured path is resolved by the API and cannot be overridden by a job request. The workspace file browser is read-only, hides `.git`, `.wtagent`, and `node_modules`, and previews UTF-8 files up to 256 KiB.
+The API binds to loopback by default. Remote binding is opt-in and fails closed unless `WTAGENT_JWT_SECRET` is at least 32 characters; when a secret is configured, requests without a valid bearer token are rejected.
+
+### Web UI (`apps/web/.env`)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NEXT_PUBLIC_WTAGENT_API_URL` | `http://localhost:8080` | API server URL |
+
+## Supported Providers
+
+| Provider | ID | Status |
+|----------|-----|--------|
+| ChatGPT | `chatgpt` | ✅ Active |
+| Gemini | `gemini` | ✅ Active |
+| Grok | `grok` | ✅ Active |
+| DeepSeek | `deepseek` | ✅ Active |
+| GLM | `glm` | ✅ Active |
+| Kimi | `kimi` | ✅ Active |
+
+## Security Model
+
+WTAgent uses a **policy-based approval system**:
+
+1. **Sandbox Modes**:
+   - `workspace-read`: Read files in workspace
+   - `workspace-write`: Read + write files in workspace
+   - `danger-full-access`: Full filesystem + terminal access
+
+2. **Approval Flow**:
+   ```
+   Tool Call → Policy Engine → User Approval → Execute/Reject
+   ```
+   Interactive CLI sessions can request approval. Web jobs are unattended and
+   currently have no review-and-apply flow. API background jobs therefore only
+   receive read-only tools by default, and clients cannot grant write or
+   command tools in job requests.
+
+3. **Browser Isolation**:
+   - Each provider gets isolated Chrome profile
+   - No credentials stored in plaintext
+   - Session validation before execution
+
+### Local data and retention
+
+- Project source files remain in the configured project root. Job requests cannot
+  override that root.
+- PGlite, job metadata, sessions, transcripts, and tool output are stored under
+  `WTAGENT_DATA_DIR` (default: `<project root>/.wtagent`). Treat this directory
+  and its backups as sensitive because they may contain prompts and provider
+  output.
+- Directories are created with owner-only permissions where supported; Windows
+  uses the current user's inherited filesystem ACL.
+- Completed, failed, and cancelled jobs are retained for `WTAGENT_JOB_TTL_MS`.
+  Their session transcripts are removed with them. Browser provider profiles
+  persist separately under the platform application-data directory until the
+  provider is removed. Backups are not pruned automatically.
+
+## Development
+
+### Adding a New Package
+
+1. Create directory under `packages/`
+2. Add `package.json` with workspace dependencies
+3. Add to `pnpm-workspace.yaml`
+4. Run `pnpm install`
+
+### TypeScript Configuration
+
+Packages use TypeScript project references for fast incremental builds. Root `tsconfig.json` references all package `tsconfig.json` files.
+
+### Testing
 
 ```bash
-wtagent --model chatgpt --once "Generate a square illustration of a blue robot watering a plant. Save it locally."
-wtagent --model gemini --once "Generate a 16:9 watercolor city skyline and save the image locally."
-wtagent --model grok --once "Generate a minimalist landscape illustration and save it locally."
+# Run all tests
+pnpm run test
+
+# Run tests for specific package
+pnpm --filter @wtagent/database test
 ```
 
-WTAgent waits for the completed image reply, downloads its images, checks their
-format and dimensions, and records SHA-256 hashes. Supported file formats are
-PNG, JPEG, and WebP. Files are saved under the current project's
-`artifacts/native-images/<turn-id>/`, for example:
+## API Reference
 
-```text
-artifacts/native-images/<turn-id>/image-1.png
-artifacts/native-images/<turn-id>/image-2.webp
-```
+### Jobs
 
-The extension follows the downloaded file's actual format. Multiple images from
-one reply are saved separately. WTAgent passes the verified local paths back to
-the model, which can finish the task or continue with file operations such as
-organizing assets and building a page that uses them.
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/backups` | POST | Create a database and session backup in the configured data directory |
+| `/v1/jobs` | POST | Create new job |
+| `/v1/jobs` | GET | List all jobs |
+| `/v1/jobs/:id` | GET | Get job details |
+| `/v1/jobs/:id/status` | GET | Get job status |
+| `/v1/jobs/:id/cancel` | POST | Cancel job |
+| `/v1/jobs/:id/retry` | POST | Retry failed job |
+| `/v1/jobs/:id/logs` | GET | Get job logs |
+| `/v1/jobs/:id/events` | GET | SSE event stream |
+| `/v1/activity` | GET | List persisted job activity |
 
-In an interactive conversation, attach a local reference image with `@path`:
+The API uses PGlite as the canonical job store at `.wtagent/data/wtagent.pglite`.
+Existing JSON job records are imported when their IDs are not already present in PGlite. Existing session events are backfilled to PGlite activity once; subsequent lifecycle changes and runtime activity are committed there in order. If a running job has no lease heartbeat for 120 seconds, recovery marks it failed with `JOB_INTERRUPTED`; it is not replayed automatically because tools may already have changed files. Review its activity and retry it explicitly. PGlite locks job claims so only one worker can claim a pending job at a time.
+On startup, existing PGlite data is migrated into the default project without deleting job or provider/profile/plugin records; project-scoped state uses a composite key so the same provider, plugin, or profile can exist in multiple projects.
 
-```text
-you › @assets/reference.png Create a watercolor illustration based on this reference and save it locally.
-```
+### Backup and restore
 
-Reference handling, image size, aspect ratio, and image availability depend on
-the website and selected model. WTAgent uses your logged-in account and its
-quota. A text-only explanation or refusal is returned as text; it is not reported
-as a saved image.
+Backups contain a PGlite dump and a copy of the job session files. They do not contain browser profiles, provider login sessions, or credentials. Backups are stored under `.wtagent/backups/` (or under `WTAGENT_DATA_DIR/backups/` when configured). For the closest database/transcript consistency, wait until jobs are idle before creating a backup.
 
-If downloading or returning the saved paths is interrupted, resume the recorded
-session without adding a new instruction:
+With the API running, create a backup:
 
 ```bash
-wtagent resume <session-id>
+pnpm --filter @wtagent/api backup
 ```
 
-Recovery reuses the recorded reply when it can verify the conversation. It does
-not automatically repeat an image-generation request whose submission is
-uncertain. Partially downloaded replies may need to download their files again.
-
-### Generate music with Gemini
+Restore only after stopping the API, passing the backup directory:
 
 ```bash
-wtagent --model gemini --type music --once "Create peaceful instrumental piano music, no vocals"
+pnpm --filter @wtagent/api restore -- .wtagent/backups/wtagent-<timestamp>-<id>
 ```
 
-`--type music` selects Gemini's native Music tool. Tracks are saved under
-`artifacts/music/<turn-id>/`. If Gemini returns an MP4 with audio and a cover
-video, WTAgent preserves that original; when `ffmpeg` is on PATH, it also extracts
-an `.m4a` audio file without re-encoding. Without FFmpeg, the original MP4 remains
-usable. Duration follows the provider's output.
+Restore verifies the manifest checksums and PGlite schema before replacing data. The previous database and session directories are preserved beside their original locations with a `.pre-restore-*` suffix. Keep the backup directory and those safety copies until the restored application has been checked.
 
-Download interruptions can be resumed with `wtagent resume <session-id>`. A bare
-resume of a completed music session returns its saved result without generating
-again. The default `--type agent` retains ordinary agent behavior, including
-native image output.
+### Providers
 
-### Conversation recovery and diagnostics
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/providers` | GET | List all providers |
+| `/v1/providers/:id/login` | POST | Start login flow |
+| `/v1/providers/:id/verify` | POST | Verify authentication |
+| `/v1/providers/:id` | DELETE | Disconnect provider |
 
-The ChatGPT adapter supports legacy and modern message layouts, temporary
-conversation URLs, and virtualized history. When a send cannot be verified,
-WTAgent preserves the session for recovery. Structural failure reports identify
-the recognized page layout, missing identity fields, and send stage; the CLI
-shows the report path for startup, send-confirmation, and recovery failures.
-When ChatGPT truncates a collapsed long message, WTAgent expands the latest
-user message before verifying its send marker. Recovery checks the existing
-reply without automatically resending a message whose commit is uncertain.
-ChatGPT sends wait for an enabled Send button, including the modern composer
-layout. A click failure does not trigger a second submission through Enter.
-Structural reports also record whether Send is enabled and a draft is present,
-without including the draft text.
+### Profile
 
-Claude keeps the model selected by claude.ai in its browser profile; WTAgent does not override it.
-Gemini likewise keeps the model selected in its browser profile.
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/profile` | GET | Get user profile |
+| `/v1/profile` | PUT | Update profile |
 
-If the provider is not signed in, WTAgent opens its dedicated Chrome profile and asks you to sign in. Each provider has an independent profile, and your task continues automatically after login.
+### Plugins
 
-WTAgent itself does not require an API key. It uses your own web account, available models, and quota.
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/plugins` | GET | List plugins |
+| `/v1/plugins/:id` | PUT | Update plugin config |
 
-You can also provide the first task directly:
+### Health
 
-```bash
-wtagent "create hello.js, run it, and verify the output"
-```
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
 
-Multiline paste and `↑` / `↓` input history are supported. Press `Ctrl+C` or `Ctrl+D` to exit.
+## Known Limitations
 
-## 中文
+- Browser automation depends on a locally installed Chrome/Chromium and per-provider login sessions; headless/CI runs are not supported for provider authentication.
+- Official API-key providers and OS credential storage are not implemented yet; only web providers are supported.
+- Only one job runs at a time due to the shared browser profile lock.
+- Web jobs do not yet provide a reviewable diff and apply workflow. Jobs created
+  through the API cannot write files or execute commands; this remains a
+  planned capability rather than a verified code-modification workflow.
+- Remote API access requires an operator-provided JWT secret, but WTAgent does
+  not issue, rotate, or revoke remote bearer tokens yet. Keep remote access
+  disabled unless you manage those credentials and protect the network path.
+- Streaming chat completions are not supported; requests with `stream: true` are rejected.
+- Backup/restore covers PGlite and session transcripts only; browser profiles and credentials are excluded.
 
-把 ChatGPT 网页版（含 Pro）变成 Codex。
-把 Claude 网页版变成 Claude Code。
+## Contributing
 
-同时支持 DeepSeek、Gemini、Grok、Kimi、GLM。
-
-无需 API Key，无需 MCP，无需隧道，无需插件。
-
-https://xixian42.github.io/wtagent/
-
-### 快速开始
-
-需要 Node.js 20.x ≥20.17、22.x ≥22.13 或 ≥23.5，以及 Chrome/Chromium。支持 macOS、Linux、原生 Windows，以及预览支持带 WSLg 的 WSL2。WSL1 和外部 X11 配置仅按尽力支持处理。
-
-在 WSL 中使用时，需要在 WSL 发行版内部安装 Linux 版 Chrome/Chromium，并从 WSL 启动 WTAgent。文件读写和命令执行仍然发生在 WSL 环境中，WTAgent 通过本地 CDP 连接这个 Linux 浏览器。图形环境变量仅表示已配置，实际可用性会在 Chrome 启动时确认。当前还不支持从 WSL 直接控制 Windows 主机上的 Chrome。
-
-```bash
-npm install -g wtagent
-```
-
-进入工作目录并启动：
-
-```bash
-mkdir wtagent-demo
-cd wtagent-demo
-wtagent
-```
-
-登录后，交互模式会留出 5 秒供你在浏览器里选择模型。按 Enter 可立即继续，等待倒计时结束则沿用当前选择。然后输入任务：
-
-```text
-$ wtagent
-you › 创建 hello.js，将“Hello from WTAgent”写入 hello.txt。用 Node.js 运行并验证结果。
-```
-
-WTAgent 会在当前目录创建文件、运行本地脚本并检查输出。任务完成后，可以继续在同一个终端中对话。
-
-通过 `--model` 选择 provider（默认是 ChatGPT）。可选值包括 `chatgpt`、`claude`、`deepseek`、`gemini`、`grok`、`kimi` 和 `glm`：
-
-```bash
-wtagent --model claude "分析这个项目并总结架构"
-wtagent --model gemini "分析这个项目并总结架构"
-```
-
-### 生成图片并保存到本地
-
-使用 ChatGPT、Gemini 或 Grok，在当前对话中直接生成图片。无需额外的生图参数，在任务里描述要画的内容即可：
-
-```bash
-wtagent --model chatgpt --once "生成一张蓝色小机器人给盆栽浇水的方形插画，保存到本地"
-wtagent --model gemini --once "生成一张 16:9 的水彩城市天际线，保存到本地"
-wtagent --model grok --once "生成一张极简风格的山水插画，保存到本地"
-```
-
-WTAgent 等待图片回复完成后下载文件，检查格式和尺寸，并记录 SHA-256 哈希。支持 PNG、JPEG 和 WebP。文件保存在当前项目的 `artifacts/native-images/<turn-id>/` 目录，例如：
-
-```text
-artifacts/native-images/<turn-id>/image-1.png
-artifacts/native-images/<turn-id>/image-2.webp
-```
-
-扩展名以下载文件的实际格式为准。一条回复包含多张图片时，会分别保存。WTAgent 把经过验证的本地路径交回模型，模型可以结束任务，也可以继续整理素材、制作引用这些图片的页面等。
-
-在交互对话中，可以通过 `@路径` 附加本地参考图：
-
-```text
-你 › @assets/reference.png 参考这张图，生成水彩风格的插画并保存到本地。
-```
-
-是否支持参考图、图片尺寸、宽高比和图片生成，取决于网站及当前选择的模型。WTAgent 使用你已登录的账号和额度。若网站只返回文字说明或拒绝生成，会如实返回文字，不会声称已经保存图片。
-
-下载或回传文件路径时中断，可以不带新指令恢复原会话：
-
-```bash
-wtagent resume <session-id>
-```
-
-恢复时会核对会话并复用已记录的回复；无法确认是否已提交的生图请求不会自动重发。只下载了一部分图片的回复，恢复时可能需要重新下载文件。
-
-### 使用 Gemini 生成音乐
-
-```bash
-wtagent --model gemini --type music --once "生成一段舒缓钢琴纯音乐，不要人声"
-```
-
-`--type music` 会启用 Gemini 原生 Music 工具，文件保存到 `artifacts/music/<turn-id>/`。如果 Gemini 返回带封面画面和音轨的 MP4，WTAgent 会保留原文件；本机 PATH 中有 `ffmpeg` 时，还会在不重新编码的情况下提取 `.m4a` 纯音频。未安装 FFmpeg 时仍可使用原始 MP4，时长以网站实际生成结果为准。
-
-下载中断后，可用 `wtagent resume <session-id>` 继续。已完成的音乐会话不带新指令恢复时，会返回已保存的结果，不再生成一次。默认 `--type agent` 保持普通智能体行为，也支持直接接收图片。
-
-### 会话恢复与兼容诊断
-
-ChatGPT 适配器支持新旧消息结构、临时会话地址和只保留部分消息节点的长对话。无法确认发送结果时，会保留会话供恢复。结构化诊断会记录识别到的页面结构、缺失的消息身份字段和发送阶段；启动、发送确认或恢复失败时，终端会显示诊断文件路径。
-
-ChatGPT 折叠长消息并截断页面文本时，WTAgent 会先展开最新的用户消息，再核对发送标记。恢复时会校验已有回复，不会自动重发提交状态不明的消息。
-
-发送时会等待发送按钮可用，并兼容新版 ChatGPT 输入框。点击失败后不会再补按 Enter 提交。结构化诊断还会记录发送按钮是否可用、输入框是否有草稿，不包含草稿内容。
-
-Claude 会沿用 claude.ai 在该浏览器 Profile 中选择的模型，WTAgent 不会自动切换模型。
-Gemini 同样沿用其浏览器 Profile 当前选择的模型。
-
-如果尚未登录对应 provider，WTAgent 会打开它的独立专用 Chrome Profile 并提示登录；登录成功后任务会自动继续。
-
-WTAgent 本身无需 API Key，而是使用你自己的网页账号、可用模型和额度。
-
-也可以在启动时直接附带第一个任务：
-
-```bash
-wtagent "创建 hello.js，运行并验证输出"
-```
-
-支持多行粘贴和 `↑` / `↓` 输入历史。使用 `Ctrl+C` 或 `Ctrl+D` 退出。
-
-## Development and regression tests / 开发与回归测试
-
-Run from a source checkout / 在源码目录运行：
-
-```bash
-npm ci
-npm test
-npm run check
-npm run test:media
-npm run test:chatgpt-dom
-```
-
-`test:media` covers image downloads, native multi-image replies, interrupted
-recovery, music handling, and provider DOM behavior. The browser tests require
-Chrome/Chromium (or `WTAGENT_CHROME_PATH`), use isolated test pages, and do not
-require a web account or consume generation quota. They do not replace live
-account testing when a provider changes its service.
-
-`test:media` 覆盖图片下载、多图回复、中断恢复、音乐处理和各网站的 DOM 行为。浏览器测试需要 Chrome/Chromium，也可通过 `WTAGENT_CHROME_PATH` 指定路径；测试使用隔离页面，无需账号，也不消耗生成额度。网站服务变化后的真实账号验证仍需单独进行。
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
 
 ## License
 
-[MIT](./LICENSE)
+MIT License - see LICENSE file for details.
+
+## Support
+
+- Check existing [Issues](../../issues)
+- Create a new issue for bugs or feature requests
+- Review [Architecture Documentation](docs/ARCHITECTURE.md) for system design

@@ -29,7 +29,11 @@ async function harness(t, { allowedTools = [], files = {} } = {}) {
   return { root, server, send, sendAs, call, textOf };
 }
 
-const RM_ARGS = { program: "rm", argv: ["-rf", "victim.txt"], cwd: "." };
+// Use `cmd /c del` on Windows where `rm` may not be on PATH (Git\usr\bin is not added by default).
+// On POSIX systems `rm -rf` would work, but this test runs on Windows CI where `del` is the native equivalent.
+const RM_ARGS = process.platform === "win32"
+  ? { program: "cmd", argv: ["/c", "del", "victim.txt"], cwd: "." }
+  : { program: "rm", argv: ["-rf", "victim.txt"], cwd: "." };
 
 test("initialize answers with the version and capabilities a host negotiates", async (t) => {
   const { send } = await harness(t);
@@ -92,7 +96,9 @@ test("an ungranted confirmation is refused and never executed", async (t) => {
   const response = await call("terminal.exec", RM_ARGS);
 
   assert.equal(response.result.isError, true);
-  assert.match(textOf(response), /destructive command rm/);
+  // On Windows `cmd /c del` triggers "inline shell command through cmd";
+  // on POSIX `rm -rf` triggers "destructive command rm". Both require confirmation.
+  assert.match(textOf(response), /command/);
   assert.match(textOf(response), /allowedTools/);
   await fs.readFile(path.join(root, "victim.txt"), "utf8");
 });

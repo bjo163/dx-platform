@@ -41,11 +41,23 @@ jobs:
       - name: Build workspace
         run: pnpm build
 
+      - name: Build API
+        run: pnpm --filter @wtagent/api build
+
+      - name: Build web app
+        run: pnpm --filter @wtagent/web build
+
+      - name: Smoke-test CLI
+        run: pnpm --filter wtagent exec node dist/main.js --version
+
+      - name: Validate CLI package contents
+        run: pnpm --filter wtagent pack --dry-run
+
       - name: Test suite
         run: pnpm test
 
-      - name: Package dry run
-        run: pnpm --filter wtagent pack --dry-run
+      - name: Validate types
+        run: pnpm check
 
   dom:
     runs-on: ubuntu-latest

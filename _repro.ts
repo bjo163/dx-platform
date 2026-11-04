@@ -1,0 +1,14 @@
+import { MCPServer } from "./packages/mcp/src/mcp-server.ts";
+import { createDefaultToolRegistry } from "./packages/tools/src/default-tools.ts";
+import { ProcessManager } from "./packages/tools/src/process-manager.ts";
+import { PolicyEngine } from "./packages/policy/src/policy-engine.ts";
+import { resolveLimits } from "./packages/shared/src/limits.ts";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+const root = fs.mkdtempSync(path.join(os.tmpdir(), "wtagent-mcp-repro-"));
+fs.writeFileSync(path.join(root, "victim.txt"), "keep");
+const server = new MCPServer({ projectRoot: root, allowedTools: ["terminal.exec"] });
+const response = await server.handleRequest({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "terminal.exec", arguments: { program: "rm", argv: ["-rf", "victim.txt"], cwd: "." } } });
+console.log(JSON.stringify(response, null, 2));
+fs.rmSync(root, { recursive: true, force: true });

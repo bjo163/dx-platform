@@ -1,0 +1,30 @@
+{
+  "name": "@wtagent/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "backup": "tsx src/backup-cli.ts backup",
+    "restore": "tsx src/backup-cli.ts restore",
+    "build": "tsc -b",
+    "test": "vitest run --root ../.. apps/api/test"
+  },
+  "dependencies": {
+    "@wtagent/browser": "workspace:*",
+    "@wtagent/artifacts": "workspace:*",
+    "@wtagent/job": "workspace:*",
+    "@wtagent/gateway": "workspace:*",
+    "@wtagent/database": "workspace:*",
+    "@wtagent/plugins": "workspace:*",
+    "@wtagent/platform": "workspace:*",
+    "@wtagent/session": "workspace:*",
+    "@wtagent/shared": "workspace:*",
+    "fastify": "^5.12.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "tsx": "^4.15.3"
+  }
+}

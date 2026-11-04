@@ -1,4 +1,7 @@
 packages:
+  - packages/gateway
+  - apps/api
+  - apps/web
   - packages/types
   - packages/shared
   - packages/protocol
@@ -14,5 +17,8 @@ packages:
   - packages/cli
   - packages/tests
   - packages/mcp
-  - packages/gateway
   - packages/job
+  - packages/plugins
+  - packages/database
+  - packages/errors
+  - packages/sdk
