@@ -1,160 +1,162 @@
-# NEURALFORGE
-
-> *Smash the UI. Hijack the swarm. Ship raw.*
-
-**THE LOCAL-FIRST AGENTIC GATEWAY FOR THE BRUTAL BUILDER**
-
-## [SYSTEM::OVERRIDE]
-
-NeuralForge ain't just another AI coding tool. It's a rogue all-in-one developer foundry built to weaponize every web AI subscription you already pay for into a fully autonomous, multi-agent swarm. 
-
-No API keys. No cloud tax. No middleman. Just pure unfiltered build power straight from your machine.
-
-## [CORE_DIRECTIVE]
-
-**Unify. Orchestrate. Dominate.**
-
-While the rest chain prompts across 7 different tabs, NeuralForge rips them all into one terminal-born war room. Think of it as your local AGI-adjacent command nexus - a brutalist gateway router that bends ChatGPT, Claude, Gemini, Grok, DeepSeek, Kimi & GLM to your will and makes em fight together for your codebase.
-
-## [WHY_WE_BUILT_THIS]
-
-Modern dev is a clusterfuck. Too many tabs, too many paywalls, too many APIs bleeding your wallet dry. 
-
-NeuralForge flips the script. Using browser-session hijack + local orchestration, it turns your existing logged-in web sessions into a distributed agentic mesh. Your code never leaves your box. Your wallet stays intact. Your velocity goes feral.
-
-## [FEATURE_STACK]
-
-### [SWARM_CORE] - Multi-Agent Mayhem
-- **AGENT MESH** - Spin up a squad of hyper-specialized agents. One hunts bugs, one refactors, one writes tests, one documents. All in parallel. All at your command.
-- **NEURAL ROUTING** - Smart-ass gateway router that auto-picks the right model for the job. Need raw reasoning? Route to Claude. Need speed? Hit Grok. Need brute force? Unleash DeepSeek.
-- **SWARM CONSENSUS** - Run the same task across multiple agents and let em duel. Compare diffs. Pick the cleanest kill.
-- **HIVE MIND** - Chain agents together. Output of agent-01 feeds straight into agent-02 with zero copy/paste. Pure pipeline carnage.
-- **DYNAMIC LOAD BALANCING** - Spread workload across providers to dodge rate-limits and keep the forge roaring 24/7.
-
-### [COMMAND_NEXUS] - Your War Room
-- **BRUTALIST UI** - Dark, raw, no bloat. Just signal, no noise.
-- **CONVERSATIONAL WARFARE** - Chat like you would with any of em... except now you're orchestrating an entire army from one input.
-- **LIVE JOB MATRIX** - Real-time swarm telemetry. Watch turns, thoughts, tool-calls and file mutations as they rip through your repo.
-- **UNIVERSAL TASKBOARD** - Kanban for the chaos. Queue up 10 missions at once, track every one to completion.
-- **MULTI-PROJECT GRID** - Jump between any repo instantly with isolated contexts, agents, and history.
-
-### [CODEBASE_INTEL] - Total Situational Awareness
-- **HOLOMAPPING** - Full-repo semantic map. The swarm sees your entire codebase, not just the file you uploaded.
-- **CROSS-FILE COGNITION** - Agents reason across modules, trace imports, follow the rabbit hole to the root cause.
-- **IMPACT RADAR** - Pre-flight strike analysis. See every file that'll catch shrapnel before you pull the trigger.
-- **CONTEXT COMPRESSION** - Smart truncation that feeds maximum relevant code with minimum tokens. Brutally efficient.
-- **GIT-AWARE** - Branch, diff, staged/unstaged. The forge knows your repo state before you even say it.
-
-### [GATEWAY_ROUTER] - The Kill Switch To All Models
-- **UNIFIED INGRESS** - One endpoint to rule em all. Route any request to any connected provider through NeuralForge's intelligent gateway.
-- **SESSION PERSISTENCE** - Leverages your existing authenticated browser sessions. Login once, unleash forever.
-- **BROWSER BRIDGE** - Playwright-powered session hijack. No API scraping, no key extraction. Just pure session reuse.
-- **FAILOVER CASCADE** - If one provider chokes, routes to the next in line instantly. Zero downtime.
-- **PROVIDER TELEMETRY** - Live health, auth state, availability. Know exactly which guns are loaded at all times.
-- **MODEL ARSENAL** - Swap mid-job. Escalate to a beefier model the moment shit gets complicated.
-
-### [FORTRESS_PROTOCOL] - Paranoid By Design
-- **LOCAL SOVEREIGNTY** - Everything runs on localhost. Zero cloud. Zero sync. Zero telemetry.
-- **POLICY ENGINE** - Ruthlessly strict permission matrix. Block, allow, or force-approve per tool, per path, per action.
-- **HUMAN-IN-THE-LOOP** - Destructive ops, mass-deletes, deploys? The forge locks up and begs for your explicit go.
-- **SANDBOXED STRIKE ZONE** - Locked to project root. No escaping the cage unless YOU say so.
-- **FULL AUDIT LOG** - Every thought, every tool call, every file edit logged locally with timestamps.
-- **DIFF FORTRESS** - Review every byte before apply. Reject, edit, or nuke with one click.
-
-### [FORGE_OPS] - Built For Actual Dev
-- **DIFF STUDIO** - Side-by-side brutality. See the carnage, approve the cleanest path.
-- **JOB ORCHESTRATION** - Fire-and-forget long ops. Come back to finished builds while you grab coffee.
-- **PLUGIN RUNTIME** - Write your own tools, slash commands, workflows. Mold the forge to fit your hands.
-- **TEMPLATE ARMORY** - Battle-tested blueprints for migrations, tests, APIs, refactors, and more.
-- **HOT SWAP CONTEXT** - Add/remove files from context on the fly mid-conversation without breaking stride.
-- **WEB UI + TERMINAL DNA** - Feels like chatting, hits like an IDE, moves like a CLI.
-
-## [SYSTEM_ARCHITECTURE]
-
-```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              NEURALFORGE NEXUS                               │
-├─────────────┬─────────────┬─────────────┬─────────────┬─────────────────────┤
-│  WAR ROOM    │  DIFF STUDIO │  SWARM MAP   │  GATEWAY HUD │  AUDIT CHAMBER      │
-│  (Command)   │  (Review)    │  (Telemetry) │  (Router)    │  (Forensics)        │
-└─────────────┴─────────────┴─────────────┴─────────────┴─────────────────────┘
-                                │ HTTP / WS / EVENT-BUS
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            AGENTIC ORCHESTRATOR                              │
-├─────────────┬─────────────┬─────────────┬─────────────┬─────────────────────┤
-│  AGENT MESH  │  NEURAL      │  POLICY      │  PLUGIN      │  SESSION KERNEL     │
-│  RUNTIME     │  ROUTER      │  ENGINE      │  VM          │  (State Mgmt)       │
-└─────────────┴─────────────┴─────────────┴─────────────┴─────────────────────┘
-                                │                    │
-                            ┌───▼───┐            ┌───▼───┐
-                            │BROWSER│            │ LOCAL │
-                            │BRIDGE │            │ VAULT  │
-                            │(PW)   │            │(PGlite)│
-                            └───┬───┘            └───────┘
-                                │
-                        ┌───────▼─────────────────────────────────────────┐
-                        │        WEB AI ARSENAL (SESSION-BASED)          │
-                        │ ChatGPT • Claude • Gemini • Grok • DeepSeek    │
-                        │                Kimi • GLM                       │
-                        └─────────────────────────────────────────────────┘
-                                │                        │
-                            ┌───▼───┐                ┌───▼───┐
-                            │  YOUR   │                │  YOUR   │
-                            │ BROWSER │                │ CODEBASE│
-                            │SESSIONS │                │  ROOT   │
-                            �tr └─────────┘                └─────────┘
+```
+    __   __   _____   __  __   _____       _      _       _____   _____   _____   _____ 
+    \ \ / /  / ____| |  \/  | |  __ \     | |    | |     |  ___| / ___ \ |  _  \ / ____|
+     \ V /  | |  __  | \  /  | | |__) |    | |    | |     | |__   | |___| | | | | |  __ 
+      > <   | | |_ | | |\/| | |  __ /     | |    | |     |  __|   \___  \| | | | | |_ |
+     / . \  | |__| | | |  | | | | \ \    | |___ | |___  | |       ___| || |_| | |__| |
+    /_/ \_\  \_____| |_|  |_| |_|  \_\   |_____| |_____| |_|      \_____/ |_____/ \_____|
+                                                                                        
+                        [ N E U R A L   F O R G E   v1.0.3 ]
 ```
 
-## [LOADOUT_COMPARISON]
+> `>_ EXECUTE: UNLEASH_THE_SWARM --mode=OBLITERATE --target=BOILERPLATE`
 
-| LOADOUT | API-BASED TOOLS | CURSOR/WINDSURF | **NEURALFORGE** |
-| --- | --- | --- | --- |
-| **COST** | BLEEDING (per token) | SUBS + USAGE CAPS | **FREE TO RUN - USE YOUR EXISTING SUBS** |
-| **SWARM** | SINGLE AGENT | MOSTLY SINGLE AGENT | **FULL MULTI-AGENT MESH** |
-| **GATEWAY** | VENDOR LOCKED | VENDOR LOCKED | **UNIFIED GATEWAY ROUTER - ALL PROVIDERS** |
-| **LOCAL CONTROL** | CLOUD PROXIED | HYBRID/CLOUD HEAVY | **100% LOCAL-FIRST, ZERO TELEMETRY** |
-| **CONTEXT** | LIMITED UPLOADS | WORKSPACE CONTEXT | **HOLOMAPPED ENTIRE REPO + CROSS-FILE INTEL** |
-| **POLICIES** | WEAK/BUILT-IN RESTRICTIVE | SOME CONTROLS | **BRUTAL POLICY ENGINE + HUMAN-IN-LOOP** |
-| **EXTENSIBILITY** | CLOSED ECOSYSTEM | LIMITED PLUGINS | **FULL PLUGIN RUNTIME + TEMPLATE ARMORY** |
-| **PRIVACY** | CODE HITS THIRD-PARTY API | CODE HITS THEIR CLOUD | **CODE NEVER LEAVES YOUR MACHINE** |
-| **ORCHESTRATION** {banner="bold"} | NONE | MINIMAL | **AGENTIC PIPELINES, SWARM CONSENSUS, FAILOVER CASCADE** |
-| **SESSION BASED** | API KEY MANDATORY | API KEY MANDATORY | **BROWSER SESSION BASED - NO KEYS REQUIRED** |
+## `[SYSTEM_BOOT:NEURALFORGE://CORE]`
 
-## [QUICK_DEPLOY]
+**NO API KEYS. NO CLOUD. NO MERCY.**
+
+NeuralForge is a local-first, agentic AI gateway foundry engineered to weaponize every web-based LLM subscription you already own into one unified, sentient-grade developer war machine. 
+
+It's not a chatbot. It's not an IDE plugin. It's a **rogue neural mesh** built to think, plan, build, debug and ship in perfect synchronization across an entire squad of synthetic minds. 
+
+All running straight off localhost. All under your absolute control.
+
+## `[DIRECTIVE_01: SOVEREIGNTY]`
+
+In a world drowning in SaaS, rate-limits, token meters and data exfiltration, NeuralForge returns power back to the builder. 
+
+Using zero-knowledge browser session bridging, it hijacks your authenticated web sessions and fuses them into a single **AGENTIC ROUTER GATEWAY**. Your source code never crosses an API proxy. Your prompts never hit some black-box telemetry endpoint. Your repo remains yours. Period.
+
+## `[NEURAL_MESH: SWARM_INTELLIGENCE]`
+
+The age of the "single copilot" is dead. Welcome to distributed cognition.
+
+- **`MESH.RUNTIME`** - Spawn an entire platoon of task-specific agents simultaneously. Architect, security auditor, test engineer, refactor specialist, docsmith. All online. All ruthless.
+- **`NEURAL.ROUTE`** - Intelligent model routing based on intent, complexity, reasoning depth and latency. Fire quick fixes to lightweight models, nuke complex system designs with your heaviest reasoning monsters.
+- **`HIVE.CHAIN`** - Agentic pipelines on steroids. Let the researcher brief the implementer, let the implementer brief the tester, let the tester brief the reviewer. Self-propagating workflows with zero hand-holding.
+- **`CONSENSUS.DUEL`** - Run parallel implementations across different providers/models. NeuralForge diffs em all side by side and lets you pick the cleanest execution path like a cold-blooded reviewer.
+- **`PARALLEL.EXEC`** - True concurrent orchestration. Fire 5 missions at once across 5 different models and watch the matrix fill with live telemetry.
+- **`ADAPTIVE.ESCALATION`** - Detects when shit's getting gnarly mid-job and auto-escalates to a higher-tier model without breaking the flow.
+
+## `[GATEWAY_MATRIX: ALL.MODELS.UNIFIED]`
+
+NeuralForge doubles as a **local AI gateway router**. One port. Every model. Total domination.
+
+- **`INGRESS.UNIFIED`** - Single unified interface to route requests to ANY connected provider. Treat your entire arsenal as one giant inferencing pool.
+- **`SESSION.BRIDGE`** - Playwright-driven browser session reuse. Log into ChatGPT, Claude, Gemini, Grok, DeepSeek, Kimi or GLM once via the HUD. They're live forever.
+- **`FAILOVER.CASCADE`** - Provider goes down mid-swarm? Auto-reroutes to the next ready node instantly. The forge never sleeps, never stalls.
+- **`LOAD.BALANCE`** - Distribute requests intelligently across providers to maximize throughput while dodging soft-rate limits.
+- **`HOT.SWAP`** - Swap providers/models mid-job, mid-conversation, or mid-thought without nuking context or history.
+- **`ARSENAL.HUD`** - Live readout of auth states, session health, availability, and routing weight across your entire stack.
+
+## `[WAR_ROOM: COMMAND_AND_CONTROL]`
+
+A brutalist command nexus engineered for speed freaks who live in the flow state.
+
+- **`NEXUS.UI`** - Stark minimalism with high-contrast terminal DNA. Pure signal. Maximum screen real-estate for the things that matter.
+- **`CONVO.MATRIX`** - Chat-driven orchestration layered with agent telemetry. See the swarm think in real-time without the fluff.
+- **`JOB.MATRIX`** - Live mission control with turn count, phase, tool-calls, file mutations, reasoning traces and elapsed time.
+- **`TASK.BOARD`** - Drag-and-drop mission queue. Prioritize, pause, resume or cancel anything on demand.
+- **`MULTI.PROJECT`** - Load multiple repos into isolated war rooms. Switch instantly with zero context bleed.
+- **`FOCUS.MODE`** - Strip UI down to raw agent output and diff view for maximum tunnel-vision builds.
+
+## `[HOLOMAP: TOTAL_CODEBASE_COGNITION]`
+
+NeuralForge doesn't "upload files". It **ingests the battlefield**.
+
+- **`HOLO.INGEST`** - Constructs a living semantic graph of your entire codebase from the first boot. Every module, symbol, import, export and dependency mapped in real-time.
+- **`NEURAL.CONTEXT`** - Cross-file reasoning on crack. Trace call chains, understand inheritance, spot coupling, follow data flow across hundreds of files without breaking a sweat.
+- **`IMPACT.RADAR`** - Tactical pre-analysis. Know exactly what breaks, what ripples, and what gets touched before a single edit is made.
+- **`CONTEXT.COMPRESSOR`** - Ruthlessly intelligent context packing. Feeds the *right* code at the *right* time with minimal bloat. Maximizes IQ, minimizes noise.
+- **`SYMBOL.SEARCH`** - Lightning-fast grep on steroids with semantic awareness. Find anything by name, usage or pattern instantly.
+- **`GIT.INTEGRATION`** - Deep git-awareness. Staged, unstaged, branches, HEAD, history. The swarm operates with full situational awareness.
+
+## `[FORGE_OPS: EXECUTION_ENGINE]`
+
+From prompt to production-ready PR with surgical precision.
+
+- **`DIFF.STUDIO`** - Brutalist review suite. Unified/side-by-side diffs, hunk-level control, inline reject/accept/apply, and instantaneous re-run of failed edits.
+- **`TOOL.CALL.MATRIX`** - Watch every tool invocation live. File read/write, search, list, etc. Transparent to the bone.
+- **`POLICY.ENGINE`** - Hardcore permission matrix. Grant/restrict by tool category, file pattern, path, or action type. Configure once, enforce relentlessly.
+- **`HITL.PROTOCOL`** - Human-in-the-loop enforced for critical ops: mass file changes, path traversals beyond sanity, deletion, or anything deemed high-risk.
+- **`SANDBOX.CAGE`** - Strictly locked to project root. Hardened boundaries prevent any escape from your defined workspace.
+- **`AUDIT.TRAIL`** - Immutable local log of every agent thought, tool call, edit, route decision and approval. Forensics ready at any time.
+- **`FILE.FORTRESS`** - Bounded reads, protected paths, policy gating. Raw power with iron-clad safety nets.
+
+## `[EXTENSION_PROTOCOL: MODULAR_FURY]`
+
+NeuralForge is a platform. Mold it to your doctrine.
+
+- **`PLUGIN.RUNTIME`** - Sandbox-safe plugin system with access to the orchestrator, gateway router, and toolset. Build custom workflows, integrations and utilities.
+- **`TEMPLATE.ARMORY`** - Pre-loaded battle plans for migrations, unit/integration tests, API scaffolding, component libraries, security audits, CI configs and more.
+- **`CUSTOM.AGENTS`** - Define your own agent personas with unique system prompts, tool access, provider preferences and routing rules. Create your dream squad.
+- **`SLASH.PROTOCOL`** - Custom slash commands to trigger complex multi-agent pipelines in one keystep.
+- **`HOOK.SYSTEM`** - Event-driven hooks on job start/end, file edit, approval requests, routing decisions. Automate anything.
+- **`SDK.CORE`** - Developer-friendly SDK to extend the gateway, mesh runtime, or UI with minimal friction.
+
+## `[TECH_STACK: RAZOR_SHARP]`
+
+Built with zero-compromise tech for maximum performance, minimal overhead and absolute local control.
+
+| COMPONENT | TECHNOLOGY | PURPOSE |
+| --- | --- | --- |
+| **WAR ROOM UI** | `Next.js 15` + `React 19` + `TypeSocketDX` | Brutalist, responsive command center with real-time updates |
+| **GATEWAY CORE** | `Fastify` + `TypeScript` | Lightning-fast local API + agentic gateway router |
+| **AGENTIC MESH** | `Custom Orchestrator` | Multi-agent runtime, pipeline chaining, swarm consensus & routing logic |
+| **BROWSER BRIDGE** | `Playwright` | Session-based auth & provider interaction without API keys |
+| **LOCAL VAULT** | `PGlite` (Postgres-in-WASM) | Blazing-fast embedded DB for jobs, sessions, agents, audit logs & history |
+| **JOB ENGINE** | `Async Queue + EventBus` | Fire-and-forget orchestration with live telemetry & failure recovery |
+| **POLICY KERNEL** | `Custom Rule Engine` | Granular permissions, HITL, sandboxing & action gating |
+| **PLUGIN VM** | `Sandboxed Runtime` | Safe, isolated execution for custom extensions |
+| **WEBSOCKET LAYER** | `ws` + Custom Event Streams | Real-time swarm telemetry down to the wire |
+| [# PR TITLE HERE] | Click to edit & save title | Click to edit description |
+
+## `[LOADOUT_VS_THE_INDUSTRY]`
+
+| FEATURE | API-TOOLS (OpenRouter/Cline API) | CURSOR | WINDSURF | COPILOT | **NEURALFORGE** |
+| --- | --- | --- | --- | --- +--+--? [STILL EDITING] [ :============================= ] 100% | | **NO API KEYS** | NO (MUST USE KEY) | NO | NO | NO | **YES - SESSION BRIDGE] | **MULTI-AGENT MESH]] | NO | LIMITED | LIMITED | NO | **YES - FULL PLATOON] | **AGENTIC GATEWAY ROUTER** | NO | NO | NO | NO | **YES - UNIFIED ROUTING + FAILOVER] | **LOCAL FIRST & ZERO TELEMETRY] | NO (CLOUD PROX) | MIXED] | MIXED] | MIXED] | **YES - 100% LOCAL] | **SWARM CONSENSUS / DUEL] | NO | NO | NO | NO | **YES] | **HOLOMAP / CROSS-FILE COGNITION] | LIMITED | GOOD] | GOOD] | PARTIAL] | **EXCEPTIONAL] | **POLICY ENGINE + HITL] | WEAK] | WEAK] | WEAK] | WEAK] | **HARDCORE] | **FAILOVER CASCADE] | NO | NO | NO | NO | **YES] | **BROWSER SESSION BASEED] | NO | NO | NO | NO | **YES] }}
+
+## `[DEPLOY_SEQUENCE]`
 
 ```bash
-# CLONE THE FORGE
-git clone <repo-url>
-cd neuralforge
+# [01] CLONE THE FORGE
+git clone <repo-url> && cd neuralforge
 
-# IGNITE DEPENDENCIES
+# [02] IGNITE MODULES
 pnpm install
 
-# SMASH BUILD
+# [03] SMASH THE BUILD
 pnpm build
 
-# UNLEASH THE SWARM
+# [04] UNLEASH THE SWARM
 pnpm dev
+
+# [05] ENTER THE NEXUS
+# WAR ROOM: http://localhost:3000
+# GATEWAY:   http://localhost:8080
 ```
 
-**WAR ROOM:** `http://localhost:3000` | **GATEWAY:** `http://localhost:8080`
+## `[TACTICAL_GUIDE]`
 
-## [MISSION_PROTOCOL]
+1. **`BOOTSTRAP`** - Launch both servers. Open the war room.
+2. **`ARMORY`** - Navigate to Gateway HUD -> Connect your desired providers. Authenticate via the auto-popped browser. Done.
+3. **`LOAD_PROJECT`** - Point NeuralForge to your repo root. Watch HoloMap ingest the battlefield in seconds.
+4. **`DEPLOY_FIRST_STRIKE`** - Describe your mission in plain speak. Pick single agent or full swarm deployment.
+5. **`ORCHESTRATE`** - Let the mesh rip. Monitor via Job Matrix, tweak context on the fly, escalate if needed.
+6. **`REVIEW_KILL`** - Hit Diff Studio. Inspect every hunk. Accept, reject or modify. Apply only when perfect.
+7. **`SHIP`** - Commit, push, repeat with terrifying velocity.
 
-1. **CONNECT** - Go to the Gateway HUD. Click connect for your desired arsenal. Login through the popped browser window like you normally do.
-2. **LOADOUT** - Pick your providers, configure your policy engine, define your project root.
-3. **DEPLOY SWARM** - Throw your first task at the nexus. Orchestrate multiple agents to tear it apart.
-4. **REVIEW & SMASH** - Check diff studio, approve with prejudice, watch your repo evolve.
-5 **REPEAT** - Build faster, smarter, ferocious.
+## `[MANIFESTO: FOR_THE_BRUTAL_BUILDER]`
 
-## [MANIFESTO]
+> *"One man with an IDE can build a prototype. One builder with NeuralForge can wage war on an entire codebase."*
 
-> *"I don't want a chatbot. I want a war machine."*
+NeuralForge is forged for those who see AI as weaponry, not wallpaper. For the engineers who want to orchestrate an entire think-tank from localhost. For the rebels who refuse to pay per token to fix their own code. For builders that demand sovereignty, speed and scale.
 
-NeuralForge is built for the builder who refuses to pick just one AI. For the hacker who values sovereignty. For the engineer who wants an entire think-tank running on localhost, powered by the subscriptions they already own.
+**It isn't about replacing your hands. It's about multiplying them tenfold.**
 
-**This isn't an assistant. It's an agentic gateway. It's a swarm orchestrator. It's a developer's foundry forged in brutality and built for domination.**
+**It's not an assistant. It IS a distributed agentic gateway. A swarm orchestrator. A local foundry that turns your subscription arsenal into an unstoppable build force.**
 
-**NEURALFORGE - THE GATEWAY TO YOUR AI ARSENAL. THE SWARM AT YOUR FINGERTIPS. YOUR CODE, YOUR RULES, YOUR VICTORY.**
-
-[END OF LINE]
+```
+[EXIT: NEURALFORGE://CORE]
+>_ READY. ARMED. OPERATION: BUILD_TO_DESTROY_BOILERPLATE
+```
