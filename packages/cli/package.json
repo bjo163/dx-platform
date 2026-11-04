@@ -31,8 +31,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "neuralforge": "./bin/cli.js",
-    "nforge": "./bin/cli.js"
+    "neuralforge": "./dist/main.js"
   },
   "exports": {
     ".": {
@@ -58,18 +57,18 @@
     "dev": "node dist/main.js"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/protocol": "workspace:*",
-    "@neuralforge/policy": "workspace:*",
-    "@neuralforge/platform": "workspace:*",
-    "@neuralforge/browser": "workspace:*",
-    "@neuralforge/tools": "workspace:*",
-    "@neuralforge/artifacts": "workspace:*",
-    "@neuralforge/audio": "workspace:*",
-    "@neuralforge/image": "workspace:*",
-    "@neuralforge/session": "workspace:*",
-    "@neuralforge/runtime": "workspace:*",
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/protocol": "workspace:*",
+    "@dx-platform/policy": "workspace:*",
+    "@dx-platform/platform": "workspace:*",
+    "@dx-platform/browser": "workspace:*",
+    "@dx-platform/tools": "workspace:*",
+    "@dx-platform/artifacts": "workspace:*",
+    "@dx-platform/audio": "workspace:*",
+    "@dx-platform/image": "workspace:*",
+    "@dx-platform/session": "workspace:*",
+    "@dx-platform/runtime": "workspace:*",
     "@inquirer/prompts": "^8.5.2",
     "commander": "^14.0.3",
     "fast-xml-parser": "^5.10.1",
@@ -82,3 +81,4 @@
     "@types/node": "^22.15.0"
   }
 }
+
