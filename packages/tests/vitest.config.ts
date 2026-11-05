@@ -1,17 +1,25 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "node:path";
 
-// These specs spawn Chrome, bind loopback ports and take a session mutex, so one
-// file runs at a time in its own process and the budgets are generous.
+// These specs bind loopback ports and take a session mutex, so one file runs at
+// a time in its own process and the budgets are generous.
+//
+// The browser specs live in test/browser and form their own lane: the unit lane
+// must not need Chromium, and the browser lane runs every labelled file instead
+// of a file list maintained by hand in the workflow.
+const browserLane = process.env.WTAGENT_DOM_TESTS === "1";
+
 export default defineConfig({
   test: {
-    include: ["test/**/*.test.js"],
+    include: browserLane ? ["test/browser/**/*.test.js"] : ["test/**/*.test.js"],
+    exclude: browserLane ? [] : ["test/browser/**"],
     environment: "node",
     pool: "forks",
     fileParallelism: false,
     testTimeout: 300_000,
     hookTimeout: 120_000,
     teardownTimeout: 60_000,
+    reporter: ["verbose"],
   },
   resolve: {
     alias: {
