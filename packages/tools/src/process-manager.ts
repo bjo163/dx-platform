@@ -119,7 +119,7 @@ export class ProcessManager {
     this.killProcessTreeImpl = killProcessTreeImpl;
   }
 
-  start({ program, argv, cwd, inheritSensitiveEnv }: ProcessStartOptions): ProcessOutputSnapshot {
+  start({ program, argv, cwd, inheritSensitiveEnv, timeoutMs = 30_000 }: ProcessStartOptions & { timeoutMs?: number }): ProcessOutputSnapshot {
     const id = `proc_${randomUUID().slice(0, 8)}`;
     const stdoutDecoder = new StringDecoder("utf8");
     const stderrDecoder = new StringDecoder("utf8");
@@ -181,6 +181,12 @@ export class ProcessManager {
       record.exitCode = code;
       record.signal = signal;
     });
+
+    const timeoutGuard = setTimeout(() => {
+      record.status = "timed out";
+      this.killProcessTreeImpl(record.child.pid);
+    }, timeoutMs);
+    timeoutGuard.unref?.();
 
     return this.snapshot(record);
   }
