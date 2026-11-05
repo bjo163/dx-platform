@@ -19,7 +19,7 @@ import {
 const MAX_PROCESS_LOG_BYTES = 1024 * 1024;
 const URL_PATTERN = /\bhttps?:\/\/(?:localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)(?::\d+)?(?:\/[^\s]*)?/gi;
 
-export type ManagedProcessStatus = "running" | "stopping" | "exited" | "error";
+export type ManagedProcessStatus = "running" | "stopping" | "exited" | "error" | "timed out";
 
 export interface ProcessManagerOptions {
   spawnImpl?: typeof spawn;
