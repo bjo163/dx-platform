@@ -16,8 +16,7 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "clean": "rm -rf dist",
-    "test": "vitest run packages/observability/test"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@dx-platform/types": "workspace:*",

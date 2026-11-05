@@ -14,6 +14,7 @@
     "dist"
   ],
   "scripts": {
+    "test": "vitest run --root ../.. packages/job/test",
     "build": "tsc -b",
     "clean": "rm -rf dist"
   },
