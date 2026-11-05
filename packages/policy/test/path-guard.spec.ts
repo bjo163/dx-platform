@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import {
@@ -22,13 +24,13 @@ describe('isPathInside', () => {
     expect(isPathInside('/project', '/sibling')).toBe(false);
   });
 
-  it('should return true for empty candidate (resolves to root)', () => {
-    expect(isPathInside('/project', '')).toBe(true);
+  it('treats an empty candidate as the current working directory', () => {
+    expect(isPathInside(process.cwd(), '')).toBe(true);
   });
 
-  it('should handle relative paths (resolved relative to cwd)', () => {
-    // Relative paths are resolved relative to the current directory
-    expect(isPathInside('/project', 'src/file.ts')).toBe(true);
+  it('resolves relative candidates against the current working directory', () => {
+    expect(isPathInside(path.dirname(process.cwd()), 'src/file.ts')).toBe(true);
+    expect(isPathInside(process.cwd(), path.join('..', 'outside.ts'))).toBe(false);
   });
 
   it('should handle Windows paths with platform option', () => {
@@ -47,9 +49,15 @@ describe('isPathInside', () => {
     expect(isPathInside('/project/', '/project/file.ts')).toBe(true);
   });
 
-  it('should handle case sensitivity on POSIX (case-sensitive)', () => {
-    // POSIX is case-sensitive, but path.relative normalizes
-    expect(isPathInside('/Project', '/project/file.ts')).toBe(true);
+  // The POSIX branch delegates to the host-native path.relative, so its
+  // case-sensitivity can only be asserted on a case-sensitive host.
+  it.runIf(process.platform !== 'win32')('is case-sensitive on POSIX', () => {
+    expect(isPathInside('/Project', '/project/file.ts')).toBe(false);
+    expect(isPathInside('/Project', '/Project/file.ts')).toBe(true);
+  });
+
+  it('is case-insensitive on Windows', () => {
+    expect(isPathInside('C:\\Project', 'C:\\project\\file.ts', { platform: 'win32' })).toBe(true);
   });
 });
 

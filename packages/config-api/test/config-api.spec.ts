@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { ConfigAPI } from '../dist/index.js';
+import { ConfigAPI } from '../src/index';
 
 describe('ConfigAPI', () => {
   let configApi: ConfigAPI;
