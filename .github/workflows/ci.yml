@@ -63,12 +63,14 @@ jobs:
 
       - name: Test suite
         run: pnpm test
-        # Upload test artifacts on failure (no secrets/profile)
-        - uses: actions/upload-artifact@v4
-          with:
-            name: test-summary-${{ matrix.os }}-${{ matrix.node-version }}
-            path: .pnpm/logs
-            if: failure()
+
+      # Upload test artifacts on failure (no secrets/profile).
+      - name: Upload pnpm logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-summary-${{ matrix.os }}-${{ matrix.node-version }}
+          path: .pnpm/logs
 
       - name: Validate types
         run: pnpm check
@@ -138,9 +140,11 @@ jobs:
             grep -E "skipped" browser-lane.log
             exit 1
           fi
-        # Upload browser lane log as artifact on failure (no secrets/profile)
-        - uses: actions/upload-artifact@v4
-          with:
-            name: browser-lane-log-${{ matrix.os }}-${{ matrix.node-version }}
-            path: browser-lane.log
-            if: failure()
+
+      # Upload browser lane log as artifact on failure (no secrets/profile).
+      - name: Upload browser lane log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-lane-log
+          path: browser-lane.log
