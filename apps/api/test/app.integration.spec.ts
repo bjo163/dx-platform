@@ -53,11 +53,15 @@ const mockDatabase = {
 
 describe('API Integration Tests', () => {
   let app: fastify.FastifyInstance;
-  const testDir = path.join(os.tmpdir(), 'neuralforge-test-' + Date.now());
+  let testDir = path.join(os.tmpdir(), 'neuralforge-test-' + Date.now());
 
   beforeAll(async () => {
     // Create test temp directory
     await fs.mkdir(testDir, { recursive: true });
+    // The app canonicalises projectRoot with realpath; on Windows os.tmpdir() can
+    // hand back an 8.3 short name (C:\Users\RUNNER~1), so expectations must use the
+    // same expanded form the runtime resolves to.
+    testDir = await fs.realpath(testDir);
     await fs.mkdir(path.join(testDir, 'src'), { recursive: true });
     await fs.writeFile(path.join(testDir, 'src', 'example.ts'), 'export const answer = 42;\n');
     

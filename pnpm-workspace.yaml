@@ -27,3 +27,6 @@ packages:
   - packages/ws-server
   - packages/openapi
   - packages/observability
+
+overrides:
+  'light-my-request>cookie': ^1.0.2
