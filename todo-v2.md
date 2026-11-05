@@ -293,13 +293,13 @@ Urutan fase memprioritaskan kestabilan, kontrak, keamanan, dan proof sebelum eks
 - [x] **DX2-0103 [P0] Tambahkan timeout wajib pada subprocess** — Scope: packages/tools. Done when: Process dihentikan setelah budget..
 - [x] **DX2-0104 [P0] Batasi ukuran stdout process** — Scope: packages/tools. Done when: Output berlebih dipotong dengan metadata..
 - [x] **DX2-0105 [P0] Batasi ukuran stderr process** — Scope: packages/tools. Done when: Stderr tidak dapat memenuhi memory tanpa batas..
-- [ ] **DX2-0106 [P0] Tambahkan process cancellation test** — Scope: packages/tools tests. Done when: Child process berhenti saat cancel..
-- [ ] **DX2-0107 [P0] Tambahkan process tree cleanup test** — Scope: packages/tools tests. Done when: Tidak ada child process tertinggal..
-- [ ] **DX2-0108 [P0] Redact cookie dan token dari log** — Scope: logger. Done when: Secret fixture tidak muncul di output..
-- [ ] **DX2-0109 [P0] Redact Authorization header pada HTTP log** — Scope: apps/api. Done when: Header rahasia tidak tercatat..
-- [ ] **DX2-0110 [P0] Redact query parameter rahasia dari URL log** — Scope: logger. Done when: Token query tidak muncul..
-- [ ] **DX2-0111 [P0] Tolak bind API remote tanpa auth secret valid** — Scope: apps/api. Done when: Remote bind disabled pada default config..
-- [ ] **DX2-0112 [P0] Validasi CORS memakai exact origin parser** — Scope: apps/api. Done when: Wildcard tidak terbuka pada credential mode..
+- [x] **DX2-0106 [P0] Tambahkan process cancellation test** — Scope: packages/tools tests. Done when: Child process berhenti saat cancel..
+- [x] **DX2-0107 [P0] Tambahkan process tree cleanup test** — Scope: packages/tools tests. Done when: Tidak ada child process tertinggal..
+- [x] **DX2-0108 [P0] Redact cookie dan token dari log** — Scope: logger. Done when: Secret fixture tidak muncul di output..
+- [x] **DX2-0109 [P0] Redact Authorization header pada HTTP log** — Scope: apps/api. Done when: Header rahasia tidak tercatat..
+- [x] **DX2-0110 [P0] Redact query parameter rahasia dari URL log** — Scope: logger. Done when: Token query tidak muncul..
+- [x] **DX2-0111 [P0] Tolak bind API remote tanpa auth secret valid** — Scope: apps/api. Done when: Remote bind disabled pada default config..
+- [x] **DX2-0112 [P0] Validasi CORS memakai exact origin parser** — Scope: apps/api. Done when: Wildcard tidak terbuka pada credential mode..
 - [ ] **DX2-0113 [P0] Tambahkan rate limit untuk create-job** — Scope: apps/api. Done when: Burst request dibatasi deterministik..
 - [ ] **DX2-0114 [P0] Tambahkan request body size limit** — Scope: apps/api. Done when: Request besar ditolak sebelum parsing berat..
 - [ ] **DX2-0115 [P0] Tambahkan auth test untuk endpoint sensitif** — Scope: apps/api tests. Done when: Unauthorized tidak membaca job/artifact pihak lain..

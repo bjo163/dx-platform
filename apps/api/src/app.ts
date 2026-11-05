@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import type { JobService } from "@dx-platform/job";
@@ -25,6 +25,8 @@ export interface BuildAppOptions {
   dataDir?: string;
   projectRoot?: string;
   jwtSecret?: string;
+  /** Overrides the Fastify logger; a caller may inject a sink to assert on redaction. */
+  logger?: FastifyServerOptions["logger"];
   corsOptions?: CorsOptions;
   rateLimitOptions?: {
     global: {
@@ -35,11 +37,22 @@ export interface BuildAppOptions {
       maxRequests: number;
       windowMs: number;
     };
+    createJob?: {
+      maxRequests?: number;
+      windowMs?: number;
+    };
   };
 }
 
 const WORKSPACE_PREVIEW_MAX_BYTES = 256 * 1024;
 const WORKSPACE_IGNORED_ENTRIES = new Set([".git", ".neuralforge", "node_modules"]);
+// Job creation is the only endpoint that reserves a browser session and a provider
+// turn, so an unbounded burst costs real quota. 25/min per client is generous for a
+// human driving the UI and still rejects a runaway loop.
+const DEFAULT_CREATE_JOB_RATE_LIMIT = { maxRequests: 25, windowMs: 60000 };
+// Chat completions carry the whole conversation, so the body limit is expressed here
+// rather than inherited from Fastify's 1 MiB default.
+const REQUEST_BODY_LIMIT_BYTES = 2 * 1024 * 1024;
 
 function isWithinDirectory(directory: string, target: string): boolean {
   const relative = path.relative(directory, target);
@@ -61,11 +74,23 @@ async function realPathOrNull(target: string): Promise<string | null> {
 }
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
+  const defaultLogger: FastifyServerOptions["logger"] = {
+    level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  };
+  const injectedLogger = options.logger;
+  const logger = injectedLogger === false
+    ? false
+    : {
+        ...(typeof defaultLogger === "object" ? defaultLogger : {}),
+        ...(typeof injectedLogger === "object" ? injectedLogger : {}),
+        // Attached last so a caller-supplied logger cannot drop the redaction.
+        serializers: createRedactingSerializer(),
+      };
   const app = Fastify({
-    logger: {
-      level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-      serializers: createRedactingSerializer(),
-    },
+    logger,
+    // Reject an oversized body from the Content-Length before the payload is buffered
+    // or handed to the JSON parser, so a large request cannot cost more than a header read.
+    bodyLimit: REQUEST_BODY_LIMIT_BYTES,
     ajv: { customOptions: { removeAdditional: false } }
   });
   const loginBrowsers = new Map<string, { close(): Promise<void> }>();
@@ -82,6 +107,13 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   const authRateLimiter = options.rateLimitOptions?.auth
     ? createRateLimiter(options.rateLimitOptions.auth)
     : createRateLimiter({ maxRequests: 10, windowMs: 60000 }); // 10/min default
+  const createJobRateLimiter = createRateLimiter({
+    maxRequests: options.rateLimitOptions?.createJob?.maxRequests ?? DEFAULT_CREATE_JOB_RATE_LIMIT.maxRequests,
+    windowMs: options.rateLimitOptions?.createJob?.windowMs ?? DEFAULT_CREATE_JOB_RATE_LIMIT.windowMs,
+    // Bucket per client, never per global: otherwise one client's burst would
+    // exhaust the allowance for every other client.
+    getKey: (request) => request.ip || "unknown",
+  });
 
   app.addHook("onRequest", async (request, reply) => {
     // Rate limiting
@@ -93,7 +125,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     };
 
     const isAuthEndpoint = request.url.startsWith("/v1/providers/") && request.method === "POST";
-    const limiter = isAuthEndpoint ? authRateLimiter : globalRateLimiter;
+    const isCreateJob = request.url.split("?")[0] === "/v1/jobs" && request.method === "POST";
+    const limiter = isCreateJob ? createJobRateLimiter : isAuthEndpoint ? authRateLimiter : globalRateLimiter;
     const rateLimitResult = limiter.check(rateLimitRequest);
 
     if (!rateLimitResult.allowed) {
@@ -799,60 +832,131 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   return app;
 }
 
-// Custom logger serializer to redact sensitive data
-function createRedactingSerializer() {
-  const sensitiveHeaders = new Set(['authorization', 'cookie', 'x-api-key', 'x-auth-token']);
-  const sensitiveQueryParams = new Set(['token', 'key', 'secret', 'password', 'api_key', 'access_token']);
+const REDACTED = "[REDACTED]";
+const SENSITIVE_HEADERS = new Set([
+  "authorization",
+  "cookie",
+  "set-cookie",
+  "proxy-authorization",
+  "x-api-key",
+  "x-auth-token",
+  "x-csrf-token",
+]);
+const SENSITIVE_QUERY_PARAMS = new Set([
+  "token",
+  "access_token",
+  "refresh_token",
+  "id_token",
+  "api_key",
+  "apikey",
+  "key",
+  "secret",
+  "password",
+  "code",
+  "sig",
+  "signature",
+  "preview",
+]);
 
+/**
+ * Request/response serializers for the Fastify logger.
+ *
+ * Fastify hands the serializer the live `FastifyRequest`/`FastifyReply`, so a shallow
+ * spread would publish the whole Node socket (`req.raw`) plus every header verbatim.
+ * These serializers project only the fields worth keeping, which makes redaction
+ * complete by construction rather than by remembering to strip each new field.
+ */
+function createRedactingSerializer(): {
+  req: (request: unknown) => unknown;
+  res: (reply: unknown) => unknown;
+  err: (error: unknown) => unknown;
+} {
   return {
-    req: (req: any) => {
-      if (!req) return req;
-      const safe = { ...req };
-      // Redact sensitive headers
-      if (safe.headers) {
-        safe.headers = { ...safe.headers };
-        for (const [key, value] of Object.entries(safe.headers)) {
-          if (sensitiveHeaders.has(key.toLowerCase())) {
-            safe.headers[key] = '[REDACTED]';
-          }
-        }
-      }
-      // Redact sensitive query params
-      if (safe.query) {
-        safe.query = { ...safe.query };
-        for (const [key, value] of Object.entries(safe.query)) {
-          if (sensitiveQueryParams.has(key.toLowerCase())) {
-            safe.query[key] = '[REDACTED]';
-          }
-        }
-      }
-      return safe;
+    req: (request: unknown) => {
+      if (!request || typeof request !== "object") return request;
+      const source = request as {
+        id?: unknown;
+        method?: unknown;
+        url?: unknown;
+        path?: unknown;
+        params?: unknown;
+        query?: unknown;
+        headers?: Record<string, unknown>;
+        ip?: unknown;
+        hostname?: unknown;
+      };
+      const projected: Record<string, unknown> = {};
+      if (source.id !== undefined) projected.id = source.id;
+      if (source.method !== undefined) projected.method = source.method;
+      if (typeof source.url === "string") projected.url = redactUrl(source.url);
+      if (typeof source.path === "string") projected.path = redactUrl(source.path);
+      if (source.params) projected.params = source.params;
+      if (source.query) projected.query = redactQuery(source.query);
+      if (source.headers) projected.headers = redactHeaders(source.headers);
+      if (source.ip !== undefined) projected.ip = source.ip;
+      if (source.hostname !== undefined) projected.hostname = source.hostname;
+      return projected;
     },
-    res: (res: any) => {
-      if (!res) return res;
-      const safe = { ...res };
-      // Redact sensitive headers in response
-      if (safe.headers) {
-        safe.headers = { ...safe.headers };
-        for (const [key, value] of Object.entries(safe.headers)) {
-          if (sensitiveHeaders.has(key.toLowerCase())) {
-            safe.headers[key] = '[REDACTED]';
-          }
-        }
+    res: (reply: unknown) => {
+      if (!reply || typeof reply !== "object") return reply;
+      const source = reply as {
+        statusCode?: unknown;
+        getHeader?: (name: string) => unknown;
+        getHeaders?: () => Record<string, unknown>;
+      };
+      const projected: Record<string, unknown> = {};
+      if (source.statusCode !== undefined) projected.statusCode = source.statusCode;
+      if (typeof source.getHeaders === "function") {
+        projected.headers = redactHeaders(source.getHeaders());
       }
-      return safe;
+      return projected;
     },
-    err: (err: any) => {
-      if (!err) return err;
-      // Redact sensitive data in error objects
-      const safe = { ...err };
-      if (safe.message && typeof safe.message === 'string') {
-        // Simple redaction for common patterns in error messages
-        safe.message = safe.message.replace(/token[=:]\s*[^\s,;}]+/gi, 'token=[REDACTED]')
-                                 .replace(/cookie[=:]\s*[^\s,;}]+/gi, 'cookie=[REDACTED]')
-                                 .replace(/authorization[=:]\s*[^\s,;}]+/gi, 'authorization=[REDACTED]');
-      }
-      return safe;
-    }
+    err: (error: unknown) => {
+      if (!error || typeof error !== "object") return error;
+      const source = error as { name?: unknown; message?: unknown; code?: unknown };
+      const projected: Record<string, unknown> = { ...error };
+      if (typeof source.message === "string") projected.message = redactText(source.message);
+      if (source.code !== undefined) projected.code = source.code;
+      return projected;
+    },
   };
+}
+
+function redactHeaders(headers: Record<string, unknown>): Record<string, unknown> {
+  const safe: Record<string, unknown> = {};
+  for (const [name, value] of Object.entries(headers)) {
+    safe[name] = SENSITIVE_HEADERS.has(name.toLowerCase()) ? REDACTED : value;
+  }
+  return safe;
+}
+
+function redactQuery(query: unknown): unknown {
+  if (!query || typeof query !== "object") return query;
+  const safe: Record<string, unknown> = {};
+  for (const [name, value] of Object.entries(query as Record<string, unknown>)) {
+    safe[name] = SENSITIVE_QUERY_PARAMS.has(name.toLowerCase()) ? REDACTED : value;
+  }
+  return safe;
+}
+
+function redactUrl(value: string): string {
+  const split = value.indexOf("?");
+  if (split === -1) return value;
+  const params = new URLSearchParams(value.slice(split + 1));
+  let changed = false;
+  for (const name of [...params.keys()]) {
+    if (SENSITIVE_QUERY_PARAMS.has(name.toLowerCase())) {
+      params.set(name, REDACTED);
+      changed = true;
+    }
+  }
+  return changed ? `${value.slice(0, split)}?${params.toString()}` : value;
+}
+
+/** Catches credentials that arrive inside a free-text message rather than a header. */
+function redactText(value: string): string {
+  return value
+    .replace(/\b(bearer|basic|digest|token|authorization|cookie|api[_-]?key|secret|password)[\s]*[=:][\s]*[^\s,;}&]+/gi, (_m, label: string) => `${label}=${REDACTED}`)
+    .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, REDACTED)
+    .replace(/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\b/g, REDACTED);
 }

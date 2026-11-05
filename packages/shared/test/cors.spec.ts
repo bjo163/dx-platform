@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 
-import { CorsValidator, createCorsValidator, createSafeCorsConfig, type CorsOptions } from '../src/cors';
+import {
+  CorsValidator,
+  createCorsValidator,
+  createSafeCorsConfig,
+  parseExactOrigin,
+  type CorsOptions,
+} from '../src/cors';
 
 describe('CorsValidator', () => {
   it('should reject unknown origins by default', () => {
@@ -106,5 +112,63 @@ describe('CorsValidator security defaults', () => {
   it('should not allow file:// origins by default', () => {
     const validator = createCorsValidator({ origins: ['http://localhost:3000'] });
     expect(validator.isOriginAllowed('file://')).toBe(false);
+  });
+});
+
+describe('parseExactOrigin', () => {
+  it('normalizes scheme and host casing', () => {
+    expect(parseExactOrigin('HTTPS://Example.COM')).toBe('https://example.com');
+  });
+
+  it('keeps the port as part of the origin', () => {
+    expect(parseExactOrigin('http://localhost:3000')).toBe('http://localhost:3000');
+  });
+
+  it('strips path, query, and fragment', () => {
+    expect(parseExactOrigin('https://example.com/admin?x=1#y')).toBe('https://example.com');
+  });
+
+  it('rejects opaque and malformed origins', () => {
+    expect(parseExactOrigin('null')).toBeNull();
+    expect(parseExactOrigin('')).toBeNull();
+    expect(parseExactOrigin('file://')).toBeNull();
+    expect(parseExactOrigin('not-an-origin')).toBeNull();
+  });
+});
+
+describe('DX2-0112 wildcard rejected in credential mode', () => {
+  it('refuses to construct a validator that pairs wildcard with credentials', () => {
+    expect(() => createCorsValidator({ origins: ['*'], credentials: true })).toThrow(TypeError);
+  });
+
+  it('refuses allowAll when credentials are enabled', () => {
+    const validator = createCorsValidator({ allowAll: true, credentials: true });
+    const result = validator.validateOrigin('https://any-origin.example');
+    expect(result.allowed).toBe(false);
+  });
+
+  it('does not emit wildcard together with credentials', () => {
+    const validator = createCorsValidator({ origins: ['https://app.example'], credentials: true });
+    const result = validator.validateOrigin('https://app.example');
+    expect(result.allowed).toBe(true);
+    expect(result.headers['Access-Control-Allow-Credentials']).toBe('true');
+    expect(result.headers['Access-Control-Allow-Origin']).toBe('https://app.example');
+  });
+
+  it('refuses to add a wildcard to a credentialed validator', () => {
+    const validator = createCorsValidator({ origins: ['https://app.example'], credentials: true });
+    expect(() => validator.addOrigin('*')).toThrow(TypeError);
+  });
+
+  it('rejects an origin with a smuggled path suffix', () => {
+    const validator = createCorsValidator({ origins: ['https://app.example'] });
+    expect(validator.isOriginAllowed('https://app.example.evil.com')).toBe(false);
+    expect(validator.validateOrigin('https://app.example.evil.com').allowed).toBe(false);
+  });
+
+  it('matches case-insensitive scheme and host but not port', () => {
+    const validator = createCorsValidator({ origins: ['http://localhost:3000'] });
+    expect(validator.isOriginAllowed('HTTP://LOCALHOST:3000')).toBe(true);
+    expect(validator.isOriginAllowed('http://localhost:3001')).toBe(false);
   });
 });
