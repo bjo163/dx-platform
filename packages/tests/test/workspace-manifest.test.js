@@ -307,3 +307,66 @@ test("a lint script is only allowed where a lint configuration exists", () => {
     );
   }
 });
+
+test("a browser-dependent harness test is labelled by its directory", () => {
+  // The unit lane must not need Chromium, so the files that launch a browser are
+  // labelled by living under test/browser, and whether they run is decided by
+  // what the machine has rather than by a flag a caller could forget.
+  const harnessDir = path.join(root, "packages", "tests", "test");
+  const relative = (file) => path.relative(harnessDir, file).split(path.sep).join("/");
+  const files = walk(harnessDir, (name) => name.endsWith(".test.js"));
+  // This file names the patterns below in order to detect them; it launches and
+  // gates nothing itself.
+  const scanned = files.map(relative).filter((rel) => rel !== "workspace-manifest.test.js");
+
+  const needsBrowser = scanned.filter((rel) => {
+    const source = fs.readFileSync(path.join(harnessDir, rel), "utf8");
+    return /from ["']playwright-core["']/.test(source) || source.includes("chromium.launch(");
+  });
+  const unlabeled = needsBrowser.filter((rel) => !rel.startsWith("browser/"));
+  assert.deepEqual(unlabeled, [], "a test that launches a browser must live in test/browser, or the unit lane needs Chromium");
+
+  const envGated = scanned.filter((rel) => fs.readFileSync(path.join(harnessDir, rel), "utf8").includes("WTAGENT_DOM_TESTS"));
+  assert.deepEqual(envGated, [], "skipping must come from the machine's capability, not from a flag a test could forget");
+
+  const config = read("packages", "tests", "vitest.config.ts");
+  assert.match(config, /browserLane/, "the harness config must split a unit lane from a browser lane");
+  assert.ok(config.includes('"test/browser/**/*.test.js"'), "the browser lane is selected by directory, not by a file list");
+  assert.ok(config.includes('"test/browser/**"'), "the unit lane must exclude the browser directory");
+
+  const workflow = read(".github", "workflows", "ci.yml");
+  assert.ok(!workflow.includes("test/chatgpt-dom.test.js"), "the dom job must run the labelled lane, not hand-picked files");
+});
+
+test("no unit-lane test waits out a long sleep", () => {
+  // Lease expiry and timeout recovery are minutes of clock, not minutes of wall
+  // time: those tests advance the fake clock instead. A real second-scale sleep
+  // here is what makes the suite slow on a loaded runner.
+  const harnessDir = path.join(root, "packages", "tests", "test");
+  const unitLane = walk(harnessDir, (name) => name.endsWith(".test.js"))
+    .map((file) => path.relative(harnessDir, file).split(path.sep).join("/"))
+    .filter((rel) => !rel.startsWith("browser/") && rel !== "workspace-manifest.test.js");
+
+  const long = /(?:setTimeout|\bsleep|\bdelay|page\.waitForTimeout)\s*\(\s*(?:\([^)]*\)\s*=>\s*)?[^,)]*,\s*([0-9][0-9_]{2,})\s*\)/g;
+  const offenders = [];
+  for (const rel of unitLane) {
+    const source = fs.readFileSync(path.join(harnessDir, rel), "utf8");
+    for (const match of source.matchAll(long)) {
+      if (Number(match[1].replace(/_/g, "")) >= 1_000) offenders.push(`${rel}: ${match[1]}ms`);
+    }
+  }
+  assert.deepEqual(offenders, [], "a minute-scale lease or timeout must be advanced on the fake clock");
+
+  assert.ok(exists("packages", "tests", "src", "fake-clock.ts"), "the fake clock helper must exist");
+  const users = unitLane.filter((rel) => fs.readFileSync(path.join(harnessDir, rel), "utf8").includes("fake-clock.js"));
+  assert.ok(users.length > 0, "the fake clock helper must be used by a lease or timeout test");
+});
+
+test("no test points an adapter profile at the checkout", () => {
+  // Adapters write diagnostics beside their profile directory, so a profile of
+  // "." leaves test debris inside the repository instead of a scratch root.
+  const offenders = walk(path.join(root, "packages", "tests", "test"), (name) => name.endsWith(".test.js"))
+    .map((file) => path.relative(root, file).split(path.sep).join("/"))
+    .filter((rel) => /profileDir:\s*['"]\.['"]/.test(read(rel)));
+  assert.deepEqual(offenders, [], "a checkout-relative adapter profile writes diagnostics into the repository");
+});

@@ -116,4 +116,11 @@ jobs:
           WTAGENT_DOM_TESTS: "1"
         run: |
           export WTAGENT_CHROME_PATH="$(pnpm --filter @dx-platform/tests exec node --input-type=module -e 'import { chromium } from "playwright-core"; console.log(chromium.executablePath())')"
-          pnpm --filter @dx-platform/tests test test/chatgpt-dom.test.js test/rendered-text.test.js
+          pnpm --filter @dx-platform/tests test 2>&1 | tee browser-lane.log
+          # A browser test skips only when the machine has no browser to launch,
+          # so any skip here means this job proved nothing.
+          if grep -qE "[0-9]+ skipped" browser-lane.log; then
+            echo "the browser lane skipped work; a green run must mean the DOM tests actually ran"
+            grep -E "skipped" browser-lane.log
+            exit 1
+          fi
