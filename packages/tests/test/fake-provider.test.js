@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { LocalModelSupport } from "@neuralforge/local";
 import { startFakeProvider } from "../src/fake-provider-server.js";
 
+console.log('LocalModelSupport:', LocalModelSupport);
+
 async function useFakeProvider(t, options) {
   const fake = await startFakeProvider(options);
   t.after(() => fake.close());

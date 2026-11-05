@@ -47,7 +47,8 @@ export class LocalModelSupport {
     if (!this.ollama) return false;
     try {
       const result = await this.#execCommand("curl", ["-s", `http://${this.ollama.host}:${this.ollama.port}/api/tags`]);
-      return result.status === 200;
+      // curl exit code 0 means success, any other code means failure
+      return result.status === 0;
     } catch {
       return false;
     }
@@ -68,7 +69,8 @@ export class LocalModelSupport {
     if (!this.lmstudio) return false;
     try {
       const result = await this.#execCommand("curl", ["-s", `http://${this.lmstudio.host}:${this.lmstudio.port}/v1/models`]);
-      return result.status === 200;
+      // curl exit code 0 means success, any other code means failure
+      return result.status === 0;
     } catch {
       return false;
     }
