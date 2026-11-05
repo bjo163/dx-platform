@@ -536,7 +536,7 @@ Urutan fase memprioritaskan kestabilan, kontrak, keamanan, dan proof sebelum eks
 - [ ] **DX2-0304 [P1] Definisikan MemoryConfidence field** — Scope: packages/types. Done when: Confidence memakai enum/range terdokumentasi..
 - [ ] **DX2-0305 [P1] Definisikan MemorySensitivity enum** — Scope: packages/types. Done when: Public, internal, sensitive terpisah..
 - [ ] **DX2-0306 [P1] Tambahkan memory input validator** — Scope: memory package atau packages/session. Done when: Invalid entry ditolak..
-- [ ] **DX2-0307 [P1] Tolak penyimpanan secret pada memory** — Scope: memory package. Done when: Secret fixture diblokir atau direda ksi..
+- [ ] **DX2-0307 [P1] Tolak penyimpanan secret pada memory** — Scope: memory package. Done when: Secret fixture diblokir atau diredaksi..
 - [ ] **DX2-0308 [P1] Tambahkan deduplication key memory** — Scope: memory package. Done when: Duplicate content tidak menumpuk..
 - [ ] **DX2-0309 [P1] Tambahkan expiration evaluator** — Scope: memory package. Done when: Expired memory tidak diretrieve..
 - [ ] **DX2-0310 [P1] Tambahkan stale memory detector** — Scope: memory package. Done when: Memory lama ditandai stale berdasarkan source revision..
