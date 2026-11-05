@@ -1,3 +1,4 @@
+export * from "./error-envelope.js";
 export * from "./atomic-write.js";
 export * from "./errors.js";
 export * from "./fetch-json.js";

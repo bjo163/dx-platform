@@ -216,26 +216,26 @@ Urutan fase memprioritaskan kestabilan, kontrak, keamanan, dan proof sebelum eks
 **Goal:** Membuat satu bahasa domain bagi CLI, API, SDK, UI, MCP, runtime, dan worker.
 **Gate:** selesaikan task wajib fase ini dan verifikasi gate sebelum fase berikutnya. Task independen boleh diparalelkan.
 
-- [ ] **DX2-0041 [P0] Definisikan branded type TaskId** — Scope: packages/types. Done when: TaskId tidak tercampur dengan JobId..
-- [ ] **DX2-0042 [P0] Definisikan branded type JobId** — Scope: packages/types. Done when: JobId punya validator/constructor..
-- [ ] **DX2-0043 [P0] Definisikan branded type MissionId** — Scope: packages/types. Done when: MissionId punya validator/constructor..
-- [ ] **DX2-0044 [P0] Definisikan branded type AgentRunId** — Scope: packages/types. Done when: AgentRunId punya validator/constructor..
-- [ ] **DX2-0045 [P0] Definisikan enum TaskStatus canonical** — Scope: packages/types. Done when: Status queued, ready, running, blocked, review, verified, failed, cancelled terwakili..
-- [ ] **DX2-0046 [P0] Definisikan enum JobStatus canonical** — Scope: packages/types. Done when: Status job tidak menggunakan enum UI..
-- [ ] **DX2-0047 [P0] Definisikan enum MissionStatus canonical** — Scope: packages/types. Done when: Pause, resume, complete, dan fail terwakili..
-- [ ] **DX2-0048 [P0] Definisikan TaskPriority dengan urutan stabil** — Scope: packages/types. Done when: Priority comparison tidak bergantung alfabetis..
-- [ ] **DX2-0049 [P0] Definisikan TaskDependency contract** — Scope: packages/types. Done when: Dependency menyimpan ID dan jenis hubungan..
-- [ ] **DX2-0050 [P0] Definisikan AgentCapability contract** — Scope: packages/types. Done when: Capability berbentuk data yang dapat divalidasi..
-- [ ] **DX2-0051 [P0] Definisikan ModelCapability contract** — Scope: packages/types. Done when: Context, tools, structured output, vision, streaming terwakili..
-- [ ] **DX2-0052 [P0] Definisikan ProviderHealth contract** — Scope: packages/types. Done when: Status memiliki checkedAt dan reason opsional..
-- [ ] **DX2-0053 [P0] Definisikan ToolCall contract** — Scope: packages/types. Done when: Input, permission, correlation ID, dan result terwakili..
-- [ ] **DX2-0054 [P0] Definisikan ToolResult contract** — Scope: packages/types. Done when: Success dan failure memiliki bentuk stabil..
-- [ ] **DX2-0055 [P0] Definisikan EvidenceItem contract** — Scope: packages/types. Done when: Kind, locator, digest, timestamp, verifier terwakili..
-- [ ] **DX2-0056 [P0] Definisikan VerificationResult contract** — Scope: packages/types. Done when: Pass, fail, skipped, inconclusive berbeda jelas..
-- [ ] **DX2-0057 [P0] Definisikan Budget contract** — Scope: packages/types. Done when: Token, time, call, cost memiliki unit eksplisit..
-- [ ] **DX2-0058 [P0] Definisikan EventEnvelope schema v1** — Scope: packages/protocol. Done when: Event punya id, type, version, timestamp, source, correlationId..
-- [ ] **DX2-0059 [P0] Definisikan ErrorEnvelope canonical** — Scope: packages/shared. Done when: Error response tidak membocorkan stack atau secret..
-- [ ] **DX2-0060 [P0] Tambahkan schema test untuk Task contract** — Scope: packages/types tests. Done when: Valid payload diterima dan invalid payload ditolak..
+- [x] **DX2-0041 [P0] Definisikan branded type TaskId** — Scope: packages/types. Done when: TaskId tidak tercampur dengan JobId..
+- [x] **DX2-0042 [P0] Definisikan branded type JobId** — Scope: packages/types. Done when: JobId punya validator/constructor..
+- [x] **DX2-0043 [P0] Definisikan branded type MissionId** — Scope: packages/types. Done when: MissionId punya validator/constructor..
+- [x] **DX2-0044 [P0] Definisikan branded type AgentRunId** — Scope: packages/types. Done when: AgentRunId punya validator/constructor..
+- [x] **DX2-0045 [P0] Definisikan enum TaskStatus canonical** — Scope: packages/types. Done when: Status queued, ready, running, blocked, review, verified, failed, cancelled terwakili..
+- [x] **DX2-0046 [P0] Definisikan enum JobStatus canonical** — Scope: packages/types. Done when: Status job tidak menggunakan enum UI..
+- [x] **DX2-0047 [P0] Definisikan enum MissionStatus canonical** — Scope: packages/types. Done when: Pause, resume, complete, dan fail terwakili..
+- [x] **DX2-0048 [P0] Definisikan TaskPriority dengan urutan stabil** — Scope: packages/types. Done when: Priority comparison tidak bergantung alfabetis..
+- [x] **DX2-0049 [P0] Definisikan TaskDependency contract** — Scope: packages/types. Done when: Dependency menyimpan ID dan jenis hubungan..
+- [x] **DX2-0050 [P0] Definisikan AgentCapability contract** — Scope: packages/types. Done when: Capability berbentuk data yang dapat divalidasi..
+- [x] **DX2-0051 [P0] Definisikan ModelCapability contract** — Scope: packages/types. Done when: Context, tools, structured output, vision, streaming terwakili..
+- [x] **DX2-0052 [P0] Definisikan ProviderHealth contract** — Scope: packages/types. Done when: Status memiliki checkedAt dan reason opsional..
+- [x] **DX2-0053 [P0] Definisikan ToolCall contract** — Scope: packages/types. Done when: Input, permission, correlation ID, dan result terwakili..
+- [x] **DX2-0054 [P0] Definisikan ToolResult contract** — Scope: packages/types. Done when: Success dan failure memiliki bentuk stabil..
+- [x] **DX2-0055 [P0] Definisikan EvidenceItem contract** — Scope: packages/types. Done when: Kind, locator, digest, timestamp, verifier terwakili..
+- [x] **DX2-0056 [P0] Definisikan VerificationResult contract** — Scope: packages/types. Done when: Pass, fail, skipped, inconclusive berbeda jelas..
+- [x] **DX2-0057 [P0] Definisikan Budget contract** — Scope: packages/types. Done when: Token, time, call, cost memiliki unit eksplisit..
+- [x] **DX2-0058 [P0] Definisikan EventEnvelope schema v1** — Scope: packages/protocol. Done when: Event punya id, type, version, timestamp, source, correlationId..
+- [x] **DX2-0059 [P0] Definisikan ErrorEnvelope canonical** — Scope: packages/shared. Done when: Error response tidak membocorkan stack atau secret..
+- [x] **DX2-0060 [P0] Tambahkan schema test untuk Task contract** — Scope: packages/types tests. Done when: Valid payload diterima dan invalid payload ditolak..
 
 ## M03 — CI, test harness, dan quality gates — 30 micro-tasks
 
@@ -777,6 +777,8 @@ Tambahkan satu baris per batch yang benar-benar dikerjakan. Jangan mengisi statu
 | 2026-11-05 | Backlog authored; execution not started | To be recorded | Document-only change | Pending | Semua task DX2 berstatus belum dikerjakan |
 | 2026-11-05 | DX2-0001 s/d DX2-0020 (M00 re-baseline) + perbaikan baseline CI | `2d6c476`, `e1bd9b5`, `1cf3f96` | `pnpm exec vitest run` (28 file / 276 test), `pnpm --filter @dx-platform/tests test` (session lock, 24 lulus), `pnpm install --frozen-lockfile`, `pnpm check` | `1cf3f96` / **success**, 5 job hijau (dom + ubuntu/windows × Node 20.17.0/22.13.0) | `main` tadinya merah 5 run berturut-turut; 5 akar masalah berbeda diperbaiki. Bukti lengkap di `.plans/baseline-2026-11-05.md`. Todo.md v1 TIDAK diubah: 0 tercentang vs klaim 192 verified di history, perlu bukti ulang per task |
 | 2026-11-05 | DX2-0027, 0028, 0029, 0030, 0031, 0032, 0033, 0034, 0037, 0038 (M01 batch 1) | `0ac6621` | `pnpm --filter @dx-platform/api build`, `pnpm --filter @dx-platform/web build`, DOM tests `WTAGENT_DOM_TESTS=1` (14 lulus), `node dist/main.js --version` → 1.0.3, `pack --dry-run` | `0ac6621` / **success**, 5 job hijau | 5 filter CI ternyata no-op (`@neuralforge/*` tidak ada; pnpm exit 0), jadi `apps/api` + `apps/web` belum pernah dibangun CI dan 14 test DOM belum pernah jalan. 126 artefak `.next` di-untrack, file tetap di disk |
-| 2026-11-05 | DX2-0021, 0022, 0023, 0026, 0035, 0036 **masih terbuka** (keputusan rename scope npm + pemilihan lockfile authoritative) | — | — | — | Tidak dikerjakan sepihak: rename `neuralforge` berdampak ke npm/biner user, dan menghapus lockfile duplikat butuh keputusan consumer. Dasar analisis sudah dicatat di `.plans/baseline-2026-11-05.md` §2/§10 || 2026-11-05 | DX2-0024, 0025, 0039, 0040 (M01 batch 2) | batch ini | `pnpm brand:check` lulus, parse `package.json` valid, `.env.example` tidak ter-ignore (`!.env.example`) | batch 1 terverifikasi: `0ac6621` / **success**, 5 job hijau, job `dom` melaporkan `Tests 14 passed (14)` dan **0** kemunculan `No projects matched` | `.env.example` dibuat (sebelumnya tidak ada); 2 klaim "no cloud / no data exfiltration" dikoreksi (`package.json`, `spec/blueprint/00-executive-overview.md`); temuan baru: server baca `NEURALFORGE_DATA_DIR` tetapi backup-cli baca `WTAGENT_DATA_DIR` → backup bisa salah direktori |
+| 2026-11-05 | DX2-0021, 0022, 0023, 0026, 0035, 0036 **masih terbuka** (keputusan rename scope npm + pemilihan lockfile authoritative) | — | — | — | Tidak dikerjakan sepihak: rename `neuralforge` berdampak ke npm/biner user, dan menghapus lockfile duplikat butuh keputusan consumer. Dasar analisis sudah dicatat di `.plans/baseline-2026-11-05.md` §2/§10 |
+| 2026-11-05 | DX2-0024, 0025, 0039, 0040 (M01 batch 2) | batch ini | `pnpm brand:check` lulus, parse `package.json` valid, `.env.example` tidak ter-ignore (`!.env.example`) | batch 1 terverifikasi: `0ac6621` / **success**, 5 job hijau, job `dom` melaporkan `Tests 14 passed (14)` dan **0** kemunculan `No projects matched` | `.env.example` dibuat (sebelumnya tidak ada); 2 klaim "no cloud / no data exfiltration" dikoreksi (`package.json`, `spec/blueprint/00-executive-overview.md`); temuan baru: server baca `NEURALFORGE_DATA_DIR` tetapi backup-cli baca `WTAGENT_DATA_DIR` → backup bisa salah direktori |
+| 2026-11-05 | DX2-0041 s/d DX2-0060 (M02 domain contracts) | batch ini | `pnpm check` (tsc -b --force, exit 0), `pnpm exec vitest run` (34 file / 327 lulus / 1 skip) | menunggu run CI pada SHA commit ini | `packages/types` sekarang punya 7 modul kontrak (ids, validation, task, status, capability, invocation, evidence) + 4 test spec; `packages/protocol` tambah `event.ts` (EventEnvelope v1), `packages/shared` tambah `error-envelope.ts`. DX2-0054 memakai `ToolResult` yang sudah ada di `tool.ts` (bentuk ok/message/output/meta sudah stabil) dan kini ditegakkan di boundary ToolCall. Temuan: 3 validator pertama saya mengembalikan `valid()` walau issue tersimpan untuk field opsional (missionId, dependsOn, version) - ketangkap karena test invalid-payload, sekarang semua validator menolak bila issue sink tidak kosong. JobStatus kanonis ada di types tetapi `packages/job/job-store.ts` masih punya enum sendiri (di luar graph `tsc -b`, belum di-wire). `packages/local` punya interface bernama sama `ModelCapability` dengan arti berbeda (`{name, description}`) - perlu rename di fase consumer |
 
 **Starting instruction:** mulai dari DX2-0001, lakukan audit terbaru secara read-only, rekonsiliasi todo.md, lalu lanjutkan task READY pertama. Jangan lompat ke UI/branding saat P0/P1 gate masih gagal.

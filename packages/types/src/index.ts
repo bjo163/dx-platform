@@ -3,6 +3,13 @@
 // import names directly: `import type { ParsedAgentResponse } from "@dx-platform/types"`.
 
 export * from "./envelope.js";
+export * from "./ids.js";
+export * from "./validation.js";
+export * from "./task.js";
+export * from "./status.js";
+export * from "./capability.js";
+export * from "./invocation.js";
+export * from "./evidence.js";
 export * from "./session.js";
 export * from "./tool.js";
 export * from "./provider.js";

@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     include: [
       'packages/errors/test/**/*.spec.ts',
+      'packages/types/test/**/*.spec.ts',
       'packages/job/test/**/*.spec.ts',
       'packages/config-api/test/**/*.spec.ts',
       'packages/shared/test/**/*.spec.ts',
