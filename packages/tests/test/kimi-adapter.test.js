@@ -1,4 +1,9 @@
 import test from "../src/shim.js";
+import { useScratchProfileDir } from "../src/temp-dir.js";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 import assert from "node:assert/strict";
 import { KimiWebAdapter } from "@neuralforge/browser/kimi-web-adapter";
 import { isConnectionLostError } from "@neuralforge/browser/kimi-web-adapter";
@@ -111,7 +116,7 @@ test("re-exports the shared connection-lost detector", () => {
 });
 
 test("exposes Kimi's base URL and conversation URL pattern", () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   assert.equal(adapter.providerName, "Kimi");
   assert.equal(adapter.baseUrl, "https://www.kimi.com/");
   assert.ok(adapter.conversationUrlPattern().test("/chat/1a00f5ca-uuid"));
@@ -119,13 +124,13 @@ test("exposes Kimi's base URL and conversation URL pattern", () => {
 });
 
 test("reads a stable per-message id from data-archer-id", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   const row = new KimiRow({ id: "archer-123", role: "assistant", text: "hi" });
   assert.deepEqual(await adapter.messageIdentity(row), { id: "archer-123", turn: null });
 });
 
 test("reads assistant answer text (used to detect the protocol envelope)", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   const row = new KimiRow({
     id: "archer-9",
     role: "assistant",
@@ -136,7 +141,7 @@ test("reads assistant answer text (used to detect the protocol envelope)", async
 });
 
 test("does not duplicate nested markdown-container and markdown nodes", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   const envelope = "<agent_response><done>false</done><message>list</message>"
     + "<tool_call name=\"fs.list\"><args><path>.</path></args></tool_call></agent_response>";
   const row = new KimiRow({
@@ -150,7 +155,7 @@ test("does not duplicate nested markdown-container and markdown nodes", async ()
 });
 
 test("prefers a later protocol envelope over a native-tool failure card", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   const row = new KimiRow({
     id: "archer-fail-then-xml",
     role: "assistant",
@@ -169,7 +174,7 @@ test("prefers a later protocol envelope over a native-tool failure card", async 
 });
 
 test("waits longer after a native-tool failure until XML may still arrive", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   const failed = new KimiRow({
     id: "archer-fail",
     role: "assistant",
@@ -195,7 +200,7 @@ test("waits longer after a native-tool failure until XML may still arrive", asyn
 });
 
 test("treats an in-flight native tool card as still generating", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   const running = new KimiRow({
     id: "archer-run",
     role: "assistant",
@@ -214,7 +219,7 @@ test("treats an in-flight native tool card as still generating", async () => {
 });
 
 test("treats a completed web-search card (result count) as finished", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   // A finished Kimi web search shows its result count ("9 个结果") instead of
   // 已完成/失败; it must not keep the turn looking "generating" forever.
   const searched = new KimiRow({
@@ -244,7 +249,7 @@ test("treats a completed web-search card (result count) as finished", async () =
 });
 
 test("treats a reply without the action bar as still generating", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   // Mid-stream: the message is rendering (thinking or text) but Kimi has not
   // shown the .segment-assistant-actions bar yet — the turn must keep waiting
   // even though the visible text paused, or a partial reply is accepted.
@@ -267,7 +272,7 @@ test("treats a reply without the action bar as still generating", async () => {
 });
 
 test("completes a turn using the archer id as the boundary", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   // The old reply's id was seen before the send; the new reply's id was not.
   adapter.page = createKimiPage([
     new KimiRow({ id: "archer-old", role: "assistant", text: "old reply" }),
@@ -294,7 +299,7 @@ test("completes a turn using the archer id as the boundary", async () => {
 });
 
 test("does not accept a pre-existing reply as the current turn", async () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   // Only the old reply exists and its id was already seen before the send.
   adapter.page = createKimiPage([
     new KimiRow({
@@ -319,7 +324,7 @@ test("does not accept a pre-existing reply as the current turn", async () => {
 });
 
 test("detects Kimi's signed-out shell as unauthenticated text", () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.authTextPattern().test("手机号快捷登录"));
   assert.ok(adapter.authTextPattern().test("发送验证码"));
   // English locale too.
@@ -328,11 +333,11 @@ test("detects Kimi's signed-out shell as unauthenticated text", () => {
 });
 
 test("widens the dead-request grace (no persistent stop button)", () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.deadRequestGraceMultiplier() > 1);
 });
 
 test("Kimi adapter never selects a model automatically", () => {
-  const adapter = new KimiWebAdapter({ profileDir: "." });
+  const adapter = new KimiWebAdapter({ profileDir: scratchProfile });
   assert.equal(typeof adapter.selectMode, "undefined");
 });

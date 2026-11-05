@@ -1,4 +1,9 @@
 import test from "../src/shim.js";
+import { useScratchProfileDir } from "../src/temp-dir.js";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -146,7 +151,7 @@ test("an empty music turn is not automatically retried", async (t) => {
 });
 
 test("Gemini music setup accepts the dedicated creation screen", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   let placeholder = "Describe your track";
   let templateClicks = 0;
   const editor = {
@@ -169,7 +174,7 @@ test("Gemini music setup accepts the dedicated creation screen", async () => {
 });
 
 test("Gemini music setup recovers when the tool menu opens the creation screen", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   let creationVisible = false;
   let templateClicks = 0;
   const selected = { isVisible: async () => false };
@@ -193,7 +198,7 @@ test("Gemini music setup recovers when the tool menu opens the creation screen",
 });
 
 test("Gemini music setup selects the real tool once and submits using one keyboard action", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   let selected = false; const presses = [];
   const tools = { getAttribute: async () => "false", press: async (key) => presses.push(`tools:${key}`) };
   const musicItem = { waitFor: async () => {}, getAttribute: async () => "false", press: async (key) => { presses.push(`music:${key}`); selected = true; } };

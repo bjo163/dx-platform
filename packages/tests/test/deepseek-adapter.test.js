@@ -1,4 +1,9 @@
 import test from "../src/shim.js";
+import { useScratchProfileDir } from "../src/temp-dir.js";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 import assert from "node:assert/strict";
 import { DeepSeekWebAdapter } from "@neuralforge/browser/deepseek-web-adapter";
 import { isConnectionLostError } from "@neuralforge/browser/deepseek-web-adapter";
@@ -154,7 +159,7 @@ test("re-exports the shared connection-lost detector", () => {
 });
 
 test("exposes DeepSeek's base URL and conversation URL pattern", () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   assert.equal(adapter.providerName, "DeepSeek");
   assert.equal(adapter.baseUrl, "https://chat.deepseek.com/");
   assert.ok(adapter.conversationUrlPattern().test("/a/chat/s/4fc00a96-uuid"));
@@ -162,7 +167,7 @@ test("exposes DeepSeek's base URL and conversation URL pattern", () => {
 });
 
 test("identity is a role-scoped count, immune to the volatile row key", async () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   // Two assistant rows + one user row. The row key is deliberately volatile
   // (even negative) — identity must ignore it and report the role-scoped count.
   adapter.page = createDeepSeekPage([
@@ -177,7 +182,7 @@ test("identity is a role-scoped count, immune to the volatile row key", async ()
 });
 
 test("generation is detected structurally via the reply action bar", async () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   // Think-only phase: no action bar yet → generating (no text matching).
   const thinking = new DeepSeekRow({
     key: 7,
@@ -199,7 +204,7 @@ test("generation is detected structurally via the reply action bar", async () =>
 });
 
 test("reads assistant text from the assistant content node", async () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   const row = new DeepSeekRow({
     key: 6,
     role: "assistant",
@@ -210,7 +215,7 @@ test("reads assistant text from the assistant content node", async () => {
 });
 
 test("completes a turn once the assistant count grows past the baseline", async () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   // One assistant row existed before this send (count baseline = 1); the new
   // reply makes it 2, so the count-based identity marks it new.
   adapter.page = createDeepSeekPage([
@@ -235,7 +240,7 @@ test("completes a turn once the assistant count grows past the baseline", async 
 });
 
 test("treats a reused last assistant row with new XML as a new turn", async () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   adapter.page = createDeepSeekPage([
     new DeepSeekRow({
       key: 6,
@@ -257,7 +262,7 @@ test("treats a reused last assistant row with new XML as a new turn", async () =
 });
 
 test("does not accept a stale prior reply as the current turn", async () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   // Only the old assistant reply is present and the count has NOT grown beyond
   // the baseline (1), so the wait must time out rather than return the stale
   // answer — the count-based guard against stale replies.
@@ -283,21 +288,21 @@ test("does not accept a stale prior reply as the current turn", async () => {
 });
 
 test("detects DeepSeek's signed-out shell as unauthenticated text", () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.authTextPattern().test("发送验证码 登录"));
   assert.ok(adapter.authTextPattern().test("使用 Apple 账号登录"));
   assert.equal(adapter.authTextPattern().test("给 DeepSeek 发送消息"), false);
 });
 
 test("widens the dead-request grace for the no-stop-signal Deep Thinking phase", () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   // DeepSeek exposes no liveness signal, so it must wait far longer than the
   // base default before treating silence as a dead request.
   assert.ok(adapter.deadRequestGraceMultiplier() > 1);
 });
 
 test("a long silent thinking phase is not misread as a dead request", async () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   // No assistant row yet (still thinking), no stop button ever visible.
   adapter.page = createDeepSeekPage([
     new DeepSeekRow({ key: 5, role: "user", text: "the question" }),
@@ -403,6 +408,6 @@ function createModePage({ expertChecked = false, thinkingOn = false } = {}) {
 }
 
 test("DeepSeek adapter never selects a model or mode automatically", () => {
-  const adapter = new DeepSeekWebAdapter({ profileDir: "." });
+  const adapter = new DeepSeekWebAdapter({ profileDir: scratchProfile });
   assert.equal(typeof adapter.selectMode, "undefined");
 });

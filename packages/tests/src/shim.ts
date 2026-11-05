@@ -74,6 +74,9 @@ function mockTimers(vitestContext: any) {
     tick(ms: number) {
       vi.advanceTimersByTime(ms);
     },
+    async tickAsync(ms: number) {
+      await vi.advanceTimersByTimeAsync(ms);
+    },
     setTime(ms: number) {
       vi.setSystemTime(ms);
     },
@@ -124,7 +127,10 @@ function register(name: string, optionsOrBody: unknown, maybeBody?: unknown) {
   }
   const wrapped = (vitestContext: any) => body(makeContext(vitestContext, name));
   const timeout = typeof options.timeout === "number" ? options.timeout : undefined;
-  if (options.skip || options.todo) return it.skip(name, wrapped, timeout);
+  // node:test prints a skip reason; vitest reports no per-test note, so the
+  // reason travels inside the reported name instead of being dropped.
+  const label = typeof options.skip === "string" && options.skip ? `${name} — skipped: ${options.skip}` : name;
+  if (options.skip || options.todo) return it.skip(label, wrapped, timeout);
   if (options.only) return it.only(name, wrapped, timeout);
   return it(name, wrapped, timeout);
 }

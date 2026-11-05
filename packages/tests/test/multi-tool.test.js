@@ -49,7 +49,9 @@ async function harness(t, responses, { approval = async () => true, prefix = "mu
 }
 
 test("one turn can request several tools and every result comes back together", async (t) => {
-  await fs.writeFile(path.join(os.tmpdir(), "unused.txt"), "");
+  const stray = path.join(os.tmpdir(), "unused.txt");
+  await fs.writeFile(stray, "");
+  t.after(() => fs.rm(stray, { force: true }));
   const fixture = await harness(t, [
     envelope(READ("a.txt") + READ("b.txt")),
     FINAL,

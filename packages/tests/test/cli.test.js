@@ -166,7 +166,10 @@ test("profile lock recovery refuses to terminate the current process", async (t)
   assert.equal(kill.mock.callCount(), 0);
 });
 
-const execFileAsync = promisify(execFile);
+const execFileBounded = promisify(execFile);
+// A CLI that stops answering must fail its own test rather than hold a worker
+// until the suite-wide budget expires.
+const execFileAsync = (file, args) => execFileBounded(file, args, { timeout: 60_000 });
 test("package exposes only the neuralforge executable", async () => {
   const manifest = JSON.parse(await fs.readFile(cliManifestPath, "utf8"));
 

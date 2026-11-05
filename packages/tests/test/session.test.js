@@ -31,8 +31,21 @@ function persistenceMutexPorts(directory) {
 
 async function listen(server, options) {
   await new Promise((resolve, reject) => {
-    server.once("error", reject);
-    server.once("listening", resolve);
+    // A socket stuck in SYN or a blocked port must fail this test, not wait out
+    // the suite-wide budget.
+    const timer = setTimeout(() => {
+      server.close(() => {});
+      reject(new Error("the server never started listening within 10s"));
+    }, 10_000);
+    timer.unref();
+    server.once("error", (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    server.once("listening", () => {
+      clearTimeout(timer);
+      resolve();
+    });
     server.listen(options);
   });
 }

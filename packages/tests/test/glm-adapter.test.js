@@ -1,4 +1,9 @@
 import test from "../src/shim.js";
+import { useScratchProfileDir } from "../src/temp-dir.js";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 import assert from "node:assert/strict";
 import { GLMWebAdapter } from "@neuralforge/browser/glm-web-adapter";
 import { isConnectionLostError } from "@neuralforge/browser/glm-web-adapter";
@@ -81,7 +86,7 @@ test("re-exports the shared connection-lost detector", () => {
 });
 
 test("exposes GLM's base URL and conversation URL pattern", () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   assert.equal(adapter.providerName, "GLM");
   assert.equal(adapter.baseUrl, "https://chat.z.ai/");
   assert.ok(adapter.conversationUrlPattern().test("/c/5d0e8c71-uuid"));
@@ -89,13 +94,13 @@ test("exposes GLM's base URL and conversation URL pattern", () => {
 });
 
 test("reads a stable per-message id from the message- element id", async () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   const row = new GLMRow({ id: "abc-123", role: "assistant", text: "hi" });
   assert.deepEqual(await adapter.messageIdentity(row), { id: "abc-123", turn: null });
 });
 
 test("assistantText returns full text so the parser can find the envelope past a 思考过程 prefix", async () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   const row = new GLMRow({
     id: "m1",
     role: "assistant",
@@ -108,7 +113,7 @@ test("assistantText returns full text so the parser can find the envelope past a
 });
 
 test("generation is detected structurally via the response action bar", async () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   // No action bar yet (thinking phase / mid-stream / blank row) = generating.
   const thinking = new GLMRow({ id: "a1", role: "assistant", text: "思考过程", generating: true });
   assert.equal(await adapter.isAssistantGenerating(thinking), true);
@@ -127,7 +132,7 @@ test("generation is detected structurally via the response action bar", async ()
 });
 
 test("does not complete a turn while the action bar is absent (still generating)", async () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   adapter.page = createGLMPage([
     new GLMRow({ id: "u1", role: "user", text: "the question" }),
     new GLMRow({ id: "a1", role: "assistant", text: "思考过程", generating: true }),
@@ -148,7 +153,7 @@ test("does not complete a turn while the action bar is absent (still generating)
 });
 
 test("completes once the envelope has streamed in and the action bar is present", async () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   adapter.page = createGLMPage([
     new GLMRow({ id: "u1", role: "user", text: "the question" }),
     new GLMRow({
@@ -172,7 +177,7 @@ test("completes once the envelope has streamed in and the action bar is present"
 });
 
 test("detects GLM's signed-out shell as unauthenticated text", () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.authTextPattern().test("手机号登录 欢迎回来"));
   assert.ok(adapter.authTextPattern().test("发送验证码"));
   assert.ok(adapter.authTextPattern().test("Sign in to Z.ai"));
@@ -182,7 +187,7 @@ test("detects GLM's signed-out shell as unauthenticated text", () => {
 });
 
 test("generation detection does not depend on the reply's language", async () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   // English thinking text, no action bar yet → generating (no text matching).
   const thinking = new GLMRow({ id: "a3", role: "assistant", text: "Thinking", generating: true });
   assert.equal(await adapter.isAssistantGenerating(thinking), true);
@@ -198,11 +203,11 @@ test("generation detection does not depend on the reply's language", async () =>
 });
 
 test("widens the dead-request grace (deep-thinking, no persistent stop button)", () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.deadRequestGraceMultiplier() > 1);
 });
 
 test("GLM adapter never selects a model automatically", () => {
-  const adapter = new GLMWebAdapter({ profileDir: "." });
+  const adapter = new GLMWebAdapter({ profileDir: scratchProfile });
   assert.equal(typeof adapter.selectMode, "undefined");
 });

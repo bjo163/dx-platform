@@ -1,4 +1,9 @@
 import test from "../src/shim.js";
+import { useScratchProfileDir } from "../src/temp-dir.js";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 import assert from "node:assert/strict";
 import { ClaudeWebAdapter, isConnectionLostError } from "@neuralforge/browser/claude-web-adapter";
 
@@ -86,7 +91,7 @@ test("re-exports the shared connection-lost detector", () => {
 });
 
 test("exposes Claude's base URL and conversation URL pattern", () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   assert.equal(adapter.providerName, "Claude");
   assert.equal(adapter.baseUrl, "https://claude.ai/");
   assert.ok(adapter.conversationUrlPattern().test("/chat/abc-123"));
@@ -96,7 +101,7 @@ test("exposes Claude's base URL and conversation URL pattern", () => {
 });
 
 test("uses role-scoped counts as Claude message identities", async () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   const rows = [
     new ClaudeRow({ role: "user", text: "hello" }),
     new ClaudeRow({ role: "assistant", text: "hi" }),
@@ -109,14 +114,14 @@ test("uses role-scoped counts as Claude message identities", async () => {
 });
 
 test("reads the Claude response body without provider chrome", async () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   const envelope = "<agent_response><done>true</done><message>done</message></agent_response>";
   const row = new ClaudeRow({ role: "assistant", text: envelope });
   assert.equal(await adapter.assistantText(row), envelope);
 });
 
 test("uses data-is-streaming as a structural completion signal", async () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   const streaming = new ClaudeRow({ role: "assistant", text: "working", generating: true });
   const complete = new ClaudeRow({ role: "assistant", text: "done", generating: false });
 
@@ -126,7 +131,7 @@ test("uses data-is-streaming as a structural completion signal", async () => {
 });
 
 test("completes a Claude turn after its streaming attribute becomes false", async () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   const envelope = "<agent_response><done>true</done><message>claude done</message></agent_response>";
   adapter.page = createClaudePage([
     new ClaudeRow({ role: "user", text: "task" }),
@@ -143,7 +148,7 @@ test("completes a Claude turn after its streaming attribute becomes false", asyn
 });
 
 test("does not accept a stale Claude response from before the send", async () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   adapter.page = createClaudePage([
     new ClaudeRow({ role: "assistant", text: "old answer", generating: false }),
   ]);
@@ -161,7 +166,7 @@ test("does not accept a stale Claude response from before the send", async () =>
 });
 
 test("detects Claude's signed-out URL and login shell", () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.authUrlPattern().test("/login"));
   assert.ok(adapter.authUrlPattern().test("/oauth/callback"));
   assert.ok(adapter.authTextPattern().test("Continue with Google"));
@@ -170,12 +175,12 @@ test("detects Claude's signed-out URL and login shell", () => {
 });
 
 test("widens the dead-request grace for Claude's pre-response thinking phase", () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.deadRequestGraceMultiplier() > 1);
 });
 
 test("uploads attachments through Claude's file input", async () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   let uploaded = null;
   const fileInput = {
     first() { return this; },
@@ -205,6 +210,6 @@ test("uploads attachments through Claude's file input", async () => {
 });
 
 test("Claude adapter never selects a model automatically", () => {
-  const adapter = new ClaudeWebAdapter({ profileDir: "." });
+  const adapter = new ClaudeWebAdapter({ profileDir: scratchProfile });
   assert.equal(typeof adapter.selectMode, "undefined");
 });

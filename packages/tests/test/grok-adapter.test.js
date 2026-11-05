@@ -1,5 +1,10 @@
 
 import test from "../src/shim.js";
+import { useScratchProfileDir } from "../src/temp-dir.js";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 import assert from "node:assert/strict";
 import { GrokWebAdapter } from "@neuralforge/browser/grok-web-adapter";
 
@@ -16,7 +21,7 @@ class EmptyLocator {
 }
 
 test("exposes Grok URL and conversation pattern", () => {
-  const adapter = new GrokWebAdapter({ profileDir: "." });
+  const adapter = new GrokWebAdapter({ profileDir: scratchProfile });
   assert.equal(adapter.providerName, "Grok");
   assert.equal(adapter.baseUrl, "https://grok.com/");
   assert.equal(adapter.conversationUrlPattern().test("/c/abc"), true);
@@ -26,7 +31,7 @@ test("exposes Grok URL and conversation pattern", () => {
 test("keeps Grok's hydrating textarea and role textbox in one composer locator", () => {
   const selectors = [];
   const locator = new EmptyLocator();
-  const adapter = new GrokWebAdapter({ profileDir: "." });
+  const adapter = new GrokWebAdapter({ profileDir: scratchProfile });
   adapter.page = {
     locator(selector) {
       selectors.push(selector);
@@ -40,7 +45,7 @@ test("keeps Grok's hydrating textarea and role textbox in one composer locator",
 });
 
 test("uses Grok stop-response button as generation signal", async () => {
-  const adapter = new GrokWebAdapter({ profileDir: "." });
+  const adapter = new GrokWebAdapter({ profileDir: scratchProfile });
   const visible = new EmptyLocator();
   visible.count = async () => 1;
   visible.isVisible = async () => true;
@@ -55,7 +60,7 @@ test("uses Grok stop-response button as generation signal", async () => {
 });
 
 test("uses Grok response wrapper UUID as a stable message identity", async () => {
-  const adapter = new GrokWebAdapter({ profileDir: "." });
+  const adapter = new GrokWebAdapter({ profileDir: scratchProfile });
   const message = new EmptyLocator();
   message.getAttribute = async (name) => (
     name === "data-testid" ? "user-message" : null
@@ -78,7 +83,7 @@ test("uses Grok response wrapper UUID as a stable message identity", async () =>
 });
 
 test("reads Grok's complete rendered user message", async () => {
-  const adapter = new GrokWebAdapter({ profileDir: "." });
+  const adapter = new GrokWebAdapter({ profileDir: scratchProfile });
   const markdown = new EmptyLocator();
   markdown.count = async () => 1;
   markdown.evaluateAll = async (callback) => callback([{
@@ -96,6 +101,6 @@ test("reads Grok's complete rendered user message", async () => {
 });
 
 test("Grok adapter never selects a model automatically", () => {
-  const adapter = new GrokWebAdapter({ profileDir: "." });
+  const adapter = new GrokWebAdapter({ profileDir: scratchProfile });
   assert.equal(typeof adapter.selectMode, "undefined");
 });

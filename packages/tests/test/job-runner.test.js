@@ -7,15 +7,27 @@ import path from "node:path";
 import { JobStore, JobRunner, createHeadlessRuntime } from "@neuralforge/job";
 import { GatewayServer } from "../../packages/gateway/dist/index.js";
 import { TaskSession } from "@neuralforge/session/task-session";
+import { useTempDir } from "../src/temp-dir.js";
 
 const HOUR = 3_600_000;
 
 async function tempStore(t, prefix) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), `neuralforge-${prefix}-`));
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const root = await useTempDir(t, prefix);
   const store = new JobStore(path.join(root, "jobs"));
   await store.initialize();
   return { root, store };
+}
+
+// The runner raises the ESC flag from another task, so an unpolled flag would
+// turn a missing cancellation into a test that runs down the suite timeout.
+async function waitForCancelFlag(adapter, timeoutMs = 5_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (!adapter.escCancelRequested && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  if (!adapter.escCancelRequested) {
+    throw new Error(`the runner never raised the ESC flag within ${timeoutMs}ms`);
+  }
 }
 
 const queued = (store, jobId, fields = {}) => store.create({
@@ -213,7 +225,7 @@ test("an interrupted run is recorded as cancelled, not failed", async (t) => {
     run: async (adapter) => {
       announce();
       // A real adapter is interrupted by the ESC flag and throws once it lands.
-      while (!adapter.escCancelRequested) await new Promise((r) => setTimeout(r, 5));
+      await waitForCancelFlag(adapter);
       throw new Error("interrupted by ESC");
     },
   });
@@ -236,7 +248,7 @@ test("a job that exceeds its execution timeout ends as a failure", async (t) => 
   const { store, settle } = await runnerHarness(t, {
     executionTimeoutMs: 10,
     run: async (adapter) => {
-      while (!adapter.escCancelRequested) await new Promise((resolve) => setTimeout(resolve, 5));
+      await waitForCancelFlag(adapter);
       throw new Error("interrupted by timeout");
     },
   });
@@ -369,6 +381,9 @@ async function request(port, method, route, body, headers = {}) {
       res.on("end", () => resolve({ status: res.statusCode, text, headers: res.headers }));
     });
     req.on("error", reject);
+    // A gateway that accepts the socket and stays silent must fail the test,
+    // not run it down to the suite-wide timeout.
+    req.setTimeout(10_000, () => req.destroy(new Error(`gateway did not answer ${method} ${route} within 10s`)));
     if (payload) req.write(payload);
     req.end();
   });

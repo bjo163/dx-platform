@@ -1,4 +1,9 @@
 import test from "../src/shim.js";
+import { useScratchProfileDir } from "../src/temp-dir.js";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 import assert from "node:assert/strict";
 import { GeminiWebAdapter, isConnectionLostError } from "@neuralforge/browser/gemini-web-adapter";
 
@@ -124,7 +129,7 @@ test("re-exports the shared connection-lost detector", () => {
 });
 
 test("exposes Gemini's new-chat and saved-conversation URLs", () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   assert.equal(adapter.providerName, "Gemini");
   assert.equal(adapter.baseUrl, "https://gemini.google.com/app");
   assert.equal(adapter.conversationUrlPattern().test("/app"), false);
@@ -132,7 +137,7 @@ test("exposes Gemini's new-chat and saved-conversation URLs", () => {
 });
 
 test("uses Gemini's content ids as stable message identities", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const model = new GeminiRow({
     id: "message-content-id-r_abcd",
     role: "model",
@@ -154,7 +159,7 @@ test("uses Gemini's content ids as stable message identities", async () => {
 });
 
 test("does not wait on an assistant-only selector when identifying a user row", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const user = new GeminiRow({
     id: "user-query-content-7",
     role: "user",
@@ -181,7 +186,7 @@ test("does not wait on an assistant-only selector when identifying a user row", 
 });
 
 test("reads only Gemini's model message content", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const row = new GeminiRow({
     id: "message-content-id-r_1",
     role: "model",
@@ -194,7 +199,7 @@ test("reads only Gemini's model message content", async () => {
 });
 
 test("uses Gemini's busy state and response action icon as completion signals", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   assert.equal(adapter.hasReliableCompletionSignal(), true);
   assert.equal(await adapter.isAssistantGenerating(new GeminiRow({
     id: "streaming",
@@ -210,7 +215,7 @@ test("uses Gemini's busy state and response action icon as completion signals", 
 });
 
 test("completes a Gemini turn once the new model row is finished", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const envelope = "<agent_response><done>true</done><message>gemini done</message></agent_response>";
   adapter.page = createGeminiPage([
     new GeminiRow({ id: "user-query-content-0", role: "user", text: "task" }),
@@ -227,7 +232,7 @@ test("completes a Gemini turn once the new model row is finished", async () => {
 });
 
 test("does not accept a model row captured before the send", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   adapter.page = createGeminiPage([
     new GeminiRow({ id: "message-content-id-r_old", role: "model", text: "old answer" }),
   ]);
@@ -244,14 +249,14 @@ test("does not accept a model row captured before the send", async () => {
 });
 
 test("detects Google Accounts sign-in paths without matching Gemini chat", () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   assert.ok(adapter.authUrlPattern().test("/v3/signin/identifier"));
   assert.ok(adapter.authUrlPattern().test("/ServiceLogin"));
   assert.equal(adapter.authUrlPattern().test("/app"), false);
 });
 
 test("surfaces a structural Gemini generation error", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const row = new GeminiRow({
     id: "message-content-id-r_error",
     role: "model",
@@ -267,7 +272,7 @@ test("surfaces a structural Gemini generation error", async () => {
 });
 
 test("does not read innerText from an absent Gemini alert", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const absentAlert = {
     last() { return this; },
     async count() { return 0; },
@@ -287,7 +292,7 @@ test("does not read innerText from an absent Gemini alert", async () => {
 });
 
 test("rejects a completed Gemini error turn instead of returning it", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const row = new GeminiRow({
     id: "message-content-id-r_error",
     role: "model",
@@ -308,7 +313,7 @@ test("rejects a completed Gemini error turn instead of returning it", async () =
 });
 
 test("uploads attachments through Gemini's file input", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   let uploaded = null;
   let waited = false;
   const input = {
@@ -344,7 +349,7 @@ test("uploads attachments through Gemini's file input", async () => {
 });
 
 test("clicks Gemini's visible Upload files menu item and handles its filechooser", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const events = [];
   let menuOpened = false;
   const emptyInput = new EmptyLocator();
@@ -407,7 +412,7 @@ test("clicks Gemini's visible Upload files menu item and handles its filechooser
 });
 
 test("uses native pointer focus and keyboard input for Gemini sends", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const events = [];
   let currentValue = "";
   const composer = {
@@ -472,7 +477,7 @@ test("uses native pointer focus and keyboard input for Gemini sends", async () =
 });
 
 test("accepts Quill's NBSP representation of leading indentation", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   // Include a surrogate pair before the indentation so the position check is
   // verified in JavaScript string indexes, not code-point-array indexes.
   const expected = "🚀<agent_response>\n  <done>true</done>\n</agent_response>";
@@ -515,7 +520,7 @@ test("accepts Quill's NBSP representation of leading indentation", async () => {
 });
 
 test("clears Gemini's composer before a fallback fill", async () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   const expected = "complete prompt";
   let currentValue = "";
   let selectAll = false;
@@ -563,6 +568,6 @@ test("clears Gemini's composer before a fallback fill", async () => {
 });
 
 test("Gemini adapter never selects a model automatically", () => {
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   assert.equal(typeof adapter.selectMode, "undefined");
 });
