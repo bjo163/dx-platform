@@ -66,6 +66,29 @@ The current backlog identifies inconsistencies that must be resolved before call
 
 The latest baseline also showed a mismatch between the package identities and CI selectors. Treat CI as **not yet certified green** until a successful run is attached to the exact commit being evaluated. Do not infer success from a local build or from a commit message.
 
+### Running quality gates locally
+
+The repository includes a local quality-gate script at `scripts/quality-gate.mjs` that runs the same verification steps as CI:
+
+```bash
+pnpm exec node scripts/quality-gate.mjs
+```
+
+This script verifies:
+
+1. **Fresh install** with frozen lockfile - ensures no stale dependencies
+2. **Build workspace** - compiles all packages from source
+3. **Build API** - compiles the API package
+4. **Build web app** - compiles the web application
+5. **Smoke-test CLI** - verifies the CLI binary executes correctly
+6. **Pack dry-run** - confirms the packed tarball contains no cache or private paths
+7. **TypeScript check** - runs `pnpm check` across all solution references
+8. **Test suite** - runs the full test suite (unit + browser lanes)
+
+If any gate fails, the script exits with a non-zero code. Review the output to diagnose and fix the issue before re-running.
+
+For individual gate verification, the CI workflow steps are available in `.github/workflows/ci.yml`.
+
 ---
 
 ## Target architecture
