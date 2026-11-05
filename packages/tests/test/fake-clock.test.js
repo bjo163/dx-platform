@@ -2,7 +2,7 @@ import test from "../src/shim.js";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { JobStore } from "@neuralforge/job";
-import { useTempDir } from "../src/temp-dir.js";
+import { useTempDir } from "../src/temp-dir";
 import { useFakeClock } from "../src/fake-clock.js";
 
 const MINUTE = 60_000;
