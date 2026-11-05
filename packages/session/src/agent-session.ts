@@ -197,7 +197,9 @@ async function readPersistenceLock(filePath) {
 
 async function acquirePersistenceLock(
   directory,
-  { timeoutMs = 2_000 }: any = {},
+  // Recovering a lock whose owner pid was recycled needs room for one
+  // process-start-time lookup, which on Windows spawns PowerShell.
+  { timeoutMs = 8_000 }: any = {},
 ) {
   const filePath = path.join(directory, STATE_LOCK_FILE);
   const token = randomUUID();

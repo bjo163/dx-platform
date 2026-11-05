@@ -555,7 +555,7 @@ export async function processStartTimeMs(pid, { execFileImpl = execFileAsync }: 
         "-Command",
         `(Get-CimInstance Win32_Process -Filter "ProcessId=${pid}").CreationDate`,
       ],
-      { windowsHide: true, timeout: 1_500 },
+      { windowsHide: true, timeout: 5_000 },
     );
     const parsed = Date.parse(String(stdout).trim());
     return Number.isFinite(parsed) ? parsed : null;
