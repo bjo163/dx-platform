@@ -164,26 +164,26 @@ Urutan fase memprioritaskan kestabilan, kontrak, keamanan, dan proof sebelum eks
 **Goal:** Pastikan semua keputusan berasal dari kondisi main yang nyata, bukan asumsi backlog lama.
 **Gate:** selesaikan task wajib fase ini dan verifikasi gate sebelum fase berikutnya. Task independen boleh diparalelkan.
 
-- [ ] **DX2-0001 [P0] Catat SHA main, tanggal, dan commit subject terbaru** — Scope: Git metadata. Done when: Baseline note memuat SHA yang cocok dengan remote main..
-- [ ] **DX2-0002 [P0] Simpan daftar branch remote yang benar-benar aktif** — Scope: Git metadata. Done when: Daftar branch berasal dari remote..
-- [ ] **DX2-0003 [P0] Inventaris seluruh workspace package** — Scope: pnpm-workspace.yaml. Done when: Setiap pola workspace terpetakan ke folder yang ada..
-- [ ] **DX2-0004 [P0] Inventaris package.json pada root, apps, dan packages** — Scope: package manifests. Done when: Nama, versi, script, dan dependency tercatat..
-- [ ] **DX2-0005 [P0] Inventaris seluruh workflow GitHub Actions** — Scope: .github/workflows/**. Done when: Semua workflow dan trigger tercatat..
-- [ ] **DX2-0006 [P0] Ambil status CI terbaru untuk SHA main** — Scope: GitHub Actions. Done when: Status sukses/gagal/pending/unknown dinyatakan akurat..
-- [ ] **DX2-0007 [P0] Ambil log setiap job CI yang gagal** — Scope: GitHub Actions. Done when: Setiap kegagalan memiliki pesan asli atau status unavailable..
-- [ ] **DX2-0008 [P0] Periksa git status lokal sebelum perubahan** — Scope: Git working tree. Done when: Tidak ada perubahan milik user yang tertimpa..
-- [ ] **DX2-0009 [P0] Inventaris script root dan package** — Scope: package manifests. Done when: Setiap script punya pemilik package dan fungsi..
-- [ ] **DX2-0010 [P0] Inventaris env variable yang dibaca runtime** — Scope: apps/**/src, packages/**/src. Done when: Setiap nama env memiliki reader dan default yang diketahui..
-- [ ] **DX2-0011 [P0] Inventaris endpoint API yang diregistrasikan** — Scope: apps/api/src/**. Done when: Daftar route berasal dari source..
-- [ ] **DX2-0012 [P0] Inventaris provider adapter yang diregistrasikan** — Scope: packages/browser, packages/gateway. Done when: ID dan capability berasal dari registry aktual..
-- [ ] **DX2-0013 [P0] Inventaris tool yang benar-benar dapat dipanggil runtime** — Scope: packages/tools, packages/runtime. Done when: Setiap tool memiliki schema, handler, dan policy path..
-- [ ] **DX2-0014 [P0] Inventaris job lifecycle dan status enum** — Scope: packages/job, packages/types. Done when: State transition aktual tergambar..
-- [ ] **DX2-0015 [P0] Inventaris persistence schema dan migration** — Scope: packages/database, apps/api. Done when: Tabel dan sumber kebenaran data tercatat..
-- [ ] **DX2-0016 [P0] Inventaris test suite dan command yang menjalankannya** — Scope: vitest config, package manifests. Done when: Setiap test folder terpetakan ke command..
-- [ ] **DX2-0017 [P0] Inventaris UI route dan halaman utama** — Scope: apps/web. Done when: Route dan entry point tercatat..
-- [ ] **DX2-0018 [P0] Identifikasi generated file yang masih tracked** — Scope: Git index, .gitignore. Done when: Generated path dipisahkan dari source penting..
-- [ ] **DX2-0019 [P0] Bandingkan checkbox todo.md dengan bukti commit dan test** — Scope: todo.md, commit history. Done when: Item tanpa bukti tetap belum verified..
-- [ ] **DX2-0020 [P0] Tulis baseline audit ringkas** — Scope: .plans/baseline atau docs/internal. Done when: Baseline memuat fakta, unknown, dan bukti tanpa mengubah status task..
+- [x] **DX2-0001 [P0] Catat SHA main, tanggal, dan commit subject terbaru** — Scope: Git metadata. Done when: Baseline note memuat SHA yang cocok dengan remote main..
+- [x] **DX2-0002 [P0] Simpan daftar branch remote yang benar-benar aktif** — Scope: Git metadata. Done when: Daftar branch berasal dari remote..
+- [x] **DX2-0003 [P0] Inventaris seluruh workspace package** — Scope: pnpm-workspace.yaml. Done when: Setiap pola workspace terpetakan ke folder yang ada..
+- [x] **DX2-0004 [P0] Inventaris package.json pada root, apps, dan packages** — Scope: package manifests. Done when: Nama, versi, script, dan dependency tercatat..
+- [x] **DX2-0005 [P0] Inventaris seluruh workflow GitHub Actions** — Scope: .github/workflows/**. Done when: Semua workflow dan trigger tercatat..
+- [x] **DX2-0006 [P0] Ambil status CI terbaru untuk SHA main** — Scope: GitHub Actions. Done when: Status sukses/gagal/pending/unknown dinyatakan akurat..
+- [x] **DX2-0007 [P0] Ambil log setiap job CI yang gagal** — Scope: GitHub Actions. Done when: Setiap kegagalan memiliki pesan asli atau status unavailable..
+- [x] **DX2-0008 [P0] Periksa git status lokal sebelum perubahan** — Scope: Git working tree. Done when: Tidak ada perubahan milik user yang tertimpa..
+- [x] **DX2-0009 [P0] Inventaris script root dan package** — Scope: package manifests. Done when: Setiap script punya pemilik package dan fungsi..
+- [x] **DX2-0010 [P0] Inventaris env variable yang dibaca runtime** — Scope: apps/**/src, packages/**/src. Done when: Setiap nama env memiliki reader dan default yang diketahui..
+- [x] **DX2-0011 [P0] Inventaris endpoint API yang diregistrasikan** — Scope: apps/api/src/**. Done when: Daftar route berasal dari source..
+- [x] **DX2-0012 [P0] Inventaris provider adapter yang diregistrasikan** — Scope: packages/browser, packages/gateway. Done when: ID dan capability berasal dari registry aktual..
+- [x] **DX2-0013 [P0] Inventaris tool yang benar-benar dapat dipanggil runtime** — Scope: packages/tools, packages/runtime. Done when: Setiap tool memiliki schema, handler, dan policy path..
+- [x] **DX2-0014 [P0] Inventaris job lifecycle dan status enum** — Scope: packages/job, packages/types. Done when: State transition aktual tergambar..
+- [x] **DX2-0015 [P0] Inventaris persistence schema dan migration** — Scope: packages/database, apps/api. Done when: Tabel dan sumber kebenaran data tercatat..
+- [x] **DX2-0016 [P0] Inventaris test suite dan command yang menjalankannya** — Scope: vitest config, package manifests. Done when: Setiap test folder terpetakan ke command..
+- [x] **DX2-0017 [P0] Inventaris UI route dan halaman utama** — Scope: apps/web. Done when: Route dan entry point tercatat..
+- [x] **DX2-0018 [P0] Identifikasi generated file yang masih tracked** — Scope: Git index, .gitignore. Done when: Generated path dipisahkan dari source penting..
+- [x] **DX2-0019 [P0] Bandingkan checkbox todo.md dengan bukti commit dan test** — Scope: todo.md, commit history. Done when: Item tanpa bukti tetap belum verified..
+- [x] **DX2-0020 [P0] Tulis baseline audit ringkas** — Scope: .plans/baseline atau docs/internal. Done when: Baseline memuat fakta, unknown, dan bukti tanpa mengubah status task..
 
 ## M01 — Repository hygiene dan identity — 20 micro-tasks
 
@@ -775,5 +775,6 @@ Tambahkan satu baris per batch yang benar-benar dikerjakan. Jangan mengisi statu
 | Date | Task IDs | Commit SHA | Targeted checks | CI SHA / result | Notes |
 |---|---|---|---|---|---|
 | 2026-11-05 | Backlog authored; execution not started | To be recorded | Document-only change | Pending | Semua task DX2 berstatus belum dikerjakan |
+| 2026-11-05 | DX2-0001 s/d DX2-0020 (M00 re-baseline) + perbaikan baseline CI | `2d6c476`, `e1bd9b5`, `1cf3f96` | `pnpm exec vitest run` (28 file / 276 test), `pnpm --filter @dx-platform/tests test` (session lock, 24 lulus), `pnpm install --frozen-lockfile`, `pnpm check` | `1cf3f96` / **success**, 5 job hijau (dom + ubuntu/windows × Node 20.17.0/22.13.0) | `main` tadinya merah 5 run berturut-turut; 5 akar masalah berbeda diperbaiki. Bukti lengkap di `.plans/baseline-2026-11-05.md`. Todo.md v1 TIDAK diubah: 0 tercentang vs klaim 192 verified di history, perlu bukti ulang per task |
 
 **Starting instruction:** mulai dari DX2-0001, lakukan audit terbaru secara read-only, rekonsiliasi todo.md, lalu lanjutkan task READY pertama. Jangan lompat ke UI/branding saat P0/P1 gate masih gagal.
