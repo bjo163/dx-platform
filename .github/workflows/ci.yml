@@ -51,6 +51,7 @@ jobs:
         run: pnpm --filter neuralforge exec node dist/main.js --version
 
       - name: Validate CLI package contents
+        shell: bash
         run: |
           pnpm --filter neuralforge pack --dry-run > pack-dry-run.txt
           # Verify no cache or private paths in packed file list
