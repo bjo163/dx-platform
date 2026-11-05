@@ -61,7 +61,13 @@ async function realPathOrNull(target: string): Promise<string | null> {
 }
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
-  const app = Fastify({ logger: true, ajv: { customOptions: { removeAdditional: false } } });
+  const app = Fastify({
+    logger: {
+      level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+      serializers: createRedactingSerializer(),
+    },
+    ajv: { customOptions: { removeAdditional: false } }
+  });
   const loginBrowsers = new Map<string, { close(): Promise<void> }>();
   const projectRoot = await fs.realpath(options.projectRoot ?? process.cwd());
   if (!(await fs.stat(projectRoot)).isDirectory()) {
@@ -791,4 +797,62 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   });
 
   return app;
+}
+
+// Custom logger serializer to redact sensitive data
+function createRedactingSerializer() {
+  const sensitiveHeaders = new Set(['authorization', 'cookie', 'x-api-key', 'x-auth-token']);
+  const sensitiveQueryParams = new Set(['token', 'key', 'secret', 'password', 'api_key', 'access_token']);
+
+  return {
+    req: (req) => {
+      if (!req) return req;
+      const safe = { ...req };
+      // Redact sensitive headers
+      if (safe.headers) {
+        safe.headers = { ...safe.headers };
+        for (const [key, value] of Object.entries(safe.headers)) {
+          if (sensitiveHeaders.has(key.toLowerCase())) {
+            safe.headers[key] = '[REDACTED]';
+          }
+        }
+      }
+      // Redact sensitive query params
+      if (safe.query) {
+        safe.query = { ...safe.query };
+        for (const [key, value] of Object.entries(safe.query)) {
+          if (sensitiveQueryParams.has(key.toLowerCase())) {
+            safe.query[key] = '[REDACTED]';
+          }
+        }
+      }
+      return safe;
+    },
+    res: (res) => {
+      if (!res) return res;
+      const safe = { ...res };
+      // Redact sensitive headers in response
+      if (safe.headers) {
+        safe.headers = { ...safe.headers };
+        for (const [key, value] of Object.entries(safe.headers)) {
+          if (sensitiveHeaders.has(key.toLowerCase())) {
+            safe.headers[key] = '[REDACTED]';
+          }
+        }
+      }
+      return safe;
+    },
+    err: (err) => {
+      if (!err) return err;
+      // Redact sensitive data in error objects
+      const safe = { ...err };
+      if (safe.message && typeof safe.message === 'string') {
+        // Simple redaction for common patterns in error messages
+        safe.message = safe.message.replace(/token[=:]\s*[^\s,;}]+/gi, 'token=[REDACTED]')
+                                 .replace(/cookie[=:]\s*[^\s,;}]+/gi, 'cookie=[REDACTED]')
+                                 .replace(/authorization[=:]\s*[^\s,;}]+/gi, 'authorization=[REDACTED]');
+      }
+      return safe;
+    }
+  };
 }
