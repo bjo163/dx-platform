@@ -1,7 +1,7 @@
 {
   "name": "dx-platform-workspace",
   "version": "1.0.3",
-  "description": "Local-first autonomous developer platform. Fuse every web AI subscription into one unified workflow engine. No API keys. No cloud. No telemetry.",
+  "description": "Local-first autonomous developer platform. Fuse every web AI subscription into one unified workflow engine. No API keys required for browser providers: the prompt and context you select are still sent to that third-party provider.",
   "type": "module",
   "private": true,
   "packageManager": "pnpm@10.33.4",

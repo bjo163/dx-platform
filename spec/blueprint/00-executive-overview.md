@@ -11,7 +11,7 @@
 
 ## Executive Summary
 
-NeuralForge is a **local-first AI coding agent** that transforms web AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) into a Codex/Claude Code-like coding environment. The system runs entirely on the user's machine with no API keys, no cloud dependencies, and no data exfiltration.
+NeuralForge is a **local-first AI coding agent** that transforms web AI providers (ChatGPT, Gemini, Grok, DeepSeek, GLM, Kimi) into a Codex/Claude Code-like coding environment. The orchestration, tools, workspace and persistence run on the user's machine and no API keys are required; the providers themselves are third-party services, so the prompt and context handed to a selected provider leave the machine for that step.
 
 ### Key Differentiators
 
