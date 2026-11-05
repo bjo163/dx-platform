@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { JobStore } from "@neuralforge/job";
 import { useTempDir } from "../src/temp-dir";
-import { useFakeClock } from "../src/fake-clock.js";
+import { useFakeClock } from "../src/fake-clock.ts";
 
 const MINUTE = 60_000;
 const EPOCH = Date.parse("2026-01-01T00:00:00.000Z");

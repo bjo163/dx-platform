@@ -6,9 +6,13 @@ import os from "node:os";
 import path from "node:path";
 import { launchAndConnectCdpChrome } from "@neuralforge/browser/cdp-browser";
 import { ChatGPTWebAdapter, isConnectionLostError } from "@neuralforge/browser/chatgpt-web-adapter";
+import { useScratchProfileDir } from "../src/temp-dir";
+
+// Adapters write diagnostics beside their profile, so "." would put them inside the checkout.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 
 test("ChatGPT leaves model selection entirely to the website/user", () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   assert.equal(typeof adapter.selectMode, "undefined");
 });
 
@@ -32,7 +36,7 @@ for (const scenario of ["late enabled button", "click failure", "deadline"]) {
       async waitForPoll(ms) { now += ms; }
       sendButtonLocators() { return [button]; }
     }
-    const adapter = new ReadyAdapter({ profileDir: '.' });
+    const adapter = new ReadyAdapter({ profileDir: scratchProfile });
     const submit = () => adapter.submitComposer({ async press() { presses++; } }, {
       timeoutMs: 500,
       assertActive() { assert.ok(now <= 500); },
@@ -52,7 +56,7 @@ for (const scenario of ["late enabled button", "click failure", "deadline"]) {
 }
 
 test("classifies ChatGPT conversation URLs by restoration safety", () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
 
   assert.equal(
     adapter.classifyConversationUrl("https://chatgpt.com/c/WEB:temporary"),
@@ -333,7 +337,7 @@ test("ChatGPT atomic snapshots retain nested code-block envelopes", async () => 
   };
   globalThis.window = { location: { href: "https://chatgpt.com/c/nested" } };
   try {
-    const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+    const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
     adapter.page = {
       async evaluate(callback, argument) {
         return callback(argument);
@@ -356,7 +360,7 @@ test("ChatGPT atomic snapshots retain nested code-block envelopes", async () => 
 });
 
 test("normal chat and tool text cannot trigger blocked-page detection", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistantText: [
       "A tool result may discuss " + "Attention Required and Cloudflare.",
@@ -376,7 +380,7 @@ test("normal chat and tool text cannot trigger blocked-page detection", async ()
 });
 
 test("visible challenge UI still triggers blocked-page detection", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     visibleSelectors: ['iframe[src*="challenges.cloudflare.com"]'],
   });
@@ -391,7 +395,7 @@ test("visible challenge UI still triggers blocked-page detection", async () => {
 });
 
 test("a localized challenge page with no composer is detected via body text", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   // The Chinese Cloudflare interstitial: a localized title (no English tokens)
   // and a body carrying the challenge text. No composer on the page.
   adapter.page = {
@@ -420,7 +424,7 @@ test("a localized challenge page with no composer is detected via body text", as
 });
 
 test("challenge words in a normal chat page never trigger a false block", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   // A real chat page has its composer, so even a body that mentions challenge
   // words (e.g. the model quoting one in a reply) is NOT treated as a block.
   adapter.page = {
@@ -450,7 +454,7 @@ test("challenge words in a normal chat page never trigger a false block", async 
 });
 
 test("a logged-out /auth URL is unauthenticated regardless of UI language", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = {
     url() {
       return "https://chatgpt.com/auth/login";
@@ -473,7 +477,7 @@ test("does not accept a protocol reply until its closing tag has streamed in", a
   // First reads return the still-streaming, unclosed envelope; later reads
   // return the finished one. With stableWindowMs=0 the old code would have
   // accepted the truncated frame immediately.
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistant: new StreamingAssistantMessage([
       truncated, truncated, truncated, complete, complete,
@@ -506,7 +510,7 @@ test("accepts a complete long envelope split by nested Markdown code blocks", as
     "]]></message>",
     "</agent_response>",
   ].join("\n");
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistant: new RichAssistantMessage(
       completeMessage,
@@ -1185,7 +1189,7 @@ function createHydratingCandidatePage() {
 }
 
 test("refuses a same-origin route that is not a chat or explicit new-chat page", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage();
 
   await assert.rejects(
@@ -1202,7 +1206,7 @@ test("launch preserves an exact live provisional ChatGPT tab", async () => {
     existingMessages: 1,
   });
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     chromePath: process.execPath,
   });
   let launchOptions;
@@ -1230,7 +1234,7 @@ test("an unmatched provisional URL opens a verified fresh page without navigatin
   const provisionalUrl = "https://chatgpt.com/c/WEB:expired";
   const page = createConversationPage({ initialUrl: "about:blank" });
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     chromePath: process.execPath,
   });
   adapter.launchCdpChrome = async () => ({
@@ -1261,7 +1265,7 @@ const freshSendTestRendered = (value) => value.replaceAll("`", "") + "\n展开";
 
 async function prepareFreshRenderedSend(renderedText) {
   const fixture = createFreshRebuildTransitionPage({ renderedText });
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   const restoration = await adapter.startConversation(fixture.rootUrl);
   assert.equal(restoration.status, "verified-fresh");
@@ -1325,7 +1329,7 @@ test("fresh structural proof ignores long-message controls and assistant arrival
     renderedText: expected.replaceAll("`", ""),
     assistantAtMs: 500,
   });
-  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.cdpChrome = { targetId: "target-structural" };
   await adapter.startConversation();
@@ -1348,7 +1352,7 @@ for (const timing of ["before DOM read", "after DOM read", "final DOM read"]) {
   test(`fresh send retries a canonical transition ${timing} from ${provisionalUrl}`, async () => {
     const expected = freshSendTestPayload(freshSendTestId);
     const fixture = createStructuralFreshSendPage({ renderedText: expected, provisionalUrl });
-    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
     adapter.page = fixture.page;
     adapter.cdpChrome = { targetId: "target-structural" };
     await adapter.startConversation();
@@ -1385,7 +1389,7 @@ for (const timing of ["before DOM read", "after DOM read", "final DOM read"]) {
 test("duplicate navigation events within one normalized conversation keep send proof intact", async () => {
   const expected = freshSendTestPayload(freshSendTestId);
   const fixture = createStructuralFreshSendPage({ renderedText: expected });
-  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.cdpChrome = { targetId: "target-structural" };
   await adapter.startConversation();
@@ -1420,7 +1424,7 @@ for (const mutation of ["different user", "missing nonce", "different target", "
         return entries;
       },
     });
-    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
     adapter.page = fixture.page;
     adapter.cdpChrome = { targetId: "target-structural" };
     await adapter.startConversation();
@@ -1451,7 +1455,7 @@ async function prepareConfirmedProvisionalTurn() {
     renderedText: expected,
     assistantAtMs: 8_000,
   });
-  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.cdpChrome = { targetId: "target-structural" };
   // Both send polling and reply polling advance the same monotonic clock.
@@ -1521,7 +1525,7 @@ test("a provider with stable user ids can correlate a late fresh-to-canonical tr
     renderedText: expected,
     assistantAtMs: 500,
   });
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation();
   const sent = await adapter.sendMessage(expected, { outboundId: freshSendTestId });
@@ -1601,7 +1605,7 @@ test("a hanging submit cannot outlive the send confirmation deadline", async () 
   }
   const expected = freshSendTestPayload(freshSendTestId);
   const fixture = createFreshRebuildTransitionPage({ renderedText: expected });
-  const adapter = new HangingSubmitAdapter({ profileDir: "." });
+  const adapter = new HangingSubmitAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.submitComposer = async () => await new Promise(() => {});
   await adapter.startConversation();
@@ -1621,7 +1625,7 @@ test("an expired submit cannot start a fallback or overlap the next composer", a
   }
   const expected = freshSendTestPayload(freshSendTestId);
   const fixture = createFreshRebuildTransitionPage({ renderedText: expected });
-  const adapter = new DeadlineAdapter({ profileDir: ".", debug: true });
+  const adapter = new DeadlineAdapter({ profileDir: scratchProfile, debug: true });
   adapter.page = fixture.page;
   const diagnostics = [];
   adapter.writeDiagnostics = async (label, details) => diagnostics.push({ label, details });
@@ -1665,7 +1669,7 @@ test("a DOM sample crossing the monotonic deadline cannot confirm a send", async
       return entries;
     },
   });
-  adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.cdpChrome = { targetId: "target-structural" };
   await adapter.startConversation();
@@ -1690,7 +1694,7 @@ test("a partially mounted assistant does not reset fresh user stability", async 
       return entries;
     },
   });
-  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.cdpChrome = { targetId: "target-structural" };
   await adapter.startConversation();
@@ -1767,7 +1771,7 @@ for (const [name, transformSnapshot] of [
       assistantAtMs: Number.POSITIVE_INFINITY,
       transformSnapshot,
     });
-    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
     adapter.page = fixture.page;
     adapter.cdpChrome = { targetId: "target-structural" };
     await adapter.startConversation();
@@ -1788,7 +1792,7 @@ for (const mutation of ["url", "frame", "target"]) {
       renderedText: expected,
       assistantAtMs: Number.POSITIVE_INFINITY,
     });
-    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
     adapter.page = fixture.page;
     adapter.cdpChrome = { targetId: "target-structural" };
     let mutated = false;
@@ -1815,7 +1819,7 @@ for (const mutation of ["url", "frame", "target"]) {
 }
 
 test("launchRecoveryTarget configures only the exact existing page", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   const gotoCalls = [];
   const page = {
     url() {
@@ -1851,7 +1855,7 @@ test("launchRecoveryTarget configures only the exact existing page", async () =>
 });
 
 test("same-process recovery detaches a normal connection before strict reattachment", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   const page = {
     url: () => "https://chatgpt.com/c/same-process",
     setDefaultTimeout() {},
@@ -1905,7 +1909,7 @@ test("a normal same-target connection cannot reconcile without strict reattachme
     assistantAtMs: 0,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -1932,7 +1936,7 @@ test("reconciles a completed bootstrap on the exact live target without sending"
     assistantAtMs: 0,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -1982,7 +1986,7 @@ test("completed reconciliation revalidates its final atomic assistant boundary",
     },
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2013,7 +2017,7 @@ test("reconciles a committed outbound that is still waiting for its assistant", 
     assistantAtMs: Number.POSITIVE_INFINITY,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2057,7 +2061,7 @@ test("existing-conversation reconciliation requires its saved prefix marker", as
     },
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2080,7 +2084,7 @@ test("existing-conversation reconciliation requires its saved prefix marker", as
   );
 
   const missingMarkerAdapter = new ImmediateCorrelationChatGPTAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
   });
   missingMarkerAdapter.page = fixture.page;
   missingMarkerAdapter.context = {};
@@ -2132,7 +2136,7 @@ for (const ambiguity of ["history", "later-user", "wrong-target"]) {
       },
     });
     await fixture.page.locator('[data-testid="send-button"]').click();
-    const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+    const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
     adapter.page = fixture.page;
     adapter.context = {};
     adapter.cdpChrome = {
@@ -2166,7 +2170,7 @@ test("pending outbound reconciliation rejects navigation during stability", asyn
     assistantAtMs: Number.POSITIVE_INFINITY,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+  const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2202,7 +2206,7 @@ test("recovery keeps a retryable generation-failure card pending", async () => {
     assistantAtMs: 0,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2231,7 +2235,7 @@ test("a recovered waiting assistant cannot be replaced before turn processing", 
     assistantAtMs: 0,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2276,7 +2280,7 @@ test("a recovered waiting turn follows a verified canonical URL promotion", asyn
     assistantAtMs: 0,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2345,7 +2349,7 @@ test("recovered waiting ignores the historical assistant before its user boundar
     return originalLocator(selector);
   };
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2393,7 +2397,7 @@ test("a later user turn invalidates a recovered assistant before it is accepted"
     },
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2441,7 +2445,7 @@ test("fresh recovery requires ChatGPT's first user-turn invariant", async () => 
     },
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2474,7 +2478,7 @@ test("fresh recovery rejects a discontinuous assistant successor turn", async ()
     },
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2501,7 +2505,7 @@ test("recovery never drops a persisted waiting assistant identity", async () => 
     assistantAtMs: Number.POSITIVE_INFINITY,
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2545,7 +2549,7 @@ test("recovery stability excludes time spent on an invalid DOM sample", async ()
     },
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  const adapter = new RecoveryStabilityAdapter({ profileDir: "." });
+  const adapter = new RecoveryStabilityAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2581,7 +2585,7 @@ test("a recovery DOM read that crosses its deadline cannot be accepted", async (
     },
   });
   await fixture.page.locator('[data-testid="send-button"]').click();
-  adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.context = {};
   adapter.cdpChrome = {
@@ -2605,7 +2609,7 @@ test("a recovery DOM read that crosses its deadline cannot be accepted", async (
 test("a verified-fresh rebuild clears old markers before its URL transition", async () => {
   const savedUrl = "https://chatgpt.com/c/expired-rebuild";
   const fixture = createFreshRebuildTransitionPage();
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
 
   const restoration = await adapter.startConversation(savedUrl, {
@@ -2628,7 +2632,7 @@ test("an unresolved provisional URL fails closed while another conversation tab 
   const provisionalUrl = "https://chatgpt.com/c/WEB:lost";
   const page = createConversationPage({ initialUrl: "about:blank" });
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     chromePath: process.execPath,
   });
   adapter.launchCdpChrome = async () => ({
@@ -2653,7 +2657,7 @@ test("a saved fresh target is not erased after it becomes a marked canonical cha
     assistantIds: ["assistant-late"],
   });
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     chromePath: process.execPath,
   });
   adapter.launchCdpChrome = async () => ({
@@ -2687,7 +2691,7 @@ test("a target-matched provisional tab requires its saved marker after an unobse
     assistantIds: ["assistant-existing"],
   });
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     chromePath: process.execPath,
   });
   adapter.launchCdpChrome = async () => ({
@@ -2721,7 +2725,7 @@ test("a saved user message id correlates a target-matched canonicalized tab", as
     userIds: ["user-existing"],
   });
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     chromePath: process.execPath,
   });
   adapter.launchCdpChrome = async () => ({
@@ -2749,7 +2753,7 @@ test("a target-matched provisional tab rejects an unrelated canonical chat witho
     existingMessages: 2,
   });
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     chromePath: process.execPath,
   });
   adapter.launchCdpChrome = async () => ({
@@ -2772,7 +2776,7 @@ test("a target-matched provisional tab rejects an unrelated canonical chat witho
 test("a live provisional route may transition to a canonical URL while hydrating", async () => {
   const provisionalUrl = "https://chatgpt.com/c/WEB:hydrating";
   const canonicalUrl = "https://chatgpt.com/c/canonical-after-hydration";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: provisionalUrl,
     existingMessages: 1,
@@ -2793,7 +2797,7 @@ test("a live provisional route may transition to a canonical URL while hydrating
 test("a provisional tab navigation event cannot bless an unrelated canonical chat", async () => {
   const provisionalUrl = "https://chatgpt.com/c/WEB:original";
   const unrelatedUrl = "https://chatgpt.com/c/unrelated-after-navigation";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: provisionalUrl,
     existingMessages: 2,
@@ -2811,7 +2815,7 @@ test("a provisional tab navigation event cannot bless an unrelated canonical cha
 test("a transient stale marker cannot bless an unrelated canonical chat", async () => {
   const provisionalUrl = "https://chatgpt.com/c/WEB:stale-dom";
   const unrelatedUrl = "https://chatgpt.com/c/unrelated-after-stale-dom";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: provisionalUrl,
     existingMessages: 2,
@@ -2835,7 +2839,7 @@ test("a transient stale marker cannot bless an unrelated canonical chat", async 
 });
 
 test("accepts a verified empty conversation for a new session", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage();
 
   await adapter.startConversation();
@@ -2846,7 +2850,7 @@ test("accepts a verified empty conversation for a new session", async () => {
 test("does not verify fresh when delayed history appears after the old settle window", async () => {
   const root = "https://chatgpt.com/";
   const canonical = "https://chatgpt.com/c/delayed-history";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: root,
     existingMessages: 2,
@@ -2862,7 +2866,7 @@ test("does not verify fresh when delayed history appears after the old settle wi
 
 test("pre-submit candidate must stay empty while existing history hydrates", async () => {
   const fixture = createHydratingCandidatePage();
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.attachFiles = async (files) => {
     fixture.navigateCandidate();
@@ -2885,7 +2889,7 @@ test("required attachment failure aborts before typing or submitting", async () 
   const fixture = createPostSubmitNavigationPage({
     confirmUserImmediately: true,
   });
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.attachFiles = async (files) => ({
     attached: [],
@@ -2910,7 +2914,7 @@ test("ordinary chat keeps attachment upload best-effort", async () => {
     confirmUserImmediately: true,
     sentText: "inspect this file",
   });
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   adapter.attachFiles = async (files) => ({
     attached: [],
@@ -2928,7 +2932,7 @@ test("ordinary chat keeps attachment upload best-effort", async () => {
 });
 
 test("fresh bootstrap refuses a conversation opened before submit", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({ existingMessages: 2 });
   await adapter.startConversation();
   await adapter.page.goto("https://chatgpt.com/c/unrelated-before-submit");
@@ -2941,7 +2945,7 @@ test("fresh bootstrap refuses a conversation opened before submit", async () => 
 });
 
 test("resume treats a saved new-chat URL as a verified fresh conversation", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage();
 
   await adapter.startConversation("https://chatgpt.com/");
@@ -2950,7 +2954,7 @@ test("resume treats a saved new-chat URL as a verified fresh conversation", asyn
 });
 
 test("rejects a new session when ChatGPT remains on an existing conversation", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: "https://chatgpt.com/c/existing",
     keepExistingOnRoot: true,
@@ -2965,7 +2969,7 @@ test("rejects a new session when ChatGPT remains on an existing conversation", a
 });
 
 test("resume accepts the requested existing conversation", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({ existingMessages: 2 });
 
   const restoration = await adapter.startConversation(
@@ -2984,7 +2988,7 @@ test("resume accepts the requested existing conversation", async () => {
 
 test("normalizes URL objects before navigating to a canonical conversation", async () => {
   const conversationUrl = new URL("https://chatgpt.com/c/from-url-object");
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({ existingMessages: 2 });
 
   const restoration = await adapter.startConversation(conversationUrl);
@@ -2998,7 +3002,7 @@ test("normalizes URL objects before navigating to a canonical conversation", asy
 
 test("an expired canonical URL redirecting to an empty root is verified fresh", async () => {
   const conversationUrl = "https://chatgpt.com/c/deleted";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     redirectUrls: { [conversationUrl]: "https://chatgpt.com/" },
   });
@@ -3016,7 +3020,7 @@ test("an expired canonical URL redirecting to an empty root is verified fresh", 
 test("waits through a delayed redirect before declaring history restored", async () => {
   const conversationUrl = "https://chatgpt.com/c/expired-late";
   const root = "https://chatgpt.com/";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: conversationUrl,
     existingMessages: 2,
@@ -3044,7 +3048,7 @@ test("waits through a delayed redirect before declaring history restored", async
 
 test("resume keeps an already-open conversation in place", async () => {
   const conversationUrl = "https://chatgpt.com/c/existing";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: conversationUrl,
     existingMessages: 2,
@@ -3061,7 +3065,7 @@ test("resume keeps an already-open conversation in place", async () => {
 
 test("a restored conversation refuses sends after navigation to another chat", async () => {
   const conversationUrl = "https://chatgpt.com/c/original";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: conversationUrl,
     existingMessages: 2,
@@ -3087,7 +3091,7 @@ test("never accepts a hydrated old assistant as the current reply", async () => 
     { id: "assistant-new", turn: 4 },
   );
   let frame = 0;
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = {
     async title() {
       return "ChatGPT";
@@ -3134,7 +3138,7 @@ test("same-route sends require their exact outbound marker", async () => {
     confirmUserImmediately: true,
     sentText: expected,
   });
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation(fixture.originalUrl, {
     expectedAssistantMessageId: "assistant-old",
@@ -3154,7 +3158,7 @@ for (const scenario of ["virtualized tail", "transient read failure", "foreign t
       confirmUserImmediately: true,
       sentText: expected,
     });
-    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: "." });
+    const adapter = new StructuralSendProofChatGPTAdapter({ profileDir: scratchProfile });
     const originalLocator = fixture.page.locator.bind(fixture.page);
     const sendButton = originalLocator('[data-testid="send-button"]');
     const originalClick = sendButton.click.bind(sendButton);
@@ -3226,7 +3230,7 @@ test("same-route foreign user bubbles cannot confirm an outbound", async () => {
     confirmUserImmediately: true,
     sentText: "a different user message",
   });
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation(fixture.originalUrl, {
     expectedAssistantMessageId: "assistant-old",
@@ -3245,7 +3249,7 @@ test("a mismatched structured outbound marker is rejected before submit", async 
     confirmUserImmediately: true,
     sentText: expected,
   });
-  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: "." });
+  const adapter = new ImmediateCorrelationChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation(fixture.originalUrl, {
     expectedAssistantMessageId: "assistant-old",
@@ -3262,7 +3266,7 @@ test("a post-submit navigation cannot supply the confirming user bubble", async 
   const fixture = createPostSubmitNavigationPage({
     autoNavigateAfterSubmit: true,
   });
-  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: "." });
+  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation(fixture.originalUrl, {
     expectedAssistantMessageId: "assistant-old",
@@ -3284,7 +3288,7 @@ test("a canonical candidate cannot bootstrap trust from its own matching user bu
     originalUrl: "https://chatgpt.com/c/WEB:original-send",
     unrelatedUrl: "https://chatgpt.com/c/unrelated-matching-send",
   });
-  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: "." });
+  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation(fixture.originalUrl, {
     expectedAssistantMessageId: "assistant-old",
@@ -3307,7 +3311,7 @@ test("rapid verifier calls cannot shorten the canonical stability window", async
     originalUrl: "https://chatgpt.com/c/WEB:stale-marker-send",
     unrelatedUrl: "https://chatgpt.com/c/unrelated-stale-marker-send",
   });
-  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: "." });
+  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation(fixture.originalUrl, {
     expectedAssistantMessageId: "assistant-old",
@@ -3326,7 +3330,7 @@ test("a navigation during generation cannot supply an unrelated assistant reply"
   const fixture = createPostSubmitNavigationPage({
     confirmUserImmediately: true,
   });
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = fixture.page;
   await adapter.startConversation(fixture.originalUrl, {
     expectedAssistantMessageId: "assistant-old",
@@ -3355,7 +3359,7 @@ for (const mutation of ["frame", "target"]) {
     const fixture = createPostSubmitNavigationPage({
       confirmUserImmediately: true,
     });
-    const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+    const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
     adapter.page = fixture.page;
     adapter.cdpChrome = { targetId: "target-original" };
     await adapter.startConversation(fixture.originalUrl, {
@@ -3387,7 +3391,7 @@ test("restoring a new conversation clears aliases from the previous one", async 
     existingMessages: 2,
     assistantIds: ["assistant-shared"],
   });
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = page;
   await adapter.startConversation(firstUrl);
   await page.goto(secondUrl);
@@ -3438,7 +3442,7 @@ test("binds a resumed send to its new user and assistant DOM turns", async () =>
       : [oldReply];
   };
 
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = {
     url() {
       return conversationUrl;
@@ -3506,7 +3510,7 @@ test("binds a resumed send to its new user and assistant DOM turns", async () =>
 });
 
 test("refuses to send with attachment chips left from an earlier draft", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.pendingAttachmentLocators = () => [new VisibleLocator("old-file.pdf")];
   adapter.page = {
     url() {
@@ -3533,7 +3537,7 @@ test("refuses to send with attachment chips left from an earlier draft", async (
 });
 
 test("rejects an oversized outbound message before touching the composer", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = {};
 
   await assert.rejects(
@@ -3547,7 +3551,7 @@ test("fails closed when the DOM exposes no post-send message identity", async ()
     "<agent_response><done>true</done><message>old</message></agent_response>",
     { id: null, turn: null },
   );
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistant: unidentified,
     visibleSelectors: ['[data-testid="stop-button"]'],
@@ -3567,7 +3571,7 @@ test("fails closed when the DOM exposes no post-send message identity", async ()
 });
 
 test("detects a new stopped assistant turn whose body stays empty", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistant: new AssistantMessage("", {
       id: "assistant-empty",
@@ -3592,7 +3596,7 @@ test("detects a new stopped assistant turn whose body stays empty", async () => 
 });
 
 test("does not classify an empty assistant node as finished while Stop is visible", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistant: new AssistantMessage("", {
       id: "assistant-generating",
@@ -3613,7 +3617,7 @@ test("does not classify an empty assistant node as finished while Stop is visibl
 });
 
 test("fails fast when ChatGPT never starts generating after the message was sent", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.sentUserTurn = 10;
   adapter.assistantIdsBeforeSend = new Set();
   adapter.assistantMaxTurnBeforeSend = null;
@@ -3644,7 +3648,7 @@ test("fails fast when ChatGPT never starts generating after the message was sent
 });
 
 test("a visible stop button proves generation started and disables dead-request detection", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.sentUserTurn = 10;
   adapter.assistantIdsBeforeSend = new Set(["assistant-old"]);
   adapter.assistantMaxTurnBeforeSend = null;
@@ -3697,7 +3701,7 @@ test("ESC during processing cancels the turn, clicks stop, and restores the term
   };
 
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     cancelOnEsc: true,
     stdinStream,
   });
@@ -3764,7 +3768,7 @@ test("a cancel requested before the wait cancels the turn immediately", async ()
   };
 
   const adapter = new ChatGPTWebAdapter({
-    profileDir: ".",
+    profileDir: scratchProfile,
     cancelOnEsc: true,
     stdinStream,
   });
@@ -3801,7 +3805,7 @@ test("a cancel requested before the wait cancels the turn immediately", async ()
 });
 
 test("manual login wait aborts on a pending cancel request", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = {
     locator() {
       return new EmptyLocator();
@@ -3824,7 +3828,7 @@ test("ESC cancellation is disabled unless cancelOnEsc is set", async () => {
     rawModeChanges += 1;
   };
 
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.sentUserTurn = 10;
   adapter.assistantIdsBeforeSend = new Set(["assistant-old"]);
   adapter.assistantMaxTurnBeforeSend = null;
@@ -3861,7 +3865,7 @@ test("ESC cancellation is disabled unless cancelOnEsc is set", async () => {
 
 
 test("detach drops the transport without quitting Chrome", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   let detaches = 0;
   adapter.cdpChrome = {
     detach: async () => {
@@ -3883,7 +3887,7 @@ test("detach drops the transport without quitting Chrome", async () => {
 });
 
 test("reconnect detaches the old lock and transport before relaunching", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   let detaches = 0;
   adapter.cdpChrome = {
     detach: async () => {
@@ -3956,7 +3960,7 @@ test("raw-mode Ctrl+C dispatches the interrupt handler and restores stdin withou
   stdinStream.isTTY = true;
   stdinStream.isRaw = false;
   stdinStream.setRawMode = (raw) => { stdinStream.isRaw = raw; };
-  const adapter = new ChatGPTWebAdapter({ profileDir: ".", cancelOnEsc: true, stdinStream });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile, cancelOnEsc: true, stdinStream });
   adapter.page = {
     title: async () => "ChatGPT",
     locator: () => new EmptyLocator(),
@@ -3998,7 +4002,7 @@ test("classifies dead-transport Playwright errors as reconnects", () => {
 
 
 test("a generation signal that went quiet still counts as a dead request", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.sentUserTurn = 10;
   adapter.assistantIdsBeforeSend = new Set(["assistant-old"]);
   adapter.assistantMaxTurnBeforeSend = null;
@@ -4055,7 +4059,7 @@ class LimitErrorCardMessage extends AssistantMessage {
 }
 
 test("rejects a usage-limit error card instead of returning its text", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistant: new LimitErrorCardMessage("你已达到限额。请稍后重试。"),
   });
@@ -4073,7 +4077,7 @@ test("rejects a usage-limit error card instead of returning its text", async () 
 });
 
 test("a protocol reply mentioning a limit is accepted without error-card DOM", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createPage({
     assistantText:
       "<agent_response><done>true</done><message>We reached your usage limit earlier; here is the result anyway.</message></agent_response>",
@@ -4090,7 +4094,7 @@ test("a protocol reply mentioning a limit is accepted without error-card DOM", a
 
 test("resume tolerates a deleted resume marker when the conversation is verified", async () => {
   const conversationUrl = "https://chatgpt.com/c/existing";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: conversationUrl,
     existingMessages: 4,
@@ -4108,7 +4112,7 @@ test("resume tolerates a deleted resume marker when the conversation is verified
 
 test("resume still rejects an empty conversation even with a missing marker", async () => {
   const conversationUrl = "https://chatgpt.com/c/existing";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: conversationUrl,
     existingMessages: 0,
@@ -4125,7 +4129,7 @@ test("resume still rejects an empty conversation even with a missing marker", as
 
 test("resume rejects a matching assistant marker on the wrong conversation", async () => {
   const conversationUrl = "https://chatgpt.com/c/existing";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = {
     async goto() {},
     url() {
@@ -4164,7 +4168,7 @@ test("resume rejects a matching assistant marker on the wrong conversation", asy
 
 test("resume rejects stable history on the wrong conversation without a marker", async () => {
   const conversationUrl = "https://chatgpt.com/c/existing";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = createConversationPage({
     initialUrl: "https://chatgpt.com/c/other",
     existingMessages: 2,
@@ -4179,7 +4183,7 @@ test("resume rejects stable history on the wrong conversation without a marker",
 
 test("resume rejects when the page left the expected conversation", async () => {
   const conversationUrl = "https://chatgpt.com/c/existing";
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = {
     async goto() {},
     url() {
@@ -4222,7 +4226,7 @@ test("resume rejects when the page left the expected conversation", async () => 
 
 
 test("fails closed when ChatGPT cannot confirm the submitted message", async () => {
-  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: "." });
+  const adapter = new VirtualSendClockChatGPTAdapter({ profileDir: scratchProfile });
   adapter.page = {
     url() {
       return "https://chatgpt.com/";
@@ -4272,7 +4276,7 @@ class ReliableSignalAdapter extends ChatGPTWebAdapter {
 }
 
 test("accepts a truncated protocol reply once generation has finished", async () => {
-  const adapter = new ReliableSignalAdapter({ profileDir: "." });
+  const adapter = new ReliableSignalAdapter({ profileDir: scratchProfile });
   // The reply started a protocol envelope but the generation ended without the
   // closing tag (truncated, not streaming). With a reliable completion signal
   // the wait must hand the text back after the truncated-envelope window so
@@ -4296,7 +4300,7 @@ test("accepts a truncated protocol reply once generation has finished", async ()
 });
 
 test("ChatGPT's stop-button signal gives it the short truncated-envelope grace", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   // The redesigned UI still exposes the stop button only while generating
   // (verified live, persistent through multi-minute pauses), so ChatGPT uses
   // the short grace. Within a short overall wait only the timeout ends the
@@ -4332,7 +4336,7 @@ test("ChatGPT's stop-button signal gives it the short truncated-envelope grace",
 });
 
 test("a truncated envelope with the stop button still visible keeps waiting", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   // Generation is still running (stop button visible): the incomplete envelope
   // must NOT be accepted early, only the overall timeout may end the wait.
   adapter.page = createPage({
@@ -4354,7 +4358,7 @@ test("a truncated envelope with the stop button still visible keeps waiting", as
 });
 
 test("assistantMessages excludes ChatGPT request placeholders and error stubs", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   const real = new AssistantMessage(
     "<agent_response><done>true</done><message>ok</message></agent_response>",
     { id: "real-1" },
@@ -4399,7 +4403,7 @@ test("assistantMessages excludes ChatGPT request placeholders and error stubs", 
 });
 
 test("ChatGPT accepts same-ID continuation only after causal generation", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.assistantIdsBeforeSend = new Set(["archer-old"]);
   adapter.lastAssistantTextBeforeSend = "partial reply";
   adapter.sentUserTurn = 3;
@@ -4439,7 +4443,7 @@ test("ChatGPT accepts same-ID continuation only after causal generation", async 
 });
 
 test("ChatGPT generation-failure cards never become a final plain answer", async () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   // ChatGPT renders server-side generation failures as an error card
   // ("Internal Server Error" + 重试 button), not a real answer.
   const message = new AssistantMessage("Internal Server Error\n\n重试");

@@ -1,4 +1,10 @@
-import test from "../src/shim.js";
+import test from "../../src/shim.js";
+import { useScratchProfileDir } from "../../src/temp-dir";
+
+// Adapters write diagnostics beside their profile, so a checkout-relative
+// profile drops test debris into the repository.
+const scratchProfile = useScratchProfileDir("adapter-profile");
+import { browserUnavailable } from "../../src/browser-capability.js";
 import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
 import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
@@ -10,7 +16,7 @@ import { GeminiImageDriver } from "@neuralforge/image/providers/gemini-image-dri
 import { NativeMusicReceiver } from "@neuralforge/audio/native-music-receiver";
 
 test("real Gemini music DOM waits for completion and ignores media from old replies", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());
@@ -22,7 +28,7 @@ test("real Gemini music DOM waits for completion and ignores media from old repl
     <model-response id="new"><message-content id="message-content-id-new"><div class="markdown">Your music</div></message-content>
       <video preload="none" src="data:video/mp4;base64,AQ=="></video></model-response>
   `);
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   adapter.page = page;
   adapter.assistantIdsBeforeSend = new Set(["message-content-id-old"]);
   const receiver = new NativeMusicReceiver({ adapter });
@@ -43,10 +49,10 @@ test("real Gemini music DOM waits for completion and ignores media from old repl
   assert.equal(await adapter.getLastAssistantMessageId(), "message-content-id-new");
 });
 
-// Opt-in because the ordinary unit suite must also run without installed Chrome.
-// WTAGENT_DOM_TESTS=1 node --test test/rendered-text.test.js
+// Runs in the browser lane (test/browser) and skips only when this machine has
+// no browser to launch.
 test("real DOM preserves provider text, code, and completion boundaries", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const browser = await chromium.launch({
     executablePath: discoverChromeExecutable(), headless: true,
@@ -76,7 +82,7 @@ test("real DOM preserves provider text, code, and completion boundaries", {
       <p>User text</p><pre><code>${escape(marker)}</code></pre>
     </div></article>
   `);
-  const gemini = new GeminiWebAdapter({ profileDir: "." });
+  const gemini = new GeminiWebAdapter({ profileDir: scratchProfile });
   gemini.page = page;
   const model = page.locator("model-response");
   const extracted = await gemini.assistantText(model);
@@ -94,7 +100,7 @@ test("real DOM preserves provider text, code, and completion boundaries", {
   });
   assert.equal(await gemini.isAssistantGenerating(model), false);
 
-  const grok = new GrokWebAdapter({ profileDir: "." });
+  const grok = new GrokWebAdapter({ profileDir: scratchProfile });
   grok.page = page;
   const userText = await grok.userMessageText(page.locator("#grok-user"));
   assert.equal(renderedMessageContainsOutboundMarker(userText, nonce), true);
@@ -105,7 +111,7 @@ test("real DOM preserves provider text, code, and completion boundaries", {
 });
 
 test("real Gemini DOM returns a completed image refusal, but waits during generation", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());
@@ -118,7 +124,7 @@ test("real Gemini DOM returns a completed image refusal, but waits during genera
       <button aria-label="Copy">Copy</button>
     </model-response>
   `);
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   adapter.page = page;
   adapter.assistantIdsBeforeSend = new Set(["message-content-id-old"]);
   const driver = new GeminiImageDriver({ provider: "gemini", adapter });
@@ -137,7 +143,7 @@ test("real Gemini DOM returns a completed image refusal, but waits during genera
 });
 
 test("real Gemini main turn receives multiple native images and waits for completion", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const { NativeImageReceiver } = await import("@neuralforge/image/native-image-receiver");
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
@@ -159,7 +165,7 @@ test("real Gemini main turn receives multiple native images and waits for comple
       await image.decode();
     }
   });
-  const adapter = new GeminiWebAdapter({ profileDir: "." });
+  const adapter = new GeminiWebAdapter({ profileDir: scratchProfile });
   adapter.page = page;
   adapter.assistantIdsBeforeSend = new Set(["message-content-id-old"]);
   const receiver = new NativeImageReceiver({ provider: "gemini", adapter });
@@ -183,7 +189,7 @@ test("real Gemini main turn receives multiple native images and waits for comple
 });
 
 test("modern ChatGPT downloads only the completed turn's images to verified local paths", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const { ChatGPTWebAdapter } = await import("@neuralforge/browser/chatgpt-web-adapter");
   const { NativeImageReceiver } = await import("@neuralforge/image/native-image-receiver");

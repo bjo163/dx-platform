@@ -358,7 +358,7 @@ test("no unit-lane test waits out a long sleep", () => {
   assert.deepEqual(offenders, [], "a minute-scale lease or timeout must be advanced on the fake clock");
 
   assert.ok(exists("packages", "tests", "src", "fake-clock.ts"), "the fake clock helper must exist");
-  const users = unitLane.filter((rel) => fs.readFileSync(path.join(harnessDir, rel), "utf8").includes("fake-clock.js"));
+  const users = unitLane.filter((rel) => fs.readFileSync(path.join(harnessDir, rel), "utf8").includes("fake-clock.ts"));
   assert.ok(users.length > 0, "the fake clock helper must be used by a lease or timeout test");
 });
 

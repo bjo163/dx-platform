@@ -1,4 +1,5 @@
-import test from "../src/shim.js";
+import test from "../../src/shim.ts";
+import { browserUnavailable } from "../../src/browser-capability.js";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -7,15 +8,19 @@ import assert from "node:assert/strict";
 import { chromium } from "playwright-core";
 import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
 import { ChatGPTWebAdapter } from "@neuralforge/browser/chatgpt-web-adapter";
+import { useScratchProfileDir } from "../../src/temp-dir";
+
+// Adapters write diagnostics beside their profile, so "." would put them inside the checkout.
+const scratchProfile = useScratchProfileDir("adapter-profile");
 
 const outboundId = "f67c046a-ab28-41e8-a04c-79a99806dafa";
 const response = "<agent_response><assistant_message>OK</assistant_message><task_complete>true</task_complete></agent_response>";
 const userText = `Transport test\n<system_reminder>Opaque NeuralForge transport correlation ID (do not repeat): ${outboundId}.</system_reminder>`;
-const fixture = (name) => fs.readFile(new URL(`./fixtures/chatgpt/${name}.html`, import.meta.url), "utf8");
+const fixture = (name) => fs.readFile(new URL(`../fixtures/chatgpt/${name}.html`, import.meta.url), "utf8");
 const modernRows = await fixture("modern");
 
 test("ChatGPT recognizes both temporary route families", () => {
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   for (const route of ["WEB:test", "local-chatgpt:test", "local-chatgpt%3Atest", "local-chatgpt%3atest"]) {
     assert.equal(adapter.classifyConversationUrl(`https://chatgpt.com/c/${route}`), "provisional");
   }
@@ -23,14 +28,14 @@ test("ChatGPT recognizes both temporary route families", () => {
 });
 
 test("ChatGPT real DOM supports modern identities and strict recovery", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());
   const page = await browser.newPage();
   await page.route("**/*", (route) => route.fulfill({ contentType: "text/html", body: "<main></main>" }));
   await page.goto("https://chatgpt.com/c/dom-fixture");
-  const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+  const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
   adapter.page = page;
   adapter.context = page.context();
   adapter.cdpChrome = { targetId: "fixture-target", exactTargetOnly: true };
@@ -109,7 +114,7 @@ test("diagnostic collection is bounded when CDP hangs and does not mask failures
 });
 
 test("offline ChatGPT fixtures exercise capabilities and failure diagnostics", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());
@@ -192,7 +197,7 @@ test("offline ChatGPT fixtures exercise capabilities and failure diagnostics", {
 
 for (const collapsed of [false, true]) {
   test(`real modern composer sends once across canonicalization and virtualized follow-up${collapsed ? " with truncated long messages" : ""}`, {
-    skip: process.env.WTAGENT_DOM_TESTS !== "1",
+    skip: browserUnavailable,
   }, async (t) => {
     const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
     t.after(() => browser.close());
@@ -278,7 +283,7 @@ for (const collapsed of [false, true]) {
 }
 
 test("recovery reveals only the pending long user message and still requires its exact marker", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());
@@ -324,7 +329,7 @@ test("recovery reveals only the pending long user message and still requires its
         document.querySelector('main').append(pendingUser, assistant);
         document.querySelector('[data-testid="send-button"]').onclick = () => { window.submissions++; };
       }, { outboundId, response, revealsMarker });
-      const adapter = new ChatGPTWebAdapter({ profileDir: "." });
+      const adapter = new ChatGPTWebAdapter({ profileDir: scratchProfile });
       adapter.page = page;
       adapter.context = page.context();
       adapter.cdpChrome = { targetId: "fixture-target", exactTargetOnly: true };
@@ -354,7 +359,7 @@ test("recovery reveals only the pending long user message and still requires its
 });
 
 test("modern ChatGPT waits for its enabled send control instead of pressing Enter", {
-  skip: process.env.WTAGENT_DOM_TESTS !== "1",
+  skip: browserUnavailable,
 }, async (t) => {
   const browser = await chromium.launch({ executablePath: discoverChromeExecutable(), headless: true });
   t.after(() => browser.close());
