@@ -805,7 +805,7 @@ function createRedactingSerializer() {
   const sensitiveQueryParams = new Set(['token', 'key', 'secret', 'password', 'api_key', 'access_token']);
 
   return {
-    req: (req) => {
+    req: (req: any) => {
       if (!req) return req;
       const safe = { ...req };
       // Redact sensitive headers
@@ -828,7 +828,7 @@ function createRedactingSerializer() {
       }
       return safe;
     },
-    res: (res) => {
+    res: (res: any) => {
       if (!res) return res;
       const safe = { ...res };
       // Redact sensitive headers in response
@@ -842,7 +842,7 @@ function createRedactingSerializer() {
       }
       return safe;
     },
-    err: (err) => {
+    err: (err: any) => {
       if (!err) return err;
       // Redact sensitive data in error objects
       const safe = { ...err };
