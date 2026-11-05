@@ -1,792 +1,249 @@
-```
-     ____  _   __ ____  ____  _       _      _____ _____ ____  _____ __  __ 
-    |  _ \| | / // __ \|  _ \| |     / \    |_   _|  ___/ __ \|  ___/  \/  \
-    | | | | |/ / |  __/| |_| | |    / _ \     | | | |_ | |  | | |_ | (_  _) |
-    | |_| |   <  | |   |  __/| |   / ___ \    | | |  _|| |__| |  _| | | | |  
-    |____/|_|\_\ |_|   |_|   |_|  /_/   \_\   |_| |_|   \____/|_|   |_| |_|  
-                                                                               
-                          [ D X - P L A T F O R M   v1.0.3 ]
-```
+# Rocksoul DX — Autonomous Developer Operating System
 
-> `>_ EXECUTE: ACTIVATE_DX_PLATFORM --mode=DEVELOPER_EXPERIENCE --target=VELOCITY`
+> **One goal. Many agents. Any model. Verified outcomes.**
 
-## `[SYSTEM_BOOT:DX-PLATFORM://CORE]`
+Rocksoul DX (repository: **DX Platform**) is an open-source, local-first platform for coordinating AI-assisted software engineering. It is being designed to turn a development goal into small, testable tasks; route those tasks to the right execution engine; isolate changes; verify results independently; and preserve an evidence trail from requirement to commit.
 
-**DEVELOPER EXPERIENCE AT LIGHT SPEED. LOCAL. SOVEREIGN. YOURS.**
+It is intended to bring together capabilities commonly spread across coding agents, agent-workforce managers, model/provider gateways, repository-intelligence tools, and engineering operations.
 
-DX-Platform is a local-first, agentic AI gateway engineered to supercharge your development workflow by unifying every web-based LLM subscription you already own into one integrated, autonomous developer experience platform. 
-
-It's not a chatbot. It's not an IDE plugin. It's an **autonomous developer platform** built to automate your entire workflow—think, plan, build, debug, test and ship—all coordinated by multiple AI agents.
-
-All running on your machine. All under your complete control.
-
-## `[DIRECTIVE_01: DEVELOPER_SOVEREIGNTY]`
-
-In a world drowning in SaaS subscriptions, rate limits, and telemetry, DX-Platform returns control back to you.
-
-Using session-based authentication, it bridges your existing LLM accounts (ChatGPT, Claude, etc.) into a unified **DEVELOPER GATEWAY**. Your code stays local. Your data stays yours. Your workflow is autonomous. No API keys. No cloud proxies. No telemetry.
-
-## `[AGENT_MESH: MULTI_MODEL_ORCHESTRATION]`
-
-The era of single-model limitation is over. Meet coordinated multi-agent workflows.
-
-- **`AGENT.SPAWN`** - Deploy specialized agents for different tasks: code review, testing, documentation, security audit. All working in parallel.
-- **`MODEL.ROUTING`** - Intelligent routing based on task complexity, reasoning requirements, and latency. Simple fixes go to fast models. Complex architecture goes to reasoning models.
-- **`AGENT.PIPELINE`** - Chained workflows where output from one agent feeds input to the next. Code written → Tested → Reviewed → Documented automatically.
-- **`CONSENSUS.EXEC`** - Run the same task across multiple models in parallel. Compare results and select the best implementation.
-- **`CONCURRENT.OPS`** - Execute multiple missions simultaneously across different providers without blocking.
-- **`ADAPTIVE.ESCALATION`** - Automatically escalate to more capable models when task complexity exceeds threshold.
-
-## `[PROVIDER_GATEWAY: UNIFIED_LLM_ACCESS]`
-
-DX-Platform functions as your **local AI provider gateway**. One interface. All your subscriptions. Seamless orchestration.
-
-- **`UNIFIED.ROUTING`** - Single API endpoint to route requests to any connected provider (ChatGPT, Claude, Gemini, etc.).
-- **`SESSION.PERSISTENCE`** - Login to each provider once via browser. Sessions stay authenticated. No API key juggling.
-- **`FAILOVER.AUTOMATIC`** - Provider fails? Automatically route to backup provider without interrupting your workflow.
-- **`LOAD.DISTRIBUTION`** - Spread requests across providers to maximize throughput and avoid rate limits.
-- **`PROVIDER.SWITCHING`** - Switch providers mid-task without losing context or conversation history.
-- **`HEALTH.DASHBOARD`** - Real-time view of all connected providers, their auth status, and availability.
-
-## `[CONTROL_CENTER: DEVELOPER_DASHBOARD]`
-
-A clean, efficient interface engineered for developers who value signal over noise.
-
-- **`CLEAN.UI`** - Minimal, focused design with terminal-like aesthetics. Maximum information density without clutter.
-- **`CHAT.INTERFACE`** - Natural language task input with real-time agent activity visibility.
-- **`JOB.MONITOR`** - Live dashboard showing job progress, tool execution, file changes, and timing.
-- **`QUEUE.MANAGER`** - Visual job queue. Easily prioritize, pause, resume, or cancel tasks.
-- **`MULTI.WORKSPACE`** - Work on multiple projects simultaneously with isolated contexts.
-- **`FOCUS.VIEW`** - Distraction-free mode showing only code changes and agent output.
-
-## `[CODEBASE_INTELLIGENCE: SEMANTIC_ANALYSIS]`
-
-DX-Platform understands your entire codebase, not just individual files.
-
-- **`SEMANTIC.GRAPH`** - Builds a living map of your codebase: all modules, imports, exports, dependencies. Updated in real-time.
-- **`CROSS_FILE.REASONING`** - Agents understand relationships across files. They can trace call chains, follow data flow, and understand coupling without manual context.
-- **`IMPACT.ANALYSIS`** - Before making changes, know exactly what will be affected. See dependencies, breaking changes, and side effects upfront.
-- **`SMART.CONTEXT`** - Only feeds agents the code they need. Removes noise, maximizes signal, fits within context windows.
-- **`CODE.SEARCH`** - Fast semantic search. Find symbols, usage patterns, or related code instantly.
-- **`GIT.AWARENESS`** - Full git integration: staged changes, branch context, history. Agents understand the version control state.
-
-## `[EXECUTION_ENGINE: SAFE_AUTOMATION]`
-
-From task to production code with full visibility and control.
-
-- **`DIFF.REVIEW`** - Side-by-side or unified diff view. Accept/reject changes hunk-by-hunk. Re-run if needed.
-- **`TOOL.VISIBILITY`** - Every tool invocation is visible. See file reads, writes, searches, terminal commands in real-time.
-- **`POLICY.CONTROL`** - Define what agents can access and modify. Restrict by file pattern, path, or action type.
-- **`APPROVAL.GATE`** - Require human approval for sensitive operations: file deletion, bulk changes, external commands.
-- **`WORKSPACE.BOUNDS`** - Agents are strictly confined to your project root. No escape outside defined boundaries.
-- **`AUDIT.LOG`** - Complete immutable log of all operations. Who did what, when, and why. Built-in for compliance.
-- **`SAFE.EXECUTION`** - Sandboxed execution with safety nets. Power without recklessness.
-
-## `[EXTENSION_PROTOCOL: MODULAR_FURY]`
-
-NeuralForge is a platform. Mold it to your doctrine.
-
-### Plugin System
-
-```typescript
-// Create a custom plugin at: plugins/my-plugin.ts
-export const MyPlugin = {
-  id: "my-plugin",
-  name: "My Custom Plugin",
-  version: "1.0.0",
-  capabilities: ["repository.read", "code.analyze"],
-  
-  async execute(context: PluginContext, args: any) {
-    // Access orchestrator, tools, router
-    const result = await context.jobService.createJob({
-      task: "analyze this code",
-      provider: "chatgpt",
-    });
-    return result;
-  },
-};
-```
-
-### Custom Slash Commands
-
-```bash
-# Define in .kiro/hooks/custom-commands.json
-/code-review          # Trigger code review agent
-/security-audit       # Run security policy check
-/generate-tests       # Auto-generate unit tests
-/migrate-db           # Database migration helper
-```
-
-### Templates & Battle Plans
-
-Pre-built templates available:
-- **Migration**: Move codebase from one pattern to another
-- **Testing**: Generate unit & integration tests
-- **API Scaffolding**: Auto-generate REST/GraphQL endpoints
-- **Component Libraries**: React, Vue, Svelte component generation
-- **Security Audit**: Vulnerability scanning
-- **CI/CD Config**: GitHub Actions, GitLab CI setup
-
-### Custom Agent Personas
-
-```typescript
-// .kiro/agents/security-auditor.json
-{
-  "name": "Security Auditor",
-  "systemPrompt": "You are a security-focused code reviewer...",
-  "tools": ["fs.read", "fs.search", "terminal.exec"],
-  "providers": ["chatgpt", "claude"],
-  "routing": {
-    "complexity": "high",  // Route to heavy model
-    "timeout": 600000,     // 10 min timeout
-  }
-}
-```
-
-### Event-Driven Hooks
-
-```bash
-# Automatically run on events
-PostJobComplete    → Run tests
-PostFileSave       → Run linter
-PreApproval        → Security scan
-PostProviderSwitch → Notify team
-```
-
-### SDK for External Integration
-
-```typescript
-// npm install @neuralforge/sdk
-import { NeuralForgeSDK } from "@neuralforge/sdk";
-
-const nf = new NeuralForgeSDK({ 
-  apiUrl: "http://localhost:8080" 
-});
-
-// Create job from external app
-const job = await nf.jobs.create({
-  task: "summarize this file",
-  provider: "claude",
-  projectId: "my-project",
-});
-
-// Subscribe to updates
-nf.jobs.subscribe(job.id, (status) => {
-  console.log(`Job ${job.id}: ${status.status}`);
-});
-```
-
-## `[API_REFERENCE]`
-
-NeuralForge exposes a REST API for job orchestration, provider management, and workspace access.
-
-### Core Endpoints
-
-**Jobs API**
-```bash
-# Create a new job
-POST /v1/jobs
-{
-  "task": "Create hello.js and run it",
-  "provider": "chatgpt",
-  "projectId": "default"
-}
-
-# List all jobs
-GET /v1/jobs
-
-# Get job details
-GET /v1/jobs/:id
-
-# Get job status (real-time)
-GET /v1/jobs/:id/status
-
-# Stream job events (SSE)
-GET /v1/jobs/:id/events
-
-# Cancel job
-POST /v1/jobs/:id/cancel
-
-# Retry failed job
-POST /v1/jobs/:id/retry
-
-# Get job logs
-GET /v1/jobs/:id/logs
-```
-
-**Providers API**
-```bash
-# List available providers
-GET /v1/providers
-
-# Initiate provider login
-POST /v1/providers/:id/login
-
-# Verify provider authentication
-POST /v1/providers/:id/verify
-
-# Disconnect provider
-DELETE /v1/providers/:id
-```
-
-**Workspace API**
-```bash
-# Get workspace info
-GET /v1/workspace
-
-# List files in directory
-GET /v1/workspace/files?path=src/
-
-# Read file contents
-GET /v1/workspace/file?path=src/app.ts
-```
-
-**Health & Status**
-```bash
-# API health check
-GET /health
-
-# Job pool status
-GET /v1/jobs/pool/status
-```
-
-### Example: Create & Monitor a Job
-
-```bash
-# 1. Create job
-JOB_ID=$(curl -X POST http://localhost:8080/v1/jobs \
-  -H "Content-Type: application/json" \
-  -d '{
-    "task": "Create a test file",
-    "provider": "chatgpt"
-  }' | jq -r '.jobId')
-
-echo "Job created: $JOB_ID"
-
-# 2. Poll status
-curl http://localhost:8080/v1/jobs/$JOB_ID/status | jq .
-
-# 3. Stream events (SSE)
-curl http://localhost:8080/v1/jobs/$JOB_ID/events
-
-# 4. Get final logs
-curl http://localhost:8080/v1/jobs/$JOB_ID/logs | jq .
-```
-
-### SDK Usage
-
-```typescript
-import { NeuralForgeSDK } from "@neuralforge/sdk";
-
-const nf = new NeuralForgeSDK({
-  apiUrl: "http://localhost:8080"
-});
-
-// Create & execute job
-const job = await nf.jobs.create({
-  task: "Analyze this codebase",
-  provider: "claude",
-  projectId: "my-project"
-});
-
-// Monitor progress
-nf.jobs.subscribe(job.id, (status) => {
-  console.log(`[${job.id}] ${status.status}`);
-  if (status.result) console.log("Result:", status.result.message);
-});
-
-// Get full history
-const logs = await nf.jobs.getLogs(job.id);
-console.log(logs.activity);
-```
-
-For full API docs → see [`./ARCHITECTURE.md`](./ARCHITECTURE.md#api-endpoints-reference)
+> [!IMPORTANT]
+> **Project status: active development. Not production-ready.** The repository contains working foundations, partial integrations, and planned capabilities. A package or UI screen existing in the tree does not mean its end-to-end behavior is complete. See the implementation snapshot below and the [product blueprint](./blueprint.md).
 
 ---
 
-Built with zero-compromise tech for maximum performance, minimal overhead and absolute local control.
+## The product in one view
 
-| COMPONENT | TECHNOLOGY | PURPOSE |
-| --- | --- | --- |
-| **WAR ROOM UI** | `Next.js 15` + `React 19` + `TypeSocketDX` | Brutalist, responsive command center with real-time updates |
-| **GATEWAY CORE** | `Fastify` + `TypeScript` | Lightning-fast local API + agentic gateway router |
-| **AGENTIC MESH** | `Custom Orchestrator` | Multi-agent runtime, pipeline chaining, swarm consensus & routing logic |
-| **BROWSER BRIDGE** | `Playwright` | Session-based auth & provider interaction without API keys |
-| **LOCAL VAULT** | `PGlite` (Postgres-in-WASM) | Blazing-fast embedded DB for jobs, sessions, agents, audit logs & history |
-| **JOB ENGINE** | `Async Queue + EventBus` | Fire-and-forget orchestration with live telemetry & failure recovery |
-| **POLICY KERNEL** | `Custom Rule Engine` | Granular permissions, HITL, sandboxing & action gating |
-| **PLUGIN VM** | `Sandboxed Runtime` | Safe, isolated execution for custom extensions |
-| **WEBSOCKET LAYER** | `ws` + Custom Event Streams | Real-time swarm telemetry down to the wire |
-| [# PR TITLE HERE] | Click to edit & save title | Click to edit description |
+Rocksoul DX is not intended to be another foundation model or a clone of one coding assistant. It is the **system around the models**: the control plane, orchestration, execution, context, verification, and operations needed to deliver dependable engineering outcomes.
 
-## `[ARCHITECTURE_OVERVIEW]`
+- **Plan:** turn goals into bounded micro-tasks with dependencies and acceptance criteria.
+- **Orchestrate:** schedule work, manage budgets, leases, retries, checkpoints, and parallel execution.
+- **Execute:** use the native runtime, local models, browser-based providers, and compatible agent adapters.
+- **Understand:** build an incremental map of the repository and retrieve relevant context.
+- **Verify:** run independent checks and attach evidence to every claimed result.
+- **Operate:** observe missions, agents, providers, approvals, and system health in one War Room.
 
-NeuralForge runs as a **distributed mesh** with local-first guarantees.
+## Product principles
 
-```
-┌─────────────────────────────────────────────┐
-│         User's Machine (Sovereign)          │
-├─────────────────────────────────────────────┤
-│                                             │
-│  ┌─────────────────────────────────────┐   │
-│  │    War Room (Next.js + React)       │   │
-│  │    localhost:3000                   │   │
-│  │  - Job creation & monitoring        │   │
-│  │  - Provider management              │   │
-│  │  - File browser & preview           │   │
-│  │  - Real-time job updates (SSE)      │   │
-│  └──────────────────┬──────────────────┘   │
-│                     │                       │
-│  ┌──────────────────▼──────────────────┐   │
-│  │    NeuralForge Gateway (Fastify)    │   │
-│  │    localhost:8080                   │   │
-│  │  - REST API for job management      │   │
-│  │  - Provider session bridging        │   │
-│  │  - Policy & approval engine         │   │
-│  │  - Job queue & scheduling           │   │
-│  └──────────────────┬──────────────────┘   │
-│                     │                       │
-│  ┌──────────────────▼──────────────────┐   │
-│  │      Runtime Orchestrator            │   │
-│  │  - Agent execution engine            │   │
-│  │  - Tool system (fs, terminal, etc)   │   │
-│  │  - Browser automation (CDP)          │   │
-│  │  - Session management                │   │
-│  └──────────────────┬──────────────────┘   │
-│                     │                       │
-│  ┌──────────────────▼──────────────────┐   │
-│  │    Local Database (PGlite)           │   │
-│  │    .neuralforge/data/                │   │
-│  │  - Jobs, sessions, audit logs        │   │
-│  │  - Provider credentials (encrypted)  │   │
-│  └─────────────────────────────────────┘   │
-│                                             │
-└─────────────────────────────────────────────┘
-         ▲              ▲              ▲
-         │              │              │
-    ┌────┴─┐      ┌─────┴────┐    ┌───┴──┐
-    │ChatGPT│      │  Claude  │    │Gemini│
-    └───────┘      └──────────┘    └──────┘
-    (Browser      (Browser         (Browser
-     Session)      Session)         Session)
-```
-
-**Key Design Principles:**
-- ✅ **100% Local** - No telemetry, no cloud sync, no data exfil
-- ✅ **Session-Based Auth** - Use your real accounts via browser automation
-- ✅ **Distributed Mesh** - Multiple agents, multiple providers, parallel execution
-- ✅ **Policy-Driven** - All tool calls gated by approval engine
-- ✅ **Fault Tolerant** - Job leases, timeouts, automatic failover
-
-For deep technical details → see [`ARCHITECTURE.md`](./ARCHITECTURE.md)
+1. **Proof over claims.** An agent cannot mark its own work as verified. Verification requires independent evidence.
+2. **Small tasks, fast feedback.** Work should be decomposed so that smaller/less expensive agents can execute bounded tasks safely.
+3. **Local-first, privacy-honest.** The workspace, orchestration, index, and persistence can run locally. A remote AI provider still receives the prompt/context sent to it.
+4. **No silent cloud fallback.** A request marked local-only must never be routed to a cloud provider without an explicit policy change.
+5. **Model-agnostic.** Models and coding agents are interchangeable adapters behind stable contracts.
+6. **Least privilege.** Filesystem, process, browser, network, and secret access must be separately scoped.
+7. **One source of truth.** The task/job store is authoritative; dashboards and live streams are projections.
+8. **Reuse before expansion.** Existing packages and contracts must be audited before new packages or duplicate implementations are created.
+9. **Evidence before merge.** A change needs an inspectable diff, relevant checks, and traceability to its commit and CI result.
+10. **No fake completeness.** Stubs, mocks, generated files, and documentation are not proof of production behavior.
 
 ---
 
-## `[ENVIRONMENT_VARIABLES]`
+## Current repository snapshot
 
-Configuration via environment variables. Defaults work for local dev.
+The table describes the repository baseline inspected on **November 5, 2026**. It is a source-level snapshot, not a production-readiness certification. The local audit may update these findings; reconcile changes against the source and tests before changing a status.
 
-### Required Variables
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `NODE_ENV` | `development` | Execution environment |
-| `PORT` | `8080` | API server port |
-| `NEXT_PUBLIC_DX_PLATFORM_API_URL` | `http://localhost:8080` | Dashboard → API connection |
+| Area | What is present in the repository | Current confidence |
+|---|---|---|
+| CLI | TypeScript CLI package and executable entry point | Foundation present; package identity and CI contract need reconciliation |
+| API | Fastify application and job/provider/workspace routes | Foundation present; authentication and contract coverage need hardening |
+| Web War Room | Next.js/React application | Foundation present; dashboard needs domain-driven integration and verification |
+| Browser providers | Browser-session adapters and provider registry | Initial integrations present; provider-specific behavior needs contract tests |
+| Agent runtime | Runtime and tool orchestration code | Foundation present; durable orchestration and adapter contract need validation |
+| Jobs | Job store/runner and lifecycle-related code | Foundation present; end-to-end recovery/idempotency need proof |
+| Policy | Permission and path-guard implementation | Foundation present; cross-platform security regression coverage required |
+| Persistence | PGlite/database package and API integration | Foundation present; migration/backup/restore acceptance required |
+| Sessions | Session and transcript implementation | Foundation present; retention, provenance, and secret-redaction checks required |
+| SDK | Package exists | Partial; public client behavior must be verified against the live API |
+| Local model support | Ollama/LM Studio helper code | Partial; process invocation and network boundaries need hardening |
+| Plugins | Plugin manifest/registry foundations | Partial; permissions, isolation, and lifecycle need proof |
+| WebSocket server | Package source exists | Partial; workspace integration, auth, and event contract need proof |
+| Config API | Package source exists | Partial; endpoint and application integration need proof |
+| OpenAPI | Package/source skeleton exists | Skeleton; route discovery and generated contract need implementation |
+| Observability | Basic metrics foundations exist | Partial/skeleton; production-grade instrumentation is not established |
 
-### Optional Variables
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `DX_PLATFORM_HOST` | `127.0.0.1` | Bind address |
-| `DX_PLATFORM_DATA_DIR` | `.dx-platform` | Database & sessions store |
-| `DX_PLATFORM_PROJECT_ROOT` | `.` (current dir) | Workspace root for tasks |
-| `DX_PLATFORM_PROVIDER` | `chatgpt` | Default provider |
-| `DX_PLATFORM_JOB_TIMEOUT_MS` | `1800000` | Max job runtime (30 min) |
-| `DX_PLATFORM_JOB_TTL_MS` | `86400000` | Job retention (24 hr) |
-| `DX_PLATFORM_CHROME_PATH` | (auto-detect) | Chrome/Chromium path |
-| `DX_PLATFORM_CORS_ORIGINS` | `localhost:3000,localhost:5173` | Allowed origins |
-| `DX_PLATFORM_JWT_SECRET` | (optional) | For remote API binding |
+### Known integration work
 
-### Setup Examples
+The current backlog identifies inconsistencies that must be resolved before calling the project stable: package naming and filters, TypeScript project references, workspace/test configuration, lockfile ownership, environment-variable naming, generated build artifacts, API integration coverage, and security boundaries.
 
-**Local Development (Default)**
+The latest baseline also showed a mismatch between the package identities and CI selectors. Treat CI as **not yet certified green** until a successful run is attached to the exact commit being evaluated. Do not infer success from a local build or from a commit message.
+
+---
+
+## Target architecture
+
+The product is organized into six logical planes. These are responsibility boundaries, **not instructions to create six new packages**.
+
+| Plane | Responsibility | Key outcomes |
+|---|---|---|
+| **Control Plane** | Projects, missions, task trees, budgets, approvals, user intent | One place to direct and supervise work |
+| **Orchestration Plane** | DAG planning, dependency scheduling, queues, leases, retries, checkpoints | Long-running work that can resume safely |
+| **Execution Plane** | Native runtime, agent adapters, tools, isolated worktrees/containers | Parallel work without shared-checkout collisions |
+| **Intelligence Plane** | Provider/model registry, capability matching, routing, quota and health | The right engine for each task and policy |
+| **Knowledge & Proof Plane** | Repo Atlas, scoped memory, independent verification, evidence graph | Relevant context and provable results |
+| **Governance & Operations Plane** | Permissions, secrets, audit, persistence, observability, recovery, releases | Safe and operable autonomous workflows |
+
+### Typical mission lifecycle
+
+1. A user or approved automation submits a goal and selects a project/workspace.
+2. The platform inspects repository state and prepares a plan of bounded tasks.
+3. The plan validator checks dependencies, scope, budgets, and acceptance criteria.
+4. The scheduler selects READY tasks and assigns a compatible agent/runtime.
+5. Each writer receives an isolated task worktree and scoped tool permissions.
+6. The agent performs the task and records tool calls, diffs, and artifacts.
+7. An independent verifier runs the checks selected for the change type.
+8. Failed checks return a bounded repair task; unresolved results remain unverified.
+9. A verified change becomes eligible for review/merge according to repository policy.
+10. The evidence graph links the goal, tasks, run, diff, checks, commit, and CI result.
+
+Simple tasks should use one agent plus a verifier. Multi-agent coordination is reserved for work where parallelism or independent review provides measurable value.
+
+---
+
+## Core differentiators
+
+### Proof Engine
+
+A task is not complete because an agent says “done.” The platform should store the exact checks, commands, exit codes, timestamps, commit SHA, CI run, and artifact digests used to verify the result. Outcomes must distinguish **pass**, **fail**, **skipped**, and **inconclusive**.
+
+### Repo Atlas
+
+An incremental, privacy-aware map of the codebase: files, symbols, imports, exports, workspace dependencies, tests, and change impact. The index must respect ignore rules, exclude sensitive paths by default, track its source revision, and show when its information is stale.
+
+### Isolated agent fleet
+
+Each writing agent works in a task-scoped worktree or sandbox. A single worktree has one writer at a time. Other agents may scout or review read-only. A merge/integration step reconciles the resulting diffs.
+
+### Quality-aware model router
+
+Routing considers task category, required capabilities, verified outcomes, context budget, latency, quota, cost, health, and privacy. No provider is selected only because it is free or currently available. Local-only requests never silently fall back to a remote provider.
+
+### Autonomous, not uncontrolled
+
+Routine engineering decisions should not require a human prompt. Agents can select a small implementation, add tests, update docs, retry bounded transient failures, and continue independent tasks. External publication, production deployment, destructive data changes, credential changes, payment, and privilege expansion remain behind explicit authorization.
+
+---
+
+## Privacy and security
+
+**Local-first does not mean every model interaction is offline.** The platform may run its workspace, runtime, queue, index, and database locally, while a browser-based or API-based provider processes content sent to its service. Users must be shown which provider receives a request and which data classes may leave the machine.
+
+Security requirements include:
+
+- Local-only routing policy with a tested zero-outbound guarantee.
+- Scoped filesystem access and path traversal/symlink protection.
+- Process execution through argument arrays, with time, output, and cancellation limits.
+- Redaction of cookies, tokens, authorization headers, and sensitive query parameters.
+- Authentication and authorization for remote API, WebSocket, and MCP access.
+- Explicit plugin capabilities and least-privilege permissions.
+- Durable audit events for allowed, denied, and approved actions.
+- No secret-bearing prompts, logs, test fixtures, screenshots, or artifacts in Git.
+
+These are target requirements; the implementation must be verified against them.
+
+---
+
+## Repository map
+
+| Path | Responsibility |
+|---|---|
+| `apps/api` | Fastify API application |
+| `apps/web` | Next.js/React War Room |
+| `packages/cli` | Developer CLI |
+| `packages/runtime` | Agent execution/runtime foundations |
+| `packages/job` | Job lifecycle and worker foundations |
+| `packages/gateway` | Provider gateway foundations |
+| `packages/browser` | Browser-session provider integrations |
+| `packages/tools` | Filesystem/process/search tool foundations |
+| `packages/policy` | Permission and path policy |
+| `packages/protocol` | Shared protocol contracts |
+| `packages/types` / `packages/shared` | Shared types and utilities |
+| `packages/database` | Persistence and migrations |
+| `packages/session` | Sessions and transcripts |
+| `packages/artifacts` | Artifact handling |
+| `packages/sdk`, `packages/mcp` | Integration surfaces |
+| `packages/plugins`, `packages/local`, `packages/ws-server`, `packages/openapi`, `packages/observability`, `packages/config-api` | Extension and supporting capabilities under integration/verification |
+
+The exact dependency graph and package scope are being reconciled. Check each package manifest before relying on a package name or import path.
+
+---
+
+## Development
+
+### Requirements
+
+- Node.js version compatible with the root `engines` declaration.
+- pnpm version compatible with the root `packageManager` declaration (the repository baseline specifies pnpm 10.33.4).
+- Git.
+
+### Bootstrap and local checks
+
+From the repository root:
+
 ```bash
-# Just run:
-pnpm dev
-# Everything defaults to localhost
-```
-
-**Production Deployment**
-```bash
-export NODE_ENV=production
-export DX_PLATFORM_HOST=0.0.0.0
-export DX_PLATFORM_JWT_SECRET=$(openssl rand -hex 32)
-export DX_PLATFORM_CORS_ORIGINS="https://myapp.com"
-export DX_PLATFORM_DATA_DIR=/data/dx-platform
-export DX_PLATFORM_JOB_TIMEOUT_MS=3600000  # 1 hour
-
+pnpm install --frozen-lockfile
 pnpm build
-pnpm start
-```
-
-**Long-Running Tasks**
-```bash
-export DX_PLATFORM_JOB_TIMEOUT_MS=7200000  # 2 hours
-export DX_PLATFORM_JOB_TTL_MS=604800000    # 7 days retention
-
-pnpm dev
-```
-
-**Custom Chrome Path**
-```bash
-export DX_PLATFORM_CHROME_PATH=/usr/bin/chromium
-# Useful for Docker, headless servers, WSL
-
-pnpm dev
-```
-
----
-
-## `[TROUBLESHOOTING]`
-
-### Common Issues
-
-**Q: Port 3000 or 8080 already in use**
-```bash
-# Find process on port 3000
-lsof -i :3000
-# Kill it
-kill -9 <PID>
-
-# Or use different port
-PORT=9090 pnpm dev
-```
-
-**Q: Chrome/Chromium not found**
-```
-Error: Could not locate Chrome/Chromium. Install Chrome or set NEURALFORGE_CHROME_PATH.
-```
-
-**Solution:**
-```bash
-# macOS
-brew install chromium
-
-# Ubuntu/Debian
-sudo apt install chromium-browser
-
-# Or point to existing install
-export NEURALFORGE_CHROME_PATH=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
-pnpm dev
-```
-
-**Q: Provider authentication fails**
-```
-Error: Provider "chatgpt" is not connected. Connect it from Providers.
-```
-
-**Solution:**
-1. Open War Room → Providers tab
-2. Click **Connect** next to your provider
-3. Wait for browser popup
-4. Login to ChatGPT/Claude/Gemini in the popup
-5. Return to war room → Browser auto-closes
-6. Status should show "Connected"
-
-If still failing:
-```bash
-# Clear provider cache
-rm -rf .neuralforge/profiles/*
-
-# Restart
-pnpm dev
-```
-
-**Q: TypeScript errors on `pnpm check`**
-```
-error TS2307: Cannot find module '@neuralforge/shared/errors'
-```
-
-**Solution:**
-```bash
-# Clean and rebuild
-pnpm clean
-pnpm install
+pnpm test
 pnpm check
 ```
 
-**Q: Job times out but should take longer**
-```
-Error: The provider did not complete before the request timeout.
-```
+The repository is under active integration work. Some commands or package selectors may fail until the corresponding backlog items are resolved. Report the actual exit code; do not mark the project green based on an incomplete command.
 
-**Solution:**
+The root development script is intended to start the API and web applications:
+
 ```bash
-# Increase timeout
-export NEURALFORGE_JOB_TIMEOUT_MS=3600000  # 1 hour instead of 30 min
 pnpm dev
 ```
 
-**Q: Database corrupted after crash**
-```
-Error: database disk image is malformed
-```
-
-**Solution:**
-```bash
-# Backup and delete corrupted DB
-mv .neuralforge .neuralforge.backup
-# Restart (new DB will be created)
-pnpm dev
-```
-
-**Q: Web UI won't connect to API**
-```
-Error: Cannot reach NeuralForge API at http://localhost:8080
-```
-
-**Solution:**
-1. Verify both servers running: `pnpm dev`
-2. Check API health: `curl http://localhost:8080/health`
-3. If API not responding, check for errors in terminal
-4. Verify `NEXT_PUBLIC_NEURALFORGE_API_URL` in `.env.local`
-
-**Q: Job gets stuck in "pending" status**
-
-**Solution:**
-```bash
-# Check job worker health
-curl http://localhost:8080/v1/jobs/pool/status
-
-# If workers are 0, API may be stalled
-# Restart:
-pnpm dev
-```
-
-### Getting Help
-
-1. **Check logs** - Look at terminal output for error messages
-2. **Run diagnostics** - `pnpm run doctor`
-3. **View activity log** - War room → Jobs → [job] → Activity tab
-4. **Check docs** - `./ARCHITECTURE.md` or `./docs/BRANDING.md`
-5. **Report issue** - GitHub issues with output from `pnpm run doctor`
+Do not expose the API beyond localhost unless authentication, CORS, and deployment policy have been configured and tested.
 
 ---
 
-| FEATURE | API-TOOLS | CURSOR | WINDSURF | COPILOT | **NEURALFORGE** |
-| --- | --- | --- | --- | --- | --- |
-| **NO API KEYS** | NO | NO | NO | NO | **YES** |
-| **MULTI-AGENT MESH** | NO | LIMITED | LIMITED | NO | **YES - FULL PLATOON** |
-| **AGENTIC GATEWAY ROUTER** | NO | NO | NO | NO | **YES - UNIFIED ROUTING** |
-| **LOCAL FIRST & ZERO TELEMETRY** | NO | MIXED | MIXED | MIXED | **YES - 100% LOCAL** |
-| **SWARM CONSENSUS / DUEL** | NO | NO | NO | NO | **YES** |
-| **HOLOMAP / CROSS-FILE COGNITION** | LIMITED | GOOD | GOOD | PARTIAL | **EXCEPTIONAL** |
-| **POLICY ENGINE + HITL** | WEAK | WEAK | WEAK | WEAK | **HARDCORE** |
-| **FAILOVER CASCADE** | NO | NO | NO | NO | **YES** |
-| **BROWSER SESSION BASED** | NO | NO | NO | NO | **YES** |
+## Roadmap
 
-## `[QUICK_START: 30_SECONDS]`
+The executable, granular backlog is **[todo-v2.md](./todo-v2.md)**. It is the canonical task list; the older `todo.md` is retained as historical reference and must not be executed in parallel.
 
-Want to activate DX-Platform RIGHT NOW? 
+| Stage | Focus | Exit condition |
+|---|---|---|
+| M00–M03 | Re-baseline, repository identity, contracts, CI | Trustworthy baseline and reproducible quality gates |
+| M04–M05 | Security, task/job/event/persistence | Safe boundaries and consistent durable state |
+| M06–M08 | Orchestration, adapters, Proof Engine | Recoverable execution with independent evidence |
+| M09–M11 | Provider routing, Repo Atlas, memory | Context-aware and policy-aware intelligence |
+| M12–M14 | Mission Control, integrations, operations | Usable and operable end-to-end platform |
+| M15 | Benchmarks and acceptance | Reproducible evidence of product capability |
 
-```bash
-# Clone & setup (60 seconds)
-git clone https://github.com/bjo163/dx-platform.git
-cd dx-platform
-pnpm install
+### How we measure success
 
-# Verify prerequisites
-pnpm check
+- Verified solve rate on fixed repository/task sets.
+- Regression rate and security regression count.
+- Time to verified change, not time to first response.
+- Cost and token usage per accepted change.
+- Repo Atlas retrieval precision and index freshness.
+- Recovery success after worker/process interruption.
+- Parallel execution efficiency and merge conflict rate.
+- Unnecessary human interventions and notification volume.
+- Unauthorized actions and secret leaks: target **zero**.
 
-# Launch the platform
-pnpm dev
-```
-
-**Then:**
-1. Open `http://localhost:3000` → Developer Dashboard
-2. Go to Providers tab → Connect ChatGPT, Claude, or your LLM
-3. Describe a development task → Watch autonomous execution
-
-**That's it.** You're now running a local autonomous developer platform with zero cloud dependencies.
+Claims that Rocksoul DX is “better than” another product require comparable task sets, model/tool budgets, repository revisions, and independent evaluators.
 
 ---
 
-# [DEPLOYMENT_GUIDE]
+## Documentation
 
-### Prerequisites
-- **Node.js**: v20.17+ or v22.13+ or v23.5+
-- **pnpm**: v9.0.0+
-- **Chrome/Chromium**: For browser automation (auto-discovered)
-- **Disk space**: ~500MB for node_modules + cache
+- **[Product & architecture blueprint](./blueprint.md)** — vision, architecture, domain model, workflows, security, UX, and acceptance criteria.
+- **[Autonomous execution backlog v2](./todo-v2.md)** — 435 small, independently verifiable tasks.
+- **[Legacy backlog](./todo.md)** — retained for traceability; not the active execution queue.
+- **[Architecture notes](./ARCHITECTURE.md)** — existing implementation notes; reconcile against source before treating older diagrams or endpoint tables as current.
 
-### Installation Steps
+## Contribution and autonomous execution
 
-```bash
-# [01] CLONE THE REPOSITORY
-git clone https://github.com/bjo163/dx-platform.git
-cd dx-platform
-
-# [02] VERIFY ENVIRONMENT
-node --version  # Should be v20.17+
-pnpm --version  # Should be v9.0.0+
-
-# [03] INSTALL DEPENDENCIES
-pnpm install
-
-# [04] TYPECHECK
-pnpm check
-
-# [05] BUILD
-pnpm build
-
-# [06] VERIFY BUILD
-pnpm run doctor
-
-# [07] START DEVELOPMENT SERVER
-pnpm dev
-
-# [08] ACCESS THE PLATFORM
-# Dashboard:  http://localhost:3000
-# API:        http://localhost:8080
-# Health:     http://localhost:8080/health
-```
-
-### Verification Checklist
-- [ ] `pnpm check` passes (TypeScript)
-- [ ] `pnpm dev` starts both servers
-- [ ] Dashboard loads at localhost:3000
-- [ ] API responds at localhost:8080/health
-- [ ] Providers page accessible
-
-### Common Issues
-| Problem | Solution |
-| --- | --- |
-| Port 3000/8080 in use | `lsof -i :3000` then kill process, or set PORT env var |
-| Chrome not found | Install Chrome/Chromium or set `DX_PLATFORM_CHROME_PATH` |
-| pnpm install fails | Delete node_modules, pnpm-lock.yaml, then retry |
-| TypeScript errors | Run `pnpm clean && pnpm install && pnpm check` |
-
-## `[TACTICAL_GUIDE]`
-
-### Step-by-Step Workflow
-
-#### 1️⃣ **BOOTSTRAP** - Fire up the platform
-```bash
-pnpm dev
-# Wait for: 
-# ✓ Dashboard running on localhost:3000
-# ✓ API running on localhost:8080
-# ✓ Job service initialized
-```
-Open browser → `http://localhost:3000`
-
-#### 2️⃣ **CONNECT PROVIDERS** - Link your LLMs
-1. Click **Providers** tab
-2. For each provider (ChatGPT, Claude, Gemini, etc):
-   - Click **Connect**
-   - Browser auto-opens → Login to that service
-   - Return to dashboard → Click **Verify**
-   - Status shows "Connected" ✅
-
-**Time**: ~2 min per provider
-
-#### 3️⃣ **LOAD PROJECT** - Setup workspace
-1. Dashboard automatically detects current project
-2. Or click **Workspace** tab → see file browser
-3. Semantic analysis runs automatically on codebase
-
-**What you see**: File tree, recent jobs, provider health
-
-#### 4️⃣ **SUBMIT TASK** - Describe your development goal
-In the chat interface:
-```
-"Create a TypeScript utility for parsing JSON config files with validation"
-```
-1. Select provider (ChatGPT, Claude, etc)
-2. Click **Execute**
-3. Watch job queue up (status: pending)
-
-**Time**: ~10 seconds to queue
-
-#### 5️⃣ **MONITOR EXECUTION** - Watch autonomous workflow
-The Job Dashboard shows:
-- **Status**: pending → running → completed/failed
-- **Provider**: Which AI is working
-- **Activity Log**: Real-time tool calls, approvals, outputs
-- **Live Updates**: Real-time progress
-
-Controls:
-- **Cancel**: Stop running job
-- **Retry**: Requeue failed job
-- **View Details**: See full activity log
-
-#### 6️⃣ **REVIEW CHANGES** - Inspect generated code
-Job completes → View results:
-- **Output Panel**: Result summary
-- **Files Tab**: See what was created/modified
-- **Activity Log**: Full trace of every action
-
-For file changes:
-- Browse via Files tab
-- Preview content inline
-- Verify correctness
-
-#### 7️⃣ **COMMIT & DEPLOY** - Push to production
-If results are good:
-```bash
-git add .
-git commit -m "feat: add new feature generated by DX-Platform"
-git push origin main
-```
-
-**Repeat** from step 4️⃣ for next task
-
-### Session Persistence
-- Jobs persisted in `.neuralforge/data/`
-- Can close dashboard → Reopen → See job history
-- Use CLI mode to continue interrupted tasks
-
-### Performance Tips
-- Keep file browser closed when not needed (analysis runs continuously)
-- Use Activity tab instead of live polling for finished jobs
-- Set `DX_PLATFORM_JOB_TIMEOUT_MS=3600000` for long tasks (default: 30 min)
-
-## `[MANIFESTO: FOR_THE_BRUTAL_BUILDER]`
-
-> *"One man with an IDE can build a prototype. One builder with NeuralForge can wage war on an entire codebase and win."*
-
-**Problem We Solve:**
-- Juggling multiple LLM subscriptions (ChatGPT, Claude, Gemini, etc.)
-- Manual context setup for each task
-- No automation across your workflow
-- Cloud dependencies and telemetry
-- Single-model limitations
-
-**DX-Platform Solution:**
-- ✅ **Unified Interface** - Connect all LLMs in one place
-- ✅ **100% Local** - Your code never leaves your machine
-- ✅ **Autonomous Agents** - Multi-agent orchestration for specialized tasks
-- ✅ **Zero Telemetry** - No tracking, no data exfil
-- ✅ **Multi-Provider** - ChatGPT, Claude, Gemini, all working together
-- ✅ **Session-Based** - Use your real accounts, no API keys
-- ✅ **Policy-Driven** - Full control over what agents can access
-
-**Built for Developers Who Want Power & Control**
-
-DX-Platform assumes you:
-- Value sovereignty over convenience
-- Want complete visibility into automation
-- Can handle complexity if it's transparent
-- Think in terms of workflows, not features
-- Want to amplify your productivity with AI
-
-### The Vision
-
-A world where:
-- Developers keep 100% control of code and context
-- AI becomes a local utility, not a SaaS subscription
-- Multiple AI models coordinate seamlessly
-- Your only limit is hardware and imagination
-
-**Welcome to DX-Platform. Developer-first. Autonomous. Yours.**
+- Read `todo-v2.md` and select the earliest dependency-ready task.
+- Inspect the bounded scope and existing implementation before editing.
+- Prefer one small diff and one focused commit per task.
+- Add regression tests for behavior changes; never weaken tests to make CI pass.
+- Keep agent writers isolated by worktree; do not let multiple agents write the same checkout.
+- Record task ID, changed files, exact checks, exit codes, commit SHA, and CI SHA.
+- Continue without human confirmation for routine, reversible engineering decisions.
+- Stop only for actions requiring external authorization or a genuine safety boundary; continue independent offline work.
 
 ---
+
+**Rocksoul DX — Build bigger. Verify everything. Keep humans in control of the boundaries.**
