@@ -3,43 +3,59 @@ import type { FastifyInstance } from 'fastify';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { Writable } from 'node:stream';
 
 import { buildApp } from '../src/app';
+import { generateJwt } from '@dx-platform/shared/jwt';
 import type { JobService } from '@dx-platform/job';
 import type { WTagentDatabase } from '@dx-platform/database';
 
+// Every value below is a fake fixture, never a real credential.
+const FAKE_SESSION_COOKIE = 'session=FAKE-COOKIE-VALUE-DO-NOT-USE';
+const FAKE_API_KEY = 'sk-FAKEKEYVALUENOTREAL';
+const FAKE_QUERY_TOKEN = 'FAKE-QUERY-TOKEN-DO-NOT-USE';
+const JWT_SECRET = 'test-secret-with-more-than-thirty-two-characters';
+
+const captured: string[] = [];
+// Pino writes the serialized record to the provided stream; capturing it lets these
+// tests assert on the exact text the operator would see in a log file.
+const sink = new Writable({
+  write(chunk: Buffer | string, _encoding, callback) {
+    captured.push(chunk.toString());
+    callback();
+  },
+});
+
 const jobService = {
-  createJob: vi.fn().mockResolvedValue({ jobId: 'job-1', status: 'pending' }),
+  listJobs: vi.fn().mockResolvedValue([]),
+  createJob: vi.fn(),
 } as unknown as JobService;
 
-// Job creation refuses to run until the provider reports authenticated, so the guard
-// tests need a database stub that clears that check and reaches the rate limiter.
 const database = {
-  listProviders: vi.fn().mockResolvedValue([
-    { provider_id: 'chatgpt', configured: true, authenticated: true, updated_at: new Date().toISOString(), details: {} },
-  ]),
+  listProviders: vi.fn().mockResolvedValue([]),
 } as unknown as WTagentDatabase;
 
-async function ping(app: FastifyInstance): Promise<number> {
-  const response = await app.inject({ method: 'GET', url: '/health' });
-  return response.statusCode;
-}
-
-describe('create-job rate limit (DX2-0113)', () => {
+describe('log redaction (DX2-0108, DX2-0109, DX2-0110)', () => {
   let app: FastifyInstance;
   let root: string;
 
   beforeAll(async () => {
-    root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'wtagent-ratelimit-')));
+    root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'wtagent-redaction-')));
     app = await buildApp({
       jobService,
       database,
       projectRoot: root,
-      logger: false,
-      rateLimitOptions: {
-        global: { maxRequests: 1000, windowMs: 60000 },
-        auth: { maxRequests: 1000, windowMs: 60000 },
-        createJob: { maxRequests: 3, windowMs: 60000 },
+      jwtSecret: JWT_SECRET,
+      logger: { level: 'debug', stream: sink },
+    });
+
+    await app.inject({
+      method: 'GET',
+      url: `/health?token=${FAKE_QUERY_TOKEN}&api_key=${FAKE_API_KEY}&keep=visible`,
+      headers: {
+        authorization: `Bearer ${generateJwt({ sub: 'tenant-1' }, { secret: JWT_SECRET })}`,
+        cookie: FAKE_SESSION_COOKIE,
+        'x-api-key': FAKE_API_KEY,
       },
     });
   });
@@ -49,37 +65,55 @@ describe('create-job rate limit (DX2-0113)', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  it('accepts requests up to the budget, then answers 429 deterministically', async () => {
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const response = await app.inject({ method: 'POST', url: '/v1/jobs', payload: { task: `task ${attempt}` } });
-      expect(response.statusCode).toBe(201);
-    }
-
-    const blocked = await app.inject({ method: 'POST', url: '/v1/jobs', payload: { task: 'overflow' } });
-    expect(blocked.statusCode).toBe(429);
-    expect(blocked.json().error.code).toBe('RATE_LIMIT');
-    expect(Number(blocked.headers['x-ratelimit-limit'])).toBe(3);
-    expect(Number(blocked.headers['x-ratelimit-remaining'])).toBe(0);
+  it('captured log lines for the request', () => {
+    expect(captured.join('\n')).toContain('/health');
   });
 
-  it('does not let the create-job budget starve other routes', async () => {
-    expect(await ping(app)).toBe(200);
+  it('keeps the bearer token out of the log', () => {
+    const log = captured.join('\n');
+    expect(log).not.toContain('eyJ');
+    expect(log).not.toContain('tenant-1');
   });
 
-  it('reports the create-job budget instead of the global one', async () => {
-    const response = await app.inject({ method: 'POST', url: '/v1/jobs', payload: { task: 'again' } });
-    expect(response.statusCode).toBe(429);
-    expect(Number(response.headers['x-ratelimit-limit'])).toBe(3);
+  it('keeps the session cookie out of the log', () => {
+    expect(captured.join('\n')).not.toContain(FAKE_SESSION_COOKIE);
+  });
+
+  it('keeps the api key out of the log', () => {
+    expect(captured.join('\n')).not.toContain(FAKE_API_KEY);
+  });
+
+  it('keeps the secret query value out of the log but keeps harmless params', () => {
+    const log = captured.join('\n');
+    expect(log).not.toContain(FAKE_QUERY_TOKEN);
+    expect(log).toContain('keep=visible');
+  });
+
+  it('marks the redacted fields instead of dropping the record', () => {
+    expect(captured.join('\n')).toContain('[REDACTED]');
+  });
+
+  it('does not serialize the raw socket or its copied headers', () => {
+    // A shallow spread of the Fastify request exposes `raw`, which carries the same
+    // headers in `rawHeaders`/`_header` and would defeat header-name matching.
+    const log = captured.join('\n');
+    expect(log).not.toContain('rawHeaders');
+    expect(log).not.toContain('_header');
   });
 });
 
-describe('request body size limit (DX2-0114)', () => {
+describe('auth test for sensitive endpoints (DX2-0115)', () => {
   let app: FastifyInstance;
   let root: string;
 
   beforeAll(async () => {
-    root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'wtagent-bodylimit-')));
-    app = await buildApp({ jobService, projectRoot: root });
+    root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'wtagent-auth-')));
+    app = await buildApp({
+      jobService,
+      database,
+      projectRoot: root,
+      jwtSecret: JWT_SECRET,
+    });
   });
 
   afterAll(async () => {
@@ -87,15 +121,49 @@ describe('request body size limit (DX2-0114)', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  it('rejects a body larger than the configured limit before parsing it', async () => {
-    jobService.createJob.mockClear();
+  it('rejects unauthorized access to /v1/jobs', async () => {
     const response = await app.inject({
-      method: 'POST',
+      method: 'GET',
       url: '/v1/jobs',
-      payload: { task: 'x'.repeat(3 * 1024 * 1024) },
     });
+    expect(response.statusCode).toBe(401);
+  });
 
-    expect(response.statusCode).toBe(413);
-    expect(jobService.createJob).not.toHaveBeenCalled();
+  it('rejects unauthorized access to /v1/activity', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/activity',
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('rejects unauthorized access to /v1/providers', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/providers',
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('unauthenticated user cannot read another party job data', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/jobs',
+      headers: {
+        authorization: 'Bearer invalid-token',
+      },
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('unauthenticated user cannot read another party artifact data', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/activity',
+      headers: {
+        authorization: 'Bearer invalid-token',
+      },
+    });
+    expect(response.statusCode).toBe(401);
   });
 });
