@@ -37,8 +37,9 @@ function summarizeArgs(name, args: Record<string, any> = {}) {
   }
   if (name === "terminal.exec" || name === "process.start") {
     const program = args.program ?? "";
-    const argv = Array.isArray(args.argv) ? args.argv.join(" ") : (args.argv ?? "");
-    return truncate(`${program} ${argv}`.trim(), 80);
+    const argv = Array.isArray(args.argv) ? args.argv : (args.argv ?? "");
+    const argvDisplay = argv.length > 0 ? ` ${argv.slice(0, 3).join(" ")}…` : "";
+    return truncate(`${program}${argvDisplay}`.trim(), 80);
   }
   if (typeof name === "string" && name.startsWith("fs.")) {
     if (args.path) return truncate(String(args.path), 80);
