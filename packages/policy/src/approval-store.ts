@@ -10,10 +10,12 @@ export interface ApprovalStoreConstructorOptions {
 
 // Track which task IDs have approved which tools, to enforce identity separation:
 // a task cannot approve its own approval request (same taskId).
+// Approvals expire after a certain time to prevent indefinite reuse.
 export interface ApprovalRecord {
   toolName: string;
   taskId: string;
   approvedAt: string;
+  expiresAt: string;
 }
 
 export class ApprovalStore {
@@ -22,7 +24,8 @@ export class ApprovalStore {
   toolNames: Set<string>;
   allowAll: boolean;
   loaded: boolean;
-  approvals: Map<string, Set<string>>; // toolName -> Set of taskIds that approved
+  approvals: Map<string, Map<string, number>>; // toolName -> Map of taskId -> expiresAt (timestamp)
+  defaultExpiryMs: number; // Default expiry time in milliseconds (e.g., 24 hours)
 
   constructor({ filePath, taskId }: ApprovalStoreConstructorOptions) {
     this.filePath = filePath;
@@ -31,6 +34,8 @@ export class ApprovalStore {
     this.allowAll = false;
     this.loaded = false;
     this.approvals = new Map();
+    // Default expiry: 24 hours
+    this.defaultExpiryMs = 24 * 60 * 60 * 1000;
   }
 
   async ensureLoaded() {
@@ -51,11 +56,14 @@ export class ApprovalStore {
       for (const rec of parsed?.approvals ?? []) {
         if (rec?.toolName && Array.isArray(rec?.taskIds)) {
           if (!this.approvals.has(rec.toolName)) {
-            this.approvals.set(rec.toolName, new Set());
+            this.approvals.set(rec.toolName, new Map());
           }
-          for (const taskId of rec.taskIds) {
-            if (typeof taskId === "string" && taskId) {
-              this.approvals.get(rec.toolName)!.add(taskId);
+          for (const entry of rec.taskIds) {
+            if (entry?.taskId && typeof entry.taskId === "string" && entry.taskId) {
+              const expiresAt = typeof entry.expiresAt === "number" ? entry.expiresAt : Date.parse(entry.expiresAt);
+              if (!isNaN(expiresAt)) {
+                this.approvals.get(rec.toolName)!.set(entry.taskId, expiresAt);
+              }
             }
           }
         }
@@ -83,23 +91,49 @@ export class ApprovalStore {
     this.allowAll = true;
   }
 
-  /** Check whether a task is allowed to approve a given tool, enforcing identity separation. */
-  canApprove(toolName: string, taskId: string): boolean {
+  setDefaultExpiryMs(expiryMs: number) {
+    this.defaultExpiryMs = expiryMs;
+  }
+
+  /** Check whether a task is allowed to approve a given tool, enforcing identity separation and expiry. */
+  canApprove(toolName: string, taskId: string, now = Date.now()): boolean {
     // Always allow if allowAll is set (admin bypass).
     if (this.allowAll) return true;
-    // A task cannot approve its own approval request (identity separation).
-    if (this.approvals.has(toolName) && this.approvals.get(toolName)!.has(taskId)) {
-      return false;
+    // A task cannot approve its own approval request if it's still valid.
+    if (this.approvals.has(toolName)) {
+      const taskApprovals = this.approvals.get(toolName)!;
+      if (taskApprovals.has(taskId)) {
+        const expiresAt = taskApprovals.get(taskId)!;
+        if (now < expiresAt) {
+          return false; // Still valid, cannot re-approve
+        } else {
+          // Expired - clean up
+          taskApprovals.delete(taskId);
+          if (taskApprovals.size === 0) {
+            this.approvals.delete(toolName);
+          }
+        }
+      }
     }
     // Otherwise the task can approve this tool for the first time.
     return true;
   }
 
-  recordApproval(toolName: string, taskId: string) {
+  recordApproval(toolName: string, taskId: string, expiresAtMs?: number) {
+    const expiresAt = (expiresAtMs ?? this.defaultExpiryMs) + Date.now();
     if (!this.approvals.has(toolName)) {
-      this.approvals.set(toolName, new Set());
+      this.approvals.set(toolName, new Map());
     }
-    this.approvals.get(toolName)!.add(taskId);
+    this.approvals.get(toolName)!.set(taskId, expiresAt);
+  }
+
+  /** Check if a specific approval is still valid (not expired) */
+  isApprovalValid(toolName: string, taskId: string, now = Date.now()): boolean {
+    if (!this.approvals.has(toolName)) return false;
+    const taskApprovals = this.approvals.get(toolName)!;
+    if (!taskApprovals.has(taskId)) return false;
+    const expiresAt = taskApprovals.get(taskId)!;
+    return now < expiresAt;
   }
 
   async save() {
@@ -109,9 +143,12 @@ export class ApprovalStore {
       `${JSON.stringify({
         toolNames: [...this.toolNames].sort(),
         allowAll: this.allowAll,
-        approvals: Array.from(this.approvals.entries()).map(([toolName, taskIds]) => ({
+        approvals: Array.from(this.approvals.entries()).map(([toolName, taskMap]) => ({
           toolName,
-          taskIds: [...taskIds].sort(),
+          taskIds: Array.from(taskMap.entries()).map(([taskId, expiresAt]) => ({
+            taskId,
+            expiresAt,
+          })).sort((a, b) => a.taskId.localeCompare(b.taskId)),
         })),
       }, null, 2)}\n`,
       { mode: 0o600 },
