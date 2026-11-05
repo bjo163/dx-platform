@@ -196,18 +196,18 @@ Urutan fase memprioritaskan kestabilan, kontrak, keamanan, dan proof sebelum eks
 - [ ] **DX2-0024 [P0] Buat daftar package yang masih memakai scope lama** — Scope: packages/**/package.json. Done when: Daftar berasal dari manifest aktual..
 - [ ] **DX2-0025 [P0] Buat daftar package yang memakai scope baru** — Scope: packages/**/package.json, apps/**/package.json. Done when: Daftar mencakup semua workspace..
 - [ ] **DX2-0026 [P0] Samakan dependency internal pada satu package yang terpilih** — Scope: package manifest terkait. Done when: Build dan import consumer tetap lulus..
-- [ ] **DX2-0027 [P0] Samakan package filter CI dengan nama manifest aktual** — Scope: .github/workflows/ci.yml. Done when: Tidak ada selector package yang salah..
-- [ ] **DX2-0028 [P0] Samakan smoke-test CLI dengan package name dan binary name** — Scope: .github/workflows/ci.yml. Done when: CI menjalankan CLI lewat selector yang valid..
-- [ ] **DX2-0029 [P0] Samakan CLI repository URL dengan repository aktif** — Scope: packages/cli/package.json. Done when: Metadata mengarah ke bjo163/dx-platform..
-- [ ] **DX2-0030 [P0] Samakan CLI homepage URL dengan repository aktif** — Scope: packages/cli/package.json. Done when: Homepage mengarah ke repository aktif..
-- [ ] **DX2-0031 [P0] Samakan CLI bugs URL dengan repository aktif** — Scope: packages/cli/package.json. Done when: Issue URL mengarah ke repository aktif..
-- [ ] **DX2-0032 [P0] Verifikasi bin CLI hanya mengekspos command yang diputuskan** — Scope: packages/cli/package.json. Done when: Manifest, test, dan target file sepakat..
-- [ ] **DX2-0033 [P0] Verifikasi target executable tersedia sesudah build** — Scope: packages/cli dist output. Done when: Smoke test version berhasil..
-- [ ] **DX2-0034 [P0] Periksa main, types, dan exports package CLI** — Scope: packages/cli/package.json. Done when: Semua path tersedia di packed output..
+- [x] **DX2-0027 [P0] Samakan package filter CI dengan nama manifest aktual** — Scope: .github/workflows/ci.yml. Done when: Tidak ada selector package yang salah..
+- [x] **DX2-0028 [P0] Samakan smoke-test CLI dengan package name dan binary name** — Scope: .github/workflows/ci.yml. Done when: CI menjalankan CLI lewat selector yang valid..
+- [x] **DX2-0029 [P0] Samakan CLI repository URL dengan repository aktif** — Scope: packages/cli/package.json. Done when: Metadata mengarah ke bjo163/dx-platform..
+- [x] **DX2-0030 [P0] Samakan CLI homepage URL dengan repository aktif** — Scope: packages/cli/package.json. Done when: Homepage mengarah ke repository aktif..
+- [x] **DX2-0031 [P0] Samakan CLI bugs URL dengan repository aktif** — Scope: packages/cli/package.json. Done when: Issue URL mengarah ke repository aktif..
+- [x] **DX2-0032 [P0] Verifikasi bin CLI hanya mengekspos command yang diputuskan** — Scope: packages/cli/package.json. Done when: Manifest, test, dan target file sepakat..
+- [x] **DX2-0033 [P0] Verifikasi target executable tersedia sesudah build** — Scope: packages/cli dist output. Done when: Smoke test version berhasil..
+- [x] **DX2-0034 [P0] Periksa main, types, dan exports package CLI** — Scope: packages/cli/package.json. Done when: Semua path tersedia di packed output..
 - [ ] **DX2-0035 [P0] Periksa root dan nested lockfile** — Scope: lockfiles. Done when: Lockfile authoritative dipilih setelah consumer dan CI diperiksa..
 - [ ] **DX2-0036 [P0] Hapus lockfile duplikat hanya setelah dependency dipetakan** — Scope: lockfiles. Done when: Frozen install lulus di OS matrix..
-- [ ] **DX2-0037 [P0] Tambahkan ignore untuk Next build output pada lokasi nested** — Scope: .gitignore. Done when: Generated .next tidak muncul sebagai source baru..
-- [ ] **DX2-0038 [P0] Untrack hanya generated artifact yang dapat direproduksi** — Scope: Git index. Done when: Tidak ada source atau input user ikut terhapus..
+- [x] **DX2-0037 [P0] Tambahkan ignore untuk Next build output pada lokasi nested** — Scope: .gitignore. Done when: Generated .next tidak muncul sebagai source baru..
+- [x] **DX2-0038 [P0] Untrack hanya generated artifact yang dapat direproduksi** — Scope: Git index. Done when: Tidak ada source atau input user ikut terhapus..
 - [ ] **DX2-0039 [P0] Samakan env example dengan runtime reader aktual** — Scope: .env.example, README.md. Done when: Setiap env yang dicontohkan dikenali runtime atau diberi label legacy..
 - [ ] **DX2-0040 [P0] Perbaiki klaim privasi/local-first yang tidak sesuai data flow** — Scope: README.md, privacy docs. Done when: Browser provider dijelaskan sebagai pihak ketiga..
 
@@ -776,5 +776,6 @@ Tambahkan satu baris per batch yang benar-benar dikerjakan. Jangan mengisi statu
 |---|---|---|---|---|---|
 | 2026-11-05 | Backlog authored; execution not started | To be recorded | Document-only change | Pending | Semua task DX2 berstatus belum dikerjakan |
 | 2026-11-05 | DX2-0001 s/d DX2-0020 (M00 re-baseline) + perbaikan baseline CI | `2d6c476`, `e1bd9b5`, `1cf3f96` | `pnpm exec vitest run` (28 file / 276 test), `pnpm --filter @dx-platform/tests test` (session lock, 24 lulus), `pnpm install --frozen-lockfile`, `pnpm check` | `1cf3f96` / **success**, 5 job hijau (dom + ubuntu/windows × Node 20.17.0/22.13.0) | `main` tadinya merah 5 run berturut-turut; 5 akar masalah berbeda diperbaiki. Bukti lengkap di `.plans/baseline-2026-11-05.md`. Todo.md v1 TIDAK diubah: 0 tercentang vs klaim 192 verified di history, perlu bukti ulang per task |
+| 2026-11-05 | DX2-0027, 0028, 0029, 0030, 0031, 0032, 0033, 0034, 0037, 0038 (M01 batch 1) | tercatat di commit batch ini | `pnpm --filter @dx-platform/api build`, `pnpm --filter @dx-platform/web build`, DOM tests `WTAGENT_DOM_TESTS=1` (14 lulus), `node dist/main.js --version`, `pack --dry-run` | Diverifikasi pada run push batch ini; hasil dicatat di baris berikutnya bila ada kegagalan | 5 filter CI ternyata no-op (`@neuralforge/*` tidak ada; pnpm exit 0), jadi `apps/api` + `apps/web` belum pernah dibangun CI dan 14 test DOM belum pernah jalan. 126 artefak `.next` di-untrack, file tetap di disk. Dua temuan ditunda sebagai keputusan produk: `NOTICES_URL` milik repo pihak ketiga, dan `packages/security/src` tidak pernah di-build/diuji |
 
 **Starting instruction:** mulai dari DX2-0001, lakukan audit terbaru secara read-only, rekonsiliasi todo.md, lalu lanjutkan task READY pertama. Jangan lompat ke UI/branding saat P0/P1 gate masih gagal.

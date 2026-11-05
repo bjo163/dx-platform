@@ -5,11 +5,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XiXian42/neuralforge.git"
+    "url": "git+https://github.com/bjo163/dx-platform.git"
   },
-  "homepage": "https://github.com/XiXian42/neuralforge#readme",
+  "homepage": "https://github.com/bjo163/dx-platform#readme",
   "bugs": {
-    "url": "https://github.com/XiXian42/neuralforge/issues"
+    "url": "https://github.com/bjo163/dx-platform/issues"
   },
   "keywords": [
     "agent",

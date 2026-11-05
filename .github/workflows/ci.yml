@@ -42,10 +42,10 @@ jobs:
         run: pnpm build
 
       - name: Build API
-        run: pnpm --filter @neuralforge/api build
+        run: pnpm --filter @dx-platform/api build
 
       - name: Build web app
-        run: pnpm --filter @neuralforge/web build
+        run: pnpm --filter @dx-platform/web build
 
       - name: Smoke-test CLI
         run: pnpm --filter neuralforge exec node dist/main.js --version
@@ -73,10 +73,10 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm build
       - name: Install isolated Chromium
-        run: pnpm --filter @neuralforge/tests exec playwright-core install --with-deps chromium
+        run: pnpm --filter @dx-platform/tests exec playwright-core install --with-deps chromium
       - name: Browser DOM and rendered-text regression tests
         env:
           WTAGENT_DOM_TESTS: "1"
         run: |
-          export WTAGENT_CHROME_PATH="$(pnpm --filter @neuralforge/tests exec node --input-type=module -e 'import { chromium } from "playwright-core"; console.log(chromium.executablePath())')"
-          pnpm --filter @neuralforge/tests test test/chatgpt-dom.test.js test/rendered-text.test.js
+          export WTAGENT_CHROME_PATH="$(pnpm --filter @dx-platform/tests exec node --input-type=module -e 'import { chromium } from "playwright-core"; console.log(chromium.executablePath())')"
+          pnpm --filter @dx-platform/tests test test/chatgpt-dom.test.js test/rendered-text.test.js
