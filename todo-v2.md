@@ -288,8 +288,8 @@ Urutan fase memprioritaskan kestabilan, kontrak, keamanan, dan proof sebelum eks
 - [ ] **DX2-0098 [P0] Verifikasi symlink tidak melewati workspace boundary** — Scope: packages/policy. Done when: Symlink escape ditolak..
 - [ ] **DX2-0099 [P0] Uji path case sensitivity sesuai OS** — Scope: packages/policy tests. Done when: POSIX dan Windows mengikuti filesystem..
 - [ ] **DX2-0100 [P0] Validasi command executable dengan allowlist policy** — Scope: packages/tools. Done when: Command policy tidak hanya memeriksa substring..
-- [ ] **DX2-0101 [P0] Pisahkan executable dan argument saat spawn** — Scope: packages/tools. Done when: Argumen tidak digabung ke shell string default..
-- [ ] **DX2-0102 [P0] Nonaktifkan shell interpolation pada local model command** — Scope: packages/local. Done when: Path/argumen dikirim sebagai argv..
+- [x] **DX2-0101 [P0] Pisahkan executable dan argument saat spawn** — Scope: packages/tools. Done when: Argumen tidak digabung ke shell string default..
+- [x] **DX2-0102 [P0] Nonaktifkan shell interpolation pada local model command** — Scope: packages/local. Done when: Path/argumen dikirim sebagai argv..
 - [ ] **DX2-0103 [P0] Tambahkan timeout wajib pada subprocess** — Scope: packages/tools. Done when: Process dihentikan setelah budget..
 - [ ] **DX2-0104 [P0] Batasi ukuran stdout process** — Scope: packages/tools. Done when: Output berlebih dipotong dengan metadata..
 - [ ] **DX2-0105 [P0] Batasi ukuran stderr process** — Scope: packages/tools. Done when: Stderr tidak dapat memenuhi memory tanpa batas..
