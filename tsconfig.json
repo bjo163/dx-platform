@@ -57,6 +57,24 @@
     },
     {
       "path": "./packages/gateway"
+    },
+    {
+      "path": "./packages/job"
+    },
+    {
+      "path": "./packages/plugins"
+    },
+    {
+      "path": "./packages/config-api"
+    },
+    {
+      "path": "./packages/local"
+    },
+    {
+      "path": "./packages/openapi"
+    },
+    {
+      "path": "./packages/observability"
     }
   ]
 }

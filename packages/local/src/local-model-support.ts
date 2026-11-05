@@ -34,7 +34,7 @@ export interface LocalModelSupportOptions {
   lmstudio?: LMStudioConfig;
 }
 
-class LocalModelSupport {
+export class LocalModelSupport {
   private ollama: OllamaConfig | undefined;
   private lmstudio: LMStudioConfig | undefined;
 
@@ -86,7 +86,8 @@ class LocalModelSupport {
   }
 
   async generateWithOllama(prompt: string, model?: string): Promise<string> {
-    const mdl = model ?? this.ollama?.model ?? "llama2";
+    if (!this.ollama) return "";
+    const mdl = model ?? this.ollama.model ?? "llama2";
     try {
       const result = await this.#execCommand(
         `curl -s -X POST http://${this.ollama.host}:${this.ollama.port}/api/generate -d '{"model":"${mdl}","prompt":"${prompt}"}'`
@@ -100,7 +101,8 @@ class LocalModelSupport {
   }
 
   async generateWithLMStudio(prompt: string, model?: string): Promise<string> {
-    const mdl = model ?? this.lmstudio?.model ?? "local-model";
+    if (!this.lmstudio) return "";
+    const mdl = model ?? this.lmstudio.model ?? "local-model";
     try {
       const result = await this.#execCommand(
         `curl -s -X POST http://${this.lmstudio.host}:${this.lmstudio.port}/v1/completions -d '{"model":"${mdl}","prompt":"${prompt}"}'`

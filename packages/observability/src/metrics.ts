@@ -18,31 +18,31 @@ export interface Metric {
 }
 
 export class MetricsRegistry {
-  private metrics = new Map<string, Metric>();
+  private entries = new Map<string, Metric>();
 
   counter(name: string, help: string): Counter {
-    if (!this.metrics.has(name)) {
-      this.metrics.set(name, { name, help, type: 'counter', samples: [{ labels: {}, value: 0 }] });
+    if (!this.entries.has(name)) {
+      this.entries.set(name, { name, help, type: 'counter', samples: [{ labels: {}, value: 0 }] });
     }
     return new Counter(this, name);
   }
 
   gauge(name: string, help: string): Gauge {
-    if (!this.metrics.has(name)) {
-      this.metrics.set(name, { name, help, type: 'gauge', samples: [{ labels: {}, value: 0 }] });
+    if (!this.entries.has(name)) {
+      this.entries.set(name, { name, help, type: 'gauge', samples: [{ labels: {}, value: 0 }] });
     }
     return new Gauge(this, name);
   }
 
   inc(name: string, labels: MetricLabels = {}, value = 1): void {
-    const metric = this.metrics.get(name);
+    const metric = this.entries.get(name);
     if (!metric || metric.type !== 'counter') return;
     const sample = this.findOrCreateSample(metric, labels);
     sample.value += value;
   }
 
   set(name: string, labels: MetricLabels = {}, value: number): void {
-    const metric = this.metrics.get(name);
+    const metric = this.entries.get(name);
     if (!metric || metric.type !== 'gauge') return;
     const sample = this.findOrCreateSample(metric, labels);
     sample.value = value;
@@ -59,12 +59,12 @@ export class MetricsRegistry {
   }
 
   metrics(): Metric[] {
-    return [...this.metrics.values()];
+    return [...this.entries.values()];
   }
 
   prometheus(): string {
     const lines: string[] = [];
-    for (const metric of this.metrics.values()) {
+    for (const metric of this.entries.values()) {
       lines.push(`# HELP ${metric.name} ${metric.help}`);
       lines.push(`# TYPE ${metric.name} ${metric.type}`);
       for (const sample of metric.samples) {
@@ -79,7 +79,7 @@ export class MetricsRegistry {
   }
 
   clear(): void {
-    this.metrics.clear();
+    this.entries.clear();
   }
 }
 

@@ -42,6 +42,25 @@ const BUILD_SCRIPT_EXCEPTIONS = {
   "packages/tests": "private vitest harness: it runs other packages, it publishes no dist of its own",
 };
 
+// `tsc -b` builds the projects listed in the root solution, so a package that is
+// missing from it is never typechecked by `pnpm check` or by CI. Each exception
+// below states why that is still correct.
+const ROOT_GRAPH_EXCEPTIONS = {
+  "apps/api": "not a composite project, so the solution refuses it; CI builds it through its own --filter step",
+  "packages/ws-server": "compiles clean only after JobService.update/finalize and JobRecord.progress are settled",
+};
+
+// A package whose own sources do not compile cannot ship a passing typecheck
+// command, so it is listed instead of given a script that would fail CI.
+const TYPECHECK_EXCEPTIONS = {
+  "packages/ws-server": "10 type errors: `private #field` syntax, http.Socket, and a JobService API that does not exist",
+};
+
+const rootSolution = JSON.parse(read("tsconfig.json"));
+const rootGraph = new Set((rootSolution.references || []).map((r) => r.path.replace(/^(\.\/|\/)/, "")));
+const hasTsconfig = (rel) => exists(rel, "tsconfig.json");
+const hasBuildScript = (rel) => Boolean((JSON.parse(read(rel, "package.json")).scripts || {}).build);
+
 const sourceBlobs = [
   ...walk(path.join(root, "packages"), isSource).filter((f) => f.includes(`${path.sep}src${path.sep}`)),
   ...walk(path.join(root, "apps"), isSource).filter((f) => f.includes(`${path.sep}src${path.sep}`)),
@@ -82,8 +101,38 @@ test("every package has a build script or a recorded reason", () => {
   assert.deepEqual(stale, [], "an exception entry no longer matches reality; remove it");
 });
 
-test("a package with specs has a test script, and a test script has specs", () => {
+test("every tsc -b package is in the root solution or has a recorded reason", () => {
+  const unlisted = [];
+  for (const { rel, pkg } of packages) {
+    if ((pkg.scripts || {}).build !== "tsc -b") continue;
+    if (!hasTsconfig(rel)) continue;
+    if (!rootGraph.has(rel) && !ROOT_GRAPH_EXCEPTIONS[rel]) unlisted.push(rel);
+  }
+  assert.deepEqual(unlisted, [], "a package outside the root solution is never typechecked by `pnpm check`");
+
+  const stale = Object.keys(ROOT_GRAPH_EXCEPTIONS).filter((rel) => {
+    const entry = packages.find((candidate) => candidate.rel === rel);
+    return !entry || rootGraph.has(rel) || (entry.pkg.scripts || {}).build !== "tsc -b";
+  });
+  assert.deepEqual(stale, [], "a graph exception that no longer applies hides a package from every check");
+});
+
+test("every typecheckable package has a typecheck command", () => {
   const missing = [];
+  for (const { rel, pkg } of packages) {
+    if (!hasTsconfig(rel)) continue;
+    if (!(pkg.scripts || {}).typecheck && !TYPECHECK_EXCEPTIONS[rel]) missing.push(rel);
+  }
+  assert.deepEqual(missing, [], "packages with a tsconfig must expose `pnpm --filter <pkg> typecheck`");
+
+  const stale = Object.keys(TYPECHECK_EXCEPTIONS).filter((rel) => {
+    const entry = packages.find((candidate) => candidate.rel === rel);
+    return !entry || Boolean((entry.pkg.scripts || {}).typecheck);
+  });
+  assert.deepEqual(stale, [], "a typecheck exception that now has a script is stale");
+});
+
+test("a package with specs has a test script, and a test script has specs", () => {  const missing = [];
   const phantom = [];
   for (const { rel, pkg } of packages) {
     const specs = walk(path.join(root, rel, "test"), isSpec);
@@ -193,4 +242,68 @@ test("CI package filters select packages that exist", () => {
   // pnpm exits 0 when a filter matches nothing, so a typo here silently no-ops.
   const unknown = filters.filter((filter) => !packageNames.has(filter));
   assert.deepEqual(unknown, [], `CI filters match no workspace package: ${unknown.join(", ")}`);
+});
+
+const LINT_CONFIG_NAMES = [  "eslint.config.js",
+  "eslint.config.mjs",
+  "eslint.config.cjs",
+  "eslint.config.ts",
+  ".eslintrc.js",
+  ".eslintrc.cjs",
+  ".eslintrc.json",
+  ".eslintrc.yml",
+  "biome.json",
+  "biome.jsonc",
+  ".oxlintrc.json",
+];
+
+test("a solution package emits into a build directory, not into src", () => {
+  const noOutDir = [];
+  for (const rel of rootGraph) {
+    if (!exists(rel, "tsconfig.json")) continue;
+    if (!hasBuildScript(rel)) continue;
+    const config = read(rel, "tsconfig.json");
+    if (!/"outDir"/.test(config)) noOutDir.push(rel);
+  }
+  assert.deepEqual(noOutDir, [], "a package without outDir emits next to its sources, where the manifest cannot find it");
+
+  // A build script that emits nothing leaves the manifest promising a dist/ the
+  // build can never produce.
+  const suppressed = [...rootGraph].filter((rel) => {
+    if (!exists(rel, "tsconfig.json") || !hasBuildScript(rel)) return false;
+    return /"noEmit":\s*true/.test(read(rel, "tsconfig.json"));
+  });
+  assert.deepEqual(suppressed, [], "a package in the solution may not build with noEmit and still publish a main");
+
+  const emitted = [];
+  for (const { rel } of packages) {
+    const srcDir = path.join(root, rel, "src");
+    for (const file of walk(srcDir, (name) => /\.(js|mjs|cjs)$/.test(name) || name.endsWith(".d.ts"))) {
+      const base = file.endsWith(".d.ts") ? file.slice(0, -".d.ts".length) : file.replace(/\.(js|mjs|cjs)$/, "");
+      if (fs.existsSync(`${base}.ts`) || fs.existsSync(`${base}.tsx`)) {
+        emitted.push(`${rel}: ${path.relative(path.join(root, rel), file)} sits beside its .ts source`);
+      }
+    }
+  }
+  assert.deepEqual(emitted, [], "build output committed into src/ shadows the source it was built from");
+});
+
+test("a lint script is only allowed where a lint configuration exists", () => {
+  // DX2-0072 asks for a lint command only if lint is configured. The command is
+  // the dangerous half: without a config file it fails, or worse, prompts.
+  const declared = packages
+    .filter(({ pkg }) => (pkg.scripts || {}).lint)
+    .map(({ rel, pkg }) => ({ rel, command: pkg.scripts.lint }));
+
+  const unsupported = declared.filter(({ rel }) => {
+    return !LINT_CONFIG_NAMES.some((name) => exists(rel, name)) && !LINT_CONFIG_NAMES.some((name) => exists(name));
+  });
+  assert.deepEqual(unsupported, [], "a lint script with no configuration file is a command that cannot pass");
+
+  if (declared.length === 0) {
+    assert.ok(
+      !LINT_CONFIG_NAMES.some((name) => exists(name)),
+      "a lint config exists but no package declares a lint command",
+    );
+  }
 });

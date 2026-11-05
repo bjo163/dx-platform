@@ -115,12 +115,7 @@ export function generateOpenAPISpec(
     security: [{ [options.authHeader ?? 'Bearer']: [] }],
   };
 
-  // Collect all routes from the fastify app
-  const routes = app._router;
-
-  // Iterate over all routes and build OpenAPI paths
-  // ... (simplified - in practice would walk the router tree)
-
+  // Router walking is unimplemented, so `paths` is always empty.
   return spec;
 }
 
@@ -180,5 +175,3 @@ export function addSchema(
 ): void {
   spec.components!.schemas![name] = schema;
 }
-
-export type { OpenAPISpec, OpenAPIPath, OpenAPIOperation, OpenAPIParameter, OpenAPIResponse, OpenAPIInfo, OpenAPIServer, OpenAPISpec };

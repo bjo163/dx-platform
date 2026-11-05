@@ -59,6 +59,43 @@ jobs:
       - name: Validate types
         run: pnpm check
 
+  clean-build:
+    name: clean-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.13.0
+          cache: pnpm
+
+      - name: Refuse a checkout that ships build output
+        shell: bash
+        run: |
+          build_output=$(git ls-files | { grep -E '(^|/)dist/|\.tsbuildinfo$' || true; })
+          if [ -n "$build_output" ]; then
+            echo "build output is committed, so this build would not prove anything:"
+            printf '%s\n' "$build_output"
+            exit 1
+          fi
+
+      - name: Install with frozen lockfile and no lifecycle scripts
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Build from sources only
+        run: pnpm build
+
+      - name: Assert every manifest entrypoint was produced
+        run: node scripts/assert-dist.mjs
+
+      - name: Typecheck the whole solution
+        run: pnpm check
+
   dom:
     runs-on: ubuntu-latest
     steps:

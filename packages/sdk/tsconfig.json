@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "composite": true,
     "resolveJsonModule": true,
     "tsBuildInfoFile": "./dist/tsbuildinfo"
   },

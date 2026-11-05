@@ -12,6 +12,7 @@
     }
   },
   "scripts": {
+    "typecheck": "tsc -b --force",
     "build": "tsc -b",
     "clean": "rm -rf dist"
   },

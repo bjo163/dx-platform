@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "typecheck": "tsc -b --force",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
