@@ -51,10 +51,24 @@ jobs:
         run: pnpm --filter neuralforge exec node dist/main.js --version
 
       - name: Validate CLI package contents
-        run: pnpm --filter neuralforge pack --dry-run
+        run: |
+          pnpm --filter neuralforge pack --dry-run > pack-dry-run.txt
+          # Verify no cache or private paths in packed file list
+          if grep -qiE '(cache|private|__pycache__|\.env)' pack-dry-run.txt; then
+            echo "FAIL: packed tarball contains cache or private paths:"
+            grep -iE '(cache|private|__pycache__|\.env)' pack-dry-run.txt
+            exit 1
+          fi
+          echo "PASS: packed tarball has no cache or private paths"
 
       - name: Test suite
         run: pnpm test
+        # Upload test artifacts on failure (no secrets/profile)
+        - uses: actions/upload-artifact@v4
+          with:
+            name: test-summary-${{ matrix.os }}-${{ matrix.node-version }}
+            path: .pnpm/logs
+            if: failure()
 
       - name: Validate types
         run: pnpm check
@@ -124,3 +138,9 @@ jobs:
             grep -E "skipped" browser-lane.log
             exit 1
           fi
+        # Upload browser lane log as artifact on failure (no secrets/profile)
+        - uses: actions/upload-artifact@v4
+          with:
+            name: browser-lane-log-${{ matrix.os }}-${{ matrix.node-version }}
+            path: browser-lane.log
+            if: failure()
