@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { writeConfig } from "@neuralforge/shared/paths";
+import { writeConfig } from "@dx-platform/shared/paths";
 
 export interface PluginManifest {
   name: string;

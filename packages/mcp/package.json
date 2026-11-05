@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/mcp",
+  "name": "@dx-platform/mcp",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -21,11 +21,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/tools": "workspace:*",
-    "@neuralforge/policy": "workspace:*"
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/tools": "workspace:*",
+    "@dx-platform/policy": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+

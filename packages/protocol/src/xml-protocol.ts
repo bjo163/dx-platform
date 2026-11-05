@@ -1,17 +1,17 @@
 import { XMLParser, XMLValidator } from "fast-xml-parser";
-import { ProtocolError } from "@neuralforge/shared/errors";
+import { ProtocolError } from "@dx-platform/shared";
 import { findXmlElement, xmlTags } from "./envelope.js";
 import {
   truncateUtf8HeadTail,
   utf8ByteLength,
-} from "@neuralforge/shared/text-budget";
+} from "@dx-platform/shared";
 import type {
   AgentToolCall,
   ParsedAgentResponse,
   ProtocolToolResult,
   XmlTextField,
   XmlTextFieldName,
-} from "@neuralforge/types";
+} from "@dx-platform/types";
 
 // fast-xml-parser returns whatever shape the document happened to have, so
 // every parsed value is normalized into this recursive union first. The

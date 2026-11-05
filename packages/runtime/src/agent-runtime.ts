@@ -6,16 +6,16 @@ import {
   serializeProtocolError,
   serializeToolResult,
   serializeToolResults,
-} from "@neuralforge/protocol/xml-protocol";
+} from "@dx-platform/protocol";
 import {
   appendSystemReminder,
   DEFAULT_SYSTEM_REMINDER,
   NATIVE_IMAGE_SYSTEM_REMINDER,
-} from "@neuralforge/protocol/markers";
+} from "@dx-platform/protocol";
 import {
   buildBootstrapPrompt,
   buildResumePrompt,
-} from "@neuralforge/protocol/prompt-builder";
+} from "@dx-platform/protocol";
 import {
   assistantMessage,
   functionCall,
@@ -23,20 +23,20 @@ import {
   messageText,
   toolResultOutput,
   userMessage,
-} from "@neuralforge/session/canonical-transcript";
-import { DEFAULT_LIMITS } from "@neuralforge/shared/limits";
-import { MUSIC_SYSTEM_REMINDER } from "@neuralforge/audio/native-music-receiver";
-import { utf8ByteLength } from "@neuralforge/shared/text-budget";
+} from "@dx-platform/session";
+import { DEFAULT_LIMITS } from "@dx-platform/shared";
+import { MUSIC_SYSTEM_REMINDER } from "@dx-platform/audio";
+import { utf8ByteLength } from "@dx-platform/shared";
 import {
   BrowserAdapterError,
   ProtocolError,
   ToolValidationError,
-} from "@neuralforge/shared/errors";
+} from "@dx-platform/shared";
 import {
   isConnectionLostError,
   isValidOutboundCorrelationId,
-} from "@neuralforge/browser/base-web-adapter";
-import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
+} from "@dx-platform/browser";
+import { isUsageLimitNotice } from "@dx-platform/shared";
 
 const EMPTY_ASSISTANT_CONTINUE_MESSAGE =
   "The previous assistant response was empty. Continue the immediately preceding task "

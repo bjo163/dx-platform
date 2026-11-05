@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { AgentToolCall, PolicyContext, PolicyDecision } from "@neuralforge/types";
+import type { AgentToolCall, PolicyContext, PolicyDecision } from "@dx-platform/types";
 import type { ApprovalStore } from "./approval-store.js";
 import { resolveToolPath } from "./path-guard.js";
 

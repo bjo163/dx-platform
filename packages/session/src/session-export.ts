@@ -12,7 +12,7 @@
 // in a Codex or Claude Code session — those runtimes drive their own tools.
 
 import { randomUUID } from "node:crypto";
-import { stripSystemMarkers } from "@neuralforge/protocol/markers";
+import { stripSystemMarkers } from "@dx-platform/protocol";
 import { isDeveloper, messageText } from "./canonical-transcript.js";
 
 function jsonl(records) {

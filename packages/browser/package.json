@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/browser",
+  "name": "@dx-platform/browser",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,14 +22,15 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/platform": "workspace:*",
-    "@neuralforge/protocol": "workspace:*",
-    "@neuralforge/tools": "workspace:*"
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/platform": "workspace:*",
+    "@dx-platform/protocol": "workspace:*",
+    "@dx-platform/tools": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
     "playwright-core": "^1.62.0"
   }
 }
+

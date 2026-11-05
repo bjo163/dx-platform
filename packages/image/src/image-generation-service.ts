@@ -1,5 +1,5 @@
-import { ArtifactStore } from "@neuralforge/artifacts/artifact-store";
-import type { ArtifactRecord, ImageServiceContext } from "@neuralforge/types";
+import { ArtifactStore } from "@dx-platform/artifacts";
+import type { ArtifactRecord, ImageServiceContext } from "@dx-platform/types";
 import type {
   CompletionUnknownError,
   ImageGenerationDriver,

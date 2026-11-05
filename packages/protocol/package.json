@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/protocol",
+  "name": "@dx-platform/protocol",
   "version": "1.0.3",
   "description": "Protocol utilities for NeuralForge.",
   "type": "module",
@@ -23,11 +23,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/types": "workspace:*",
     "fast-xml-parser": "^5.10.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+

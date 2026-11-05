@@ -22,3 +22,8 @@ packages:
   - packages/database
   - packages/errors
   - packages/sdk
+  - packages/config-api
+  - packages/local
+  - packages/ws-server
+  - packages/openapi
+  - packages/observability

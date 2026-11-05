@@ -1,7 +1,7 @@
 import net from "node:net";
 import { spawn } from "node:child_process";
 import { chromium } from "playwright-core";
-import { killProcessTree } from "@neuralforge/tools/process-utils";
+import { killProcessTree } from "@dx-platform/tools";
 import {
   acquireCdpProfileLock,
   discoverReusableCdpState,

@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 // The identity the CLI reports and `neuralforge update` queries is the published app
 // package, not the library that reads it. Relative to this module's directory the
-// app manifest is two levels up in the workspace and three up beside @neuralforge/*.
+// app manifest is two levels up in the workspace and three up beside @dx-platform/*.
 const CANDIDATES = [
   "../../cli/package.json",
   "../../../neuralforge/package.json",

@@ -1,4 +1,4 @@
-import { readConfig, writeConfig } from "@neuralforge/shared/paths";
+import { readConfig, writeConfig } from "@dx-platform/shared/paths";
 
 export interface RuntimeConfig {
   provider: string;
@@ -36,19 +36,22 @@ export class ConfigAPI {
   private defaultConfig: Partial<RuntimeConfig>;
   private currentConfig: RuntimeConfig;
 
-  constructor(options: ConfigAPIOptions = {}) {
-    this.configDir = options.configDir ?? ".neuralforge";
-    this.defaultConfig = options.defaultConfig ?? {};
-    this.currentConfig = this.#loadConfig();
+  private constructor(configDir: string, defaultConfig: Partial<RuntimeConfig>, initialConfig: RuntimeConfig) {
+    this.configDir = configDir;
+    this.defaultConfig = defaultConfig;
+    this.currentConfig = initialConfig;
   }
 
-  #loadConfig(): RuntimeConfig {
+  static async create(options: ConfigAPIOptions = {}): Promise<ConfigAPI> {
+    const configDir = options.configDir ?? ".neuralforge";
+    const defaultConfig = options.defaultConfig ?? {};
     const envConfig = this.#loadFromEnvironment();
-    const fileConfig = this.#loadFromFile();
-    return this.#mergeConfigs(this.defaultConfig, fileConfig, envConfig);
+    const fileConfig = await this.#loadFromFile(configDir);
+    const initialConfig = this.#mergeConfigs(defaultConfig, fileConfig, envConfig);
+    return new ConfigAPI(configDir, defaultConfig, initialConfig);
   }
 
-  #loadFromEnvironment(): Partial<RuntimeConfig> {
+  static #loadFromEnvironment(): Partial<RuntimeConfig> {
     const config: Partial<RuntimeConfig> = {};
     if (process.env.WTAGENT_PROVIDER) config.provider = process.env.WTAGENT_PROVIDER;
     if (process.env.WTAGENT_MODEL) config.model = process.env.WTAGENT_MODEL;
@@ -59,23 +62,23 @@ export class ConfigAPI {
     return config;
   }
 
-  #loadFromFile(): Partial<RuntimeConfig> {
+  static async #loadFromFile(configDir: string): Promise<Partial<RuntimeConfig>> {
     try {
-      return readConfig(this.configDir, "config.json") as Partial<RuntimeConfig>;
+      return await readConfig(configDir, "config.json") as Partial<RuntimeConfig>;
     } catch {
       return {};
     }
   }
 
-  #mergeConfigs(...configs: Partial<RuntimeConfig>[]): RuntimeConfig {
-    return configs.reduce((acc, config) => {
+  static #mergeConfigs(...configs: Partial<RuntimeConfig>[]): RuntimeConfig {
+    return configs.reduce((acc: RuntimeConfig, config: Partial<RuntimeConfig>) => {
       for (const [key, value] of Object.entries(config)) {
         if (value !== undefined) {
-          (acc as Record<string, unknown>)[key] = value;
+          acc[key] = value;
         }
       }
       return acc;
-    }, {} as RuntimeConfig);
+    }, { provider: "", model: "" } as RuntimeConfig);
   }
 
   getConfig(): RuntimeConfig {
@@ -83,7 +86,7 @@ export class ConfigAPI {
   }
 
   async updateConfig(request: ConfigUpdateRequest): Promise<ConfigUpdateResponse> {
-    const merged = this.#mergeConfigs(this.currentConfig, request);
+    const merged = ConfigAPI.#mergeConfigs(this.currentConfig, request);
     await writeConfig(this.configDir, "config.json", merged);
     this.currentConfig = merged;
     return {
@@ -94,8 +97,8 @@ export class ConfigAPI {
   }
 
   async resetToDefaults(): Promise<ConfigUpdateResponse> {
-    const envConfig = this.#loadFromEnvironment();
-    this.currentConfig = this.#mergeConfigs(this.defaultConfig, envConfig);
+    const envConfig = ConfigAPI.#loadFromEnvironment();
+    this.currentConfig = ConfigAPI.#mergeConfigs(this.defaultConfig, envConfig);
     await writeConfig(this.configDir, "config.json", this.currentConfig);
     return {
       config: { ...this.currentConfig },
@@ -105,6 +108,6 @@ export class ConfigAPI {
   }
 }
 
-export function createConfigAPI(options: ConfigAPIOptions = {}): ConfigAPI {
-  return new ConfigAPI(options);
+export function createConfigAPI(options: ConfigAPIOptions = {}): Promise<ConfigAPI> {
+  return ConfigAPI.create(options);
 }

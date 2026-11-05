@@ -10,11 +10,11 @@ import {
   type DomDriftReport,
   type DomStructure,
 } from "./dom-drift.js";
-import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
-import { ensureDirectory } from "@neuralforge/platform/paths";
-import { BrowserAdapterError } from "@neuralforge/shared/errors";
-import { hasCompleteAgentEnvelope } from "@neuralforge/protocol/envelope";
-export { hasCompleteAgentEnvelope } from "@neuralforge/protocol/envelope";
+import { discoverChromeExecutable } from "@dx-platform/platform";
+import { ensureDirectory } from "@dx-platform/platform";
+import { BrowserAdapterError } from "@dx-platform/shared";
+import { hasCompleteAgentEnvelope } from "@dx-platform/protocol";
+export { hasCompleteAgentEnvelope } from "@dx-platform/protocol";
 
 // The CDP launcher owns the Chrome process, the Playwright transport and the
 // profile lock. Its shape is derived from its own return statement so this

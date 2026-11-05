@@ -5,8 +5,8 @@ import { ConfigAPI } from '../dist/index.js';
 describe('ConfigAPI', () => {
   let configApi: ConfigAPI;
 
-  beforeEach(() => {
-    configApi = new ConfigAPI();
+  beforeEach(async () => {
+    configApi = await ConfigAPI.create();
   });
 
   it('should be creatable', () => {
@@ -16,8 +16,9 @@ describe('ConfigAPI', () => {
   it('should have default configuration', () => {
     const config = configApi.getConfig();
     expect(config).toBeDefined();
-    expect(config.provider).toBeUndefined();
-    expect(config.model).toBeUndefined();
+    // Default provider/model may come from env (WTAGENT_PROVIDER) or be empty
+    expect(typeof config.provider).toBe('string');
+    expect(typeof config.model).toBe('string');
   });
 
   it('should allow updating config via updateConfig', async () => {

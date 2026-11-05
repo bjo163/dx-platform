@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/ws-server",
+  "name": "@dx-platform/ws-server",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,9 +18,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/job": "workspace:*"
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/job": "workspace:*",
+    "@dx-platform/runtime": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
@@ -28,3 +29,4 @@
     "@types/ws": "^8.5.10"
   }
 }
+

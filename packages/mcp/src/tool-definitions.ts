@@ -1,4 +1,4 @@
-import type { ToolRegistry, ToolRunResult } from "@neuralforge/tools/registry";
+import type { ToolRegistry, ToolRunResult } from "@dx-platform/tools";
 
 // MCP hosts are JSON-RPC clients that never see NeuralForge's XML envelope, so the
 // bridge below turns the real tool registry into MCP descriptors and turns a

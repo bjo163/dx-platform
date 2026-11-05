@@ -4,9 +4,9 @@ import net from "node:net";
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { isPathInside } from "@neuralforge/policy/path-guard";
-import { processStartTimeMs } from "@neuralforge/browser/cdp-state";
-import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
+import { isPathInside } from "@dx-platform/policy";
+import { processStartTimeMs } from "@dx-platform/browser";
+import { replaceFileAtomic } from "@dx-platform/shared";
 
 const DIRECTORY_MODE = 0o700;
 const FILE_MODE = 0o600;

@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/tests",
+  "name": "@dx-platform/tests",
   "version": "1.0.3",
   "private": true,
   "type": "module",
@@ -8,22 +8,22 @@
     "watch": "vitest"
   },
   "dependencies": {
-    "@neuralforge/artifacts": "workspace:*",
-    "@neuralforge/audio": "workspace:*",
-    "@neuralforge/browser": "workspace:*",
-    "@neuralforge/image": "workspace:*",
-    "@neuralforge/job": "workspace:*",
-    "@neuralforge/mcp": "workspace:*",
-    "@neuralforge/platform": "workspace:*",
-    "@neuralforge/policy": "workspace:*",
-    "@neuralforge/protocol": "workspace:*",
-    "@neuralforge/runtime": "workspace:*",
-    "@neuralforge/session": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/tools": "workspace:*",
-    "@neuralforge/types": "workspace:*",
+    "@dx-platform/artifacts": "workspace:*",
+    "@dx-platform/audio": "workspace:*",
+    "@dx-platform/browser": "workspace:*",
+    "@dx-platform/image": "workspace:*",
+    "@dx-platform/job": "workspace:*",
+    "@dx-platform/mcp": "workspace:*",
+    "@dx-platform/platform": "workspace:*",
+    "@dx-platform/policy": "workspace:*",
+    "@dx-platform/protocol": "workspace:*",
+    "@dx-platform/runtime": "workspace:*",
+    "@dx-platform/session": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/tools": "workspace:*",
+    "@dx-platform/types": "workspace:*",
     "neuralforge": "workspace:*",
-    "@neuralforge/gateway": "workspace:*"
+    "@dx-platform/gateway": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
@@ -33,3 +33,4 @@
     "zod": "^4.4.3"
   }
 }
+

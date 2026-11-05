@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createConnection } from "node:net";
-import { restoreWTagentBackup } from "@neuralforge/database";
+import { restoreWTagentBackup } from "@dx-platform/database";
 
 const command = process.argv[2];
 const apiDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -51,7 +51,7 @@ if (command === "backup") {
 } else if (command === "restore") {
   const backupDir = process.argv[3];
   if (!backupDir) {
-    throw new Error("Usage: pnpm --filter @neuralforge/api restore -- <backup-directory>");
+    throw new Error("Usage: pnpm --filter @dx-platform/api restore -- <backup-directory>");
   }
 
   const port = Number(process.env.PORT ?? "8080");
@@ -70,5 +70,5 @@ if (command === "backup") {
   if (result.previousDataDir) console.info(`Previous database preserved at ${result.previousDataDir}.`);
   if (result.previousSessionsDir) console.info(`Previous sessions preserved at ${result.previousSessionsDir}.`);
 } else {
-  throw new Error("Usage: pnpm --filter @neuralforge/api backup | restore -- <backup-directory>");
+  throw new Error("Usage: pnpm --filter @dx-platform/api backup | restore -- <backup-directory>");
 }

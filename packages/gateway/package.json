@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/gateway",
+  "name": "@dx-platform/gateway",
   "version": "1.0.3",
   "type": "module",
   "private": true,
@@ -16,9 +16,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/job": "workspace:*"
+    "@dx-platform/job": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+

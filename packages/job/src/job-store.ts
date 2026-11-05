@@ -1,6 +1,6 @@
 import path from "node:path";
 import fs from "node:fs/promises";
-import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
+import { replaceFileAtomic } from "@dx-platform/shared";
 
 export type JobStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
 

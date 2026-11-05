@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
-import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
-import { ensureDirectory } from "@neuralforge/platform/paths";
-import { killProcessTree } from "@neuralforge/tools/process-utils";
+import { discoverChromeExecutable } from "@dx-platform/platform";
+import { ensureDirectory } from "@dx-platform/platform";
+import { killProcessTree } from "@dx-platform/tools";
 
 export async function launchNativeLoginBrowser({
   profileDir,

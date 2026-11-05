@@ -1,7 +1,7 @@
 {
-  "name": "neuralforge-workspace",
+  "name": "dx-platform-workspace",
   "version": "1.0.3",
-  "description": "Local-first agentic AI gateway foundry. Fuse every web AI subscription into one unified swarm orchestrator. No API keys. No cloud. No telemetry.",
+  "description": "Local-first autonomous developer platform. Fuse every web AI subscription into one unified workflow engine. No API keys. No cloud. No telemetry.",
   "type": "module",
   "private": true,
   "packageManager": "pnpm@10.33.4",
@@ -10,13 +10,13 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "concurrently \"pnpm --filter @neuralforge/api dev\" \"pnpm --filter @neuralforge/web dev\"",
+    "dev": "concurrently \"pnpm --filter @dx-platform/api dev\" \"pnpm --filter @dx-platform/web dev\"",
     "build": "tsc -b",
-    "test": "pnpm --filter @neuralforge/tests test && pnpm exec vitest run",
-    "watch": "pnpm --filter @neuralforge/tests watch",
+    "test": "pnpm --filter @dx-platform/tests test && pnpm exec vitest run",
+    "watch": "pnpm --filter @dx-platform/tests watch",
     "check": "tsc -b --force",
-    "doctor": "pnpm --filter neuralforge doctor",
-    "login": "pnpm --filter neuralforge login",
+    "doctor": "pnpm --filter dx-platform doctor",
+    "login": "pnpm --filter dx-platform login",
     "clean": "pnpm -r clean && rm -rf node_modules/.cache",
     "release": "pnpm publish -r",
     "postinstall": "pnpm build",
@@ -28,18 +28,17 @@
     "vitest": "^3.2.4"
   },
   "keywords": [
-    "neuralforge",
-    "omni-nexus",
-    "agentic-ai",
-    "gateway",
-    "swarm-orchestration",
+    "dx-platform",
+    "developer-experience",
+    "autonomous-agents",
+    "ai-gateway",
     "local-first",
     "no-api-keys",
-    "ai-mesh",
+    "agent-mesh",
     "browser-session",
     "chatgpt",
     "claude",
-    "deepseek"
+    "developer-tools"
   ],
   "dependencies": {
     "concurrently": "^10.0.6"

@@ -1,0 +1,29 @@
+{
+  "name": "@dx-platform/observability",
+  "version": "1.0.3",
+  "description": "Observability metrics and utilities for NeuralForge packages.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
+    "test": "vitest run packages/observability/test"
+  },
+  "dependencies": {
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

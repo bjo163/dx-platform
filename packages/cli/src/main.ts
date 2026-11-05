@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { confirm, select } from "@inquirer/prompts";
-import { launchNativeLoginBrowser } from "@neuralforge/browser/native-login";
+import { launchNativeLoginBrowser } from "@dx-platform/browser";
 import {
   createWebAdapter,
   DEFAULT_PROVIDER,
@@ -13,32 +13,32 @@ import {
   isProviderProfileBasename,
   listActiveProviderIds,
   resolveProvider,
-} from "@neuralforge/browser/provider-registry";
+} from "@dx-platform/browser";
 import {
   ensureDirectory,
   formatHomePath,
   getAppDataDir,
   getSessionsDir,
   getTasksDir,
-} from "@neuralforge/platform/paths";
-import { discoverChromeExecutable } from "@neuralforge/platform/chrome-discovery";
-import { inspectCdpProfileState, isProcessAlive } from "@neuralforge/browser/cdp-state";
+} from "@dx-platform/platform";
+import { discoverChromeExecutable } from "@dx-platform/platform";
+import { inspectCdpProfileState, isProcessAlive } from "@dx-platform/browser";
 import {
   assertNativeRuntimeSupported,
   collectDoctorReport,
-} from "@neuralforge/platform/windows-diagnostics";
-import { AgentRuntime } from "@neuralforge/runtime/agent-runtime";
-import { AgentSession } from "@neuralforge/session/agent-session";
-import { PolicyEngine } from "@neuralforge/policy/policy-engine";
-import { ApprovalStore } from "@neuralforge/policy/approval-store";
-import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
-import { ProcessManager } from "@neuralforge/tools/process-manager";
-import { NativeImageReceiver } from "@neuralforge/image/native-image-receiver";
-import { NativeMusicReceiver, validateGenerationType } from "@neuralforge/audio/native-music-receiver";
-import { resolveLimits } from "@neuralforge/shared/limits";
-import { BrowserAdapterError } from "@neuralforge/shared/errors";
-import { EXPORTERS } from "@neuralforge/session/session-export";
-import { getPackageVersion } from "@neuralforge/shared/package-info";
+} from "@dx-platform/platform/windows-diagnostics";
+import { AgentRuntime } from "@dx-platform/runtime";
+import { AgentSession } from "@dx-platform/session";
+import { PolicyEngine } from "@dx-platform/policy";
+import { ApprovalStore } from "@dx-platform/policy";
+import { createDefaultToolRegistry } from "@dx-platform/tools";
+import { ProcessManager } from "@dx-platform/tools";
+import { NativeImageReceiver } from "@dx-platform/image";
+import { NativeMusicReceiver, validateGenerationType } from "@dx-platform/audio";
+import { resolveLimits } from "@dx-platform/shared";
+import { BrowserAdapterError } from "@dx-platform/shared";
+import { EXPORTERS } from "@dx-platform/session";
+import { getPackageVersion } from "@dx-platform/shared";
 import { extractAtMentions } from "./at-files.js";
 import {
   classifyChatInput,

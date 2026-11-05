@@ -5,7 +5,7 @@ import { GeminiWebAdapter } from "./gemini-web-adapter.js";
 import { GrokWebAdapter } from "./grok-web-adapter.js";
 import { KimiWebAdapter } from "./kimi-web-adapter.js";
 import { GLMWebAdapter } from "./glm-web-adapter.js";
-import { getProfileDir } from "@neuralforge/platform/paths";
+import { getProfileDir } from "@dx-platform/platform";
 
 // Single source of truth for the web-AI providers NeuralForge can drive. The CLI,
 // per-provider Chrome profile resolution, and `resume` all read from here so a

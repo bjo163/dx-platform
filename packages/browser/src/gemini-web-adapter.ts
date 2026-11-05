@@ -1,7 +1,7 @@
 import path from "node:path";
 import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
-import { BrowserAdapterError } from "@neuralforge/shared/errors";
-import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
+import { BrowserAdapterError } from "@dx-platform/shared";
+import { isUsageLimitNotice } from "@dx-platform/shared";
 import { readRenderedBlocks } from "./rendered-text.js";
 
 export { isConnectionLostError } from "./base-web-adapter.js";

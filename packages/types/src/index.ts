@@ -1,6 +1,6 @@
 // Centralized NeuralForge type definitions.
 // Domain files own their types; this barrel re-exports them flat so consumers
-// import names directly: `import type { ParsedAgentResponse } from "@neuralforge/types"`.
+// import names directly: `import type { ParsedAgentResponse } from "@dx-platform/types"`.
 
 export * from "./envelope.js";
 export * from "./session.js";

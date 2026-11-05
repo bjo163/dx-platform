@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { writeConfig, readConfig } from "@neuralforge/shared/paths";
+import { writeConfig, readConfig } from "@dx-platform/shared/paths";
 
 export const GitHubPluginManifest = {
   name: "github",

@@ -1,6 +1,6 @@
 import * as http from "node:http";
 import { WebSocketServer, WebSocket } from "ws";
-import { JobService, JobRecord, JobStatus } from "@neuralforge/job";
+import { JobService, JobRecord, JobStatus } from "@dx-platform/job";
 import { randomUUID } from "node:crypto";
 
 export interface JobEvent {

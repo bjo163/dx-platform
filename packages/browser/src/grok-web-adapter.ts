@@ -1,5 +1,5 @@
 import { BaseWebAdapter, firstVisible } from "./base-web-adapter.js";
-import { isUsageLimitNotice } from "@neuralforge/shared/usage-limit";
+import { isUsageLimitNotice } from "@dx-platform/shared";
 import { readRenderedBlocks } from "./rendered-text.js";
 
 export { isConnectionLostError } from "./base-web-adapter.js";

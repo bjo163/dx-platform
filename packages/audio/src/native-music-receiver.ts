@@ -4,9 +4,9 @@ import os from "node:os";
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { ArtifactStore } from "@neuralforge/artifacts/artifact-store";
-import { inspectMusicBuffer } from "@neuralforge/artifacts/music-artifact";
-import type { MusicArtifact, MusicReceiverContext } from "@neuralforge/types";
+import { ArtifactStore } from "@dx-platform/artifacts";
+import { inspectMusicBuffer } from "@dx-platform/artifacts";
+import type { MusicArtifact, MusicReceiverContext } from "@dx-platform/types";
 
 // Structural view of the provider surfaces this receiver drives: the download
 // request channel plus the native Music entry point of the web adapter.

@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/shared",
+  "name": "@dx-platform/shared",
   "version": "1.0.3",
   "description": "Shared utilities for NeuralForge packages.",
   "type": "module",
@@ -23,9 +23,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*"
+    "@dx-platform/types": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+

@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/errors",
+  "name": "@dx-platform/errors",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,9 +18,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*"
+    "@dx-platform/types": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+

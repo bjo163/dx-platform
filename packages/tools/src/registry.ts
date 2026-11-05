@@ -1,8 +1,8 @@
-import type { AgentToolCall, ToolContext, ToolResult, ToolRisk } from "@neuralforge/types";
+import type { AgentToolCall, ToolContext, ToolResult, ToolRisk } from "@dx-platform/types";
 import { toJSONSchema, type ZodType } from "zod";
-import { ToolValidationError } from "@neuralforge/shared/errors";
+import { ToolValidationError } from "@dx-platform/shared";
 
-// `@neuralforge/types` describes the protocol-facing tool shape. The registry also
+// `@dx-platform/types` describes the protocol-facing tool shape. The registry also
 // carries the execution-only fields (`data`, `stdout`, `stderr`) and the
 // per-tool zod schema, so the richer shape is declared here and exported.
 export type RegisteredToolRisk = ToolRisk | "write";

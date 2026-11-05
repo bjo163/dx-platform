@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
-import { resolveLaunchPlan } from "@neuralforge/platform/command-launcher";
-import { fetchJson, NETWORK_TIMEOUT_MS } from "@neuralforge/shared/fetch-json";
-import { getPackageName, getPackageVersion } from "@neuralforge/shared/package-info";
+import { resolveLaunchPlan } from "@dx-platform/platform";
+import { fetchJson, NETWORK_TIMEOUT_MS } from "@dx-platform/shared";
+import { getPackageName, getPackageVersion } from "@dx-platform/shared";
 
 export const UPDATE_CHECK_TIMEOUT_MS = NETWORK_TIMEOUT_MS;
 export const UPDATE_COMMAND_TIMEOUT_MS = 10_000;

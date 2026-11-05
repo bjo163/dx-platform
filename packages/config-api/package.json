@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/config-api",
+  "name": "@dx-platform/config-api",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,9 +18,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/sdk": "workspace:*"
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/sdk": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

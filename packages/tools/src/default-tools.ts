@@ -2,18 +2,18 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { z } from "zod";
-import { DEFAULT_LIMITS } from "@neuralforge/shared/limits";
-import type { Limits } from "@neuralforge/shared/limits";
-import type { ToolContext } from "@neuralforge/types";
-import { utf8PrefixBuffer } from "@neuralforge/shared/text-budget";
-import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
+import { DEFAULT_LIMITS } from "@dx-platform/shared";
+import type { Limits } from "@dx-platform/shared";
+import type { ToolContext } from "@dx-platform/types";
+import { utf8PrefixBuffer } from "@dx-platform/shared";
+import { replaceFileAtomic } from "@dx-platform/shared";
 import {
   resolveCanonicalWriteTarget,
   resolveToolPath,
-} from "@neuralforge/policy/path-guard";
+} from "@dx-platform/policy";
 import { ToolRegistry, type ToolExecutionResult } from "./registry.js";
 import { runProgram } from "./terminal-exec.js";
-import { resolveLaunchPlan } from "@neuralforge/platform/command-launcher";
+import { resolveLaunchPlan } from "@dx-platform/platform";
 import {
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   fallbackSearch,

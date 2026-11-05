@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
-import type { ArtifactRecord } from "@neuralforge/types";
+import type { ArtifactRecord } from "@dx-platform/types";
 
 export interface PreviewOptions {
   secret: string;

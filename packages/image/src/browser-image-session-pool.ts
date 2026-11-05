@@ -1,4 +1,4 @@
-import { createWebAdapter, getProviderProfileDir, resolveProvider } from "@neuralforge/browser/provider-registry";
+import { createWebAdapter, getProviderProfileDir, resolveProvider } from "@dx-platform/browser";
 import type {
   ImageAdapterFactory,
   ImageAdapterResource,

@@ -7,7 +7,7 @@ import type {
   ImageRequest,
   RestorationResult,
   SendMessageResult,
-} from "@neuralforge/types";
+} from "@dx-platform/types";
 
 // Provider contract for browser-backed image generation. Concrete drivers own
 // website-specific navigation, completion detection, and artifact correlation.

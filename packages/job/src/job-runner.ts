@@ -1,5 +1,5 @@
-import { AgentSession } from "@neuralforge/session/agent-session";
-import { BrowserAdapterError } from "@neuralforge/shared/errors";
+import { AgentSession } from "@dx-platform/session";
+import { BrowserAdapterError } from "@dx-platform/shared";
 import { createHeadlessRuntime, type HeadlessRuntime } from "./headless-runtime.js";
 import type { JobRecord, JobStoreBackend } from "./job-store.js";
 

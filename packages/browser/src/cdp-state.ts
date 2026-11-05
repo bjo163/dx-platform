@@ -3,7 +3,7 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { promisify } from "node:util";
-import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
+import { replaceFileAtomic } from "@dx-platform/shared";
 
 const execFileAsync = promisify(execFile);
 const CDP_STATE_FILE = ".neuralforge-cdp.json";

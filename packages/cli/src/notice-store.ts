@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
+import { replaceFileAtomic } from "@dx-platform/shared";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 

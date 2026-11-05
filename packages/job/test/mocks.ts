@@ -24,6 +24,6 @@ vi.mock('node:path', async (importOriginal) => {
   };
 });
 
-vi.mock('@neuralforge/shared/atomic-write', () => ({
+vi.mock('@dx-platform/shared', () => ({
   replaceFileAtomic: vi.fn(),
 }));

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createArtifactPreview, ArtifactPreview } from '../src/artifact-preview.js';
-import type { ArtifactRecord } from '@neuralforge/types';
+import type { ArtifactRecord } from '@dx-platform/types';
 
 const secret = 'test-secret-key-12345';
 

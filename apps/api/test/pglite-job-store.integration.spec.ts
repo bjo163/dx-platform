@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { WTagentDatabase } from "@neuralforge/database";
-import type { JobRecord } from "@neuralforge/job";
-import { JobRunner, JobService } from "@neuralforge/job";
+import { WTagentDatabase } from "@dx-platform/database";
+import type { JobRecord } from "@dx-platform/job";
+import { JobRunner, JobService } from "@dx-platform/job";
 import { PGliteJobStore } from "../src/pglite-job-store";
 import fs from "node:fs/promises";
 import os from "node:os";

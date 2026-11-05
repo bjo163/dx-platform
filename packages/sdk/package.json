@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/sdk",
+  "name": "@dx-platform/sdk",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,13 +17,14 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/runtime": "workspace:*",
-    "@neuralforge/browser": "workspace:*",
-    "@neuralforge/job": "workspace:*"
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/runtime": "workspace:*",
+    "@dx-platform/browser": "workspace:*",
+    "@dx-platform/job": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+

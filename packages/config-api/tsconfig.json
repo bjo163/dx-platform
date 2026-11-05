@@ -16,11 +16,7 @@
     "composite": true,
     "incremental": true,
     "resolveJsonModule": true,
-    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
-    "paths": {
-      "@neuralforge/types": ["../types/dist"],
-      "@neuralforge/shared": ["../shared/dist"]
-    }
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"],

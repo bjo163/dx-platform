@@ -1,5 +1,5 @@
-import { fetchJson, NETWORK_TIMEOUT_MS } from "@neuralforge/shared/fetch-json";
-import { getPackageVersion } from "@neuralforge/shared/package-info";
+import { fetchJson, NETWORK_TIMEOUT_MS } from "@dx-platform/shared";
+import { getPackageVersion } from "@dx-platform/shared";
 import { NoticeStore, getNoticeStorePath } from "./notice-store.js";
 import {
   MANUAL_INSTALL_COMMAND,

@@ -1,4 +1,4 @@
-import type { JobService } from "@neuralforge/job";
+import type { JobService } from "@dx-platform/job";
 
 export interface GatewayChatMessage {
   role: "system" | "developer" | "user" | "assistant";

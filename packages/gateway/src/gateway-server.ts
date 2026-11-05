@@ -2,7 +2,7 @@ import * as http from "node:http";
 import { URL } from "node:url";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { JobService, isValidJobId } from "@neuralforge/job";
+import { JobService, isValidJobId } from "@dx-platform/job";
 import { executeGatewayChatCompletion, type GatewayChatMessage } from "./chat-completion.js";
 
 export interface OpenAIChatCompletionRequest {

@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
-import { replaceFileAtomic } from "@neuralforge/shared/atomic-write";
+import { replaceFileAtomic } from "@dx-platform/shared";
 import { inspectMusicBuffer } from "./music-artifact.js";
 import {
   resolveCanonicalWriteTarget,
   resolveToolPath,
-} from "@neuralforge/policy/path-guard";
+} from "@dx-platform/policy";
 import type {
   ArtifactRecord,
   ArtifactStoreOptions,
@@ -15,7 +15,7 @@ import type {
   MusicArtifact,
   MusicInspection,
   SaveProvenance,
-} from "@neuralforge/types";
+} from "@dx-platform/types";
 
 // What a media validator reports about a buffer: the container fields shared by
 // images and music, plus whichever media-specific fields that format provides.

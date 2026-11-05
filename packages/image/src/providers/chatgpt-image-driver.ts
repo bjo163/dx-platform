@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import { BrowserImageDriver } from "../browser-image-driver.js";
-import type { ImageCapabilities } from "@neuralforge/types";
+import type { ImageCapabilities } from "@dx-platform/types";
 import type {
   BrowserLocator,
   CompletedTextState,

@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/session",
+  "name": "@dx-platform/session",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,13 +22,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/protocol": "workspace:*",
-    "@neuralforge/policy": "workspace:*",
-    "@neuralforge/browser": "workspace:*"
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/protocol": "workspace:*",
+    "@dx-platform/policy": "workspace:*",
+    "@dx-platform/browser": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+

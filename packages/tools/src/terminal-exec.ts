@@ -1,18 +1,18 @@
 import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
-import type { ToolOutputPayload } from "@neuralforge/types";
+import type { ToolOutputPayload } from "@dx-platform/types";
 import { buildToolEnvironment } from "./safe-env.js";
 import { killProcessTree } from "./process-utils.js";
 import {
   resolveLaunchPlan,
   type ResolveLaunchPlanOptions,
   type ResolvedLaunchPlan,
-} from "@neuralforge/platform/command-launcher";
+} from "@dx-platform/platform";
 import {
   utf8ByteLength,
   utf8Prefix,
   utf8Suffix,
-} from "@neuralforge/shared/text-budget";
+} from "@dx-platform/shared";
 
 // The chunk terminal.exec streams to the host while a program is still
 // running. It is a `ToolOutputPayload` plus the two fields only this package

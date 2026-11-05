@@ -2,8 +2,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildApp } from "./app.js";
 import type { FastifyInstance } from "fastify";
-import { WTagentDatabase } from "@neuralforge/database";
-import { createJobService, JobStore, type JobService } from "@neuralforge/job";
+import { WTagentDatabase } from "@dx-platform/database";
+import { createJobService, JobStore, type JobService } from "@dx-platform/job";
 import { PGliteJobStore } from "./pglite-job-store.js";
 
 let server: FastifyInstance | null = null;

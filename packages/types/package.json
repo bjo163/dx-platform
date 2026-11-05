@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/types",
+  "name": "@dx-platform/types",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -26,3 +26,4 @@
     "typescript": "^5.9.3"
   }
 }
+

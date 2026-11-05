@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/web",
+  "name": "@dx-platform/web",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -19,3 +19,4 @@
     "typescript": "^5.9.0"
   }
 }
+

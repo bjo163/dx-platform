@@ -9,7 +9,7 @@ import { discoverChromeExecutable } from "./chrome-discovery.js";
 import { resolveLaunchPlan } from "./command-launcher.js";
 import type { DiscoverChromeOptions } from "./chrome-discovery.js";
 import type { ResolvedLaunchPlan, ResolveLaunchPlanOptions } from "./command-launcher.js";
-import { getPackageInfo } from "@neuralforge/shared/package-info";
+import { getPackageInfo } from "@dx-platform/shared";
 
 const execFileAsync = promisify(execFile);
 

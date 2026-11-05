@@ -1,11 +1,11 @@
 import { createInterface } from "node:readline";
-import { PolicyEngine } from "@neuralforge/policy/policy-engine";
-import { ProcessManager } from "@neuralforge/tools/process-manager";
-import { createDefaultToolRegistry } from "@neuralforge/tools/default-tools";
-import type { ToolRegistry } from "@neuralforge/tools/registry";
-import { NeuralForgeError } from "@neuralforge/shared/errors";
-import { resolveLimits, type Limits } from "@neuralforge/shared/limits";
-import { getPackageVersion } from "@neuralforge/shared/package-info";
+import { PolicyEngine } from "@dx-platform/policy";
+import { ProcessManager } from "@dx-platform/tools";
+import { createDefaultToolRegistry } from "@dx-platform/tools";
+import type { ToolRegistry } from "@dx-platform/tools";
+import { NeuralForgeError } from "@dx-platform/shared";
+import { resolveLimits, type Limits } from "@dx-platform/shared";
+import { getPackageVersion } from "@dx-platform/shared";
 import { listMCPTools, mcpErrorResult, toMCPToolResult } from "./tool-definitions.js";
 
 // JSON-RPC 2.0 types

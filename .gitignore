@@ -18,3 +18,8 @@ packages/diagnostics/
 review/
 /memo/
 /docs/
+/.next/
+
+/.kiro/
+
+/.acl-recovery/

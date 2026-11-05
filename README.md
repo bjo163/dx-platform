@@ -391,20 +391,20 @@ Configuration via environment variables. Defaults work for local dev.
 | --- | --- | --- |
 | `NODE_ENV` | `development` | Execution environment |
 | `PORT` | `8080` | API server port |
-| `NEXT_PUBLIC_NEURALFORGE_API_URL` | `http://localhost:8080` | Web UI → API connection |
+| `NEXT_PUBLIC_DX_PLATFORM_API_URL` | `http://localhost:8080` | Dashboard → API connection |
 
 ### Optional Variables
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `NEURALFORGE_HOST` | `127.0.0.1` | Bind address |
-| `NEURALFORGE_DATA_DIR` | `.neuralforge` | Database & sessions store |
-| `NEURALFORGE_PROJECT_ROOT` | `.` (current dir) | Workspace root for jobs |
-| `NEURALFORGE_PROVIDER` | `chatgpt` | Default provider |
-| `NEURALFORGE_JOB_TIMEOUT_MS` | `1800000` | Max job runtime (30 min) |
-| `NEURALFORGE_JOB_TTL_MS` | `86400000` | Job retention (24 hr) |
-| `NEURALFORGE_CHROME_PATH` | (auto-detect) | Chrome/Chromium path |
-| `NEURALFORGE_CORS_ORIGINS` | `localhost:3000,localhost:5173` | Allowed origins |
-| `NEURALFORGE_JWT_SECRET` | (optional) | For remote API binding |
+| `DX_PLATFORM_HOST` | `127.0.0.1` | Bind address |
+| `DX_PLATFORM_DATA_DIR` | `.dx-platform` | Database & sessions store |
+| `DX_PLATFORM_PROJECT_ROOT` | `.` (current dir) | Workspace root for tasks |
+| `DX_PLATFORM_PROVIDER` | `chatgpt` | Default provider |
+| `DX_PLATFORM_JOB_TIMEOUT_MS` | `1800000` | Max job runtime (30 min) |
+| `DX_PLATFORM_JOB_TTL_MS` | `86400000` | Job retention (24 hr) |
+| `DX_PLATFORM_CHROME_PATH` | (auto-detect) | Chrome/Chromium path |
+| `DX_PLATFORM_CORS_ORIGINS` | `localhost:3000,localhost:5173` | Allowed origins |
+| `DX_PLATFORM_JWT_SECRET` | (optional) | For remote API binding |
 
 ### Setup Examples
 
@@ -418,27 +418,27 @@ pnpm dev
 **Production Deployment**
 ```bash
 export NODE_ENV=production
-export NEURALFORGE_HOST=0.0.0.0
-export NEURALFORGE_JWT_SECRET=$(openssl rand -hex 32)
-export NEURALFORGE_CORS_ORIGINS="https://myapp.com"
-export NEURALFORGE_DATA_DIR=/data/neuralforge
-export NEURALFORGE_JOB_TIMEOUT_MS=3600000  # 1 hour
+export DX_PLATFORM_HOST=0.0.0.0
+export DX_PLATFORM_JWT_SECRET=$(openssl rand -hex 32)
+export DX_PLATFORM_CORS_ORIGINS="https://myapp.com"
+export DX_PLATFORM_DATA_DIR=/data/dx-platform
+export DX_PLATFORM_JOB_TIMEOUT_MS=3600000  # 1 hour
 
 pnpm build
 pnpm start
 ```
 
-**Long-Running Jobs**
+**Long-Running Tasks**
 ```bash
-export NEURALFORGE_JOB_TIMEOUT_MS=7200000  # 2 hours
-export NEURALFORGE_JOB_TTL_MS=604800000    # 7 days retention
+export DX_PLATFORM_JOB_TIMEOUT_MS=7200000  # 2 hours
+export DX_PLATFORM_JOB_TTL_MS=604800000    # 7 days retention
 
 pnpm dev
 ```
 
 **Custom Chrome Path**
 ```bash
-export NEURALFORGE_CHROME_PATH=/usr/bin/chromium
+export DX_PLATFORM_CHROME_PATH=/usr/bin/chromium
 # Useful for Docker, headless servers, WSL
 
 pnpm dev
@@ -586,31 +586,31 @@ pnpm dev
 
 ## `[QUICK_START: 30_SECONDS]`
 
-Want to see it in action RIGHT NOW? 
+Want to activate DX-Platform RIGHT NOW? 
 
 ```bash
 # Clone & setup (60 seconds)
-git clone https://github.com/XiXian42/neuralforge.git
-cd neuralforge
+git clone https://github.com/bjo163/dx-platform.git
+cd dx-platform
 pnpm install
 
 # Verify prerequisites
 pnpm check
 
-# Launch the forge
+# Launch the platform
 pnpm dev
 ```
 
 **Then:**
-1. Open `http://localhost:3000` → Web War Room
-2. Go to Providers tab → Connect ChatGPT, Claude, or your provider
-3. Type a task → Watch the swarm execute
+1. Open `http://localhost:3000` → Developer Dashboard
+2. Go to Providers tab → Connect ChatGPT, Claude, or your LLM
+3. Describe a development task → Watch autonomous execution
 
-**That's it.** You're now running a local agentic AI mesh with zero cloud dependencies.
+**That's it.** You're now running a local autonomous developer platform with zero cloud dependencies.
 
 ---
 
-## `[DEPLOY_SEQUENCE]`
+# [DEPLOYMENT_GUIDE]
 
 ### Prerequisites
 - **Node.js**: v20.17+ or v22.13+ or v23.5+
@@ -621,39 +621,39 @@ pnpm dev
 ### Installation Steps
 
 ```bash
-# [01] CLONE THE FORGE
-git clone https://github.com/XiXian42/neuralforge.git
-cd neuralforge
+# [01] CLONE THE REPOSITORY
+git clone https://github.com/bjo163/dx-platform.git
+cd dx-platform
 
 # [02] VERIFY ENVIRONMENT
 node --version  # Should be v20.17+
 pnpm --version  # Should be v9.0.0+
 
-# [03] IGNITE MODULES
+# [03] INSTALL DEPENDENCIES
 pnpm install
 
-# [04] HEALTH CHECK
-pnpm check      # TypeScript verification
+# [04] TYPECHECK
+pnpm check
 
-# [05] SMASH THE BUILD
+# [05] BUILD
 pnpm build
 
 # [06] VERIFY BUILD
-pnpm run doctor  # Runtime diagnostics
+pnpm run doctor
 
-# [07] UNLEASH THE SWARM
+# [07] START DEVELOPMENT SERVER
 pnpm dev
 
-# [08] ENTER THE NEXUS
-# WAR ROOM: http://localhost:3000
-# GATEWAY:   http://localhost:8080
-# HEALTH:    http://localhost:8080/health
+# [08] ACCESS THE PLATFORM
+# Dashboard:  http://localhost:3000
+# API:        http://localhost:8080
+# Health:     http://localhost:8080/health
 ```
 
 ### Verification Checklist
 - [ ] `pnpm check` passes (TypeScript)
 - [ ] `pnpm dev` starts both servers
-- [ ] Web UI loads at localhost:3000
+- [ ] Dashboard loads at localhost:3000
 - [ ] API responds at localhost:8080/health
 - [ ] Providers page accessible
 
@@ -661,148 +661,132 @@ pnpm dev
 | Problem | Solution |
 | --- | --- |
 | Port 3000/8080 in use | `lsof -i :3000` then kill process, or set PORT env var |
-| Chrome not found | Install Chrome/Chromium or set `NEURALFORGE_CHROME_PATH` |
+| Chrome not found | Install Chrome/Chromium or set `DX_PLATFORM_CHROME_PATH` |
 | pnpm install fails | Delete node_modules, pnpm-lock.yaml, then retry |
 | TypeScript errors | Run `pnpm clean && pnpm install && pnpm check` |
 
 ## `[TACTICAL_GUIDE]`
 
-### Step-by-Step Mission Execution
+### Step-by-Step Workflow
 
-#### 1️⃣ **BOOTSTRAP** - Fire up the war room
+#### 1️⃣ **BOOTSTRAP** - Fire up the platform
 ```bash
 pnpm dev
 # Wait for: 
-# ✓ Web UI running on localhost:3000
+# ✓ Dashboard running on localhost:3000
 # ✓ API running on localhost:8080
 # ✓ Job service initialized
 ```
 Open browser → `http://localhost:3000`
 
-#### 2️⃣ **ARMORY** - Connect your AI arsenal
+#### 2️⃣ **CONNECT PROVIDERS** - Link your LLMs
 1. Click **Providers** tab
 2. For each provider (ChatGPT, Claude, Gemini, etc):
    - Click **Connect**
    - Browser auto-opens → Login to that service
-   - Return to war room → Click **Verify**
+   - Return to dashboard → Click **Verify**
    - Status shows "Connected" ✅
 
 **Time**: ~2 min per provider
 
-#### 3️⃣ **LOAD_PROJECT** - Ingest the battlefield
-1. War room shows "Workspace" automatically pointing to current directory
+#### 3️⃣ **LOAD PROJECT** - Setup workspace
+1. Dashboard automatically detects current project
 2. Or click **Workspace** tab → see file browser
-3. HoloMap ingests codebase structure (semantic graph built in real-time)
+3. Semantic analysis runs automatically on codebase
 
 **What you see**: File tree, recent jobs, provider health
 
-#### 4️⃣ **DEPLOY_FIRST_STRIKE** - Execute your first mission
-In the chat composer at bottom:
+#### 4️⃣ **SUBMIT TASK** - Describe your development goal
+In the chat interface:
 ```
-"Create a hello.js that writes 'Hello from NeuralForge' to hello.txt, run it with Node.js, and verify the result"
+"Create a TypeScript utility for parsing JSON config files with validation"
 ```
 1. Select provider (ChatGPT, Claude, etc)
-2. Click **Send task**
-3. Watch the job queue up (status: pending)
+2. Click **Execute**
+3. Watch job queue up (status: pending)
 
 **Time**: ~10 seconds to queue
 
-#### 5️⃣ **ORCHESTRATE** - Monitor the swarm
-The Job Matrix shows:
+#### 5️⃣ **MONITOR EXECUTION** - Watch autonomous workflow
+The Job Dashboard shows:
 - **Status**: pending → running → completed/failed
 - **Provider**: Which AI is working
 - **Activity Log**: Real-time tool calls, approvals, outputs
-- **Live Updates**: SSE stream (or polling fallback)
+- **Live Updates**: Real-time progress
 
 Controls:
 - **Cancel**: Stop running job
 - **Retry**: Requeue failed job
 - **View Details**: See full activity log
 
-#### 6️⃣ **REVIEW_KILL** - Inspect the changes
+#### 6️⃣ **REVIEW CHANGES** - Inspect generated code
 Job completes → View results:
-- **Output Panel**: Result message
-- **Files Tab**: See what was created
-- **Activity Log**: Full trace of every tool call
+- **Output Panel**: Result summary
+- **Files Tab**: See what was created/modified
+- **Activity Log**: Full trace of every action
 
 For file changes:
-- Browse to the file via Files tab
+- Browse via Files tab
 - Preview content inline
-- Verify it matches your intent
+- Verify correctness
 
-#### 7️⃣ **SHIP** - Push to production
-If happy with results:
+#### 7️⃣ **COMMIT & DEPLOY** - Push to production
+If results are good:
 ```bash
 git add .
-git commit -m "Deploy mission result"
+git commit -m "feat: add new feature generated by DX-Platform"
 git push origin main
 ```
 
-**Repeat** from step 4️⃣ for next mission
+**Repeat** from step 4️⃣ for next task
 
 ### Session Persistence
 - Jobs persisted in `.neuralforge/data/`
-- Can close war room → Reopen → See job history
-- Use `/resume <session-id>` in CLI mode to continue interrupted tasks
+- Can close dashboard → Reopen → See job history
+- Use CLI mode to continue interrupted tasks
 
 ### Performance Tips
-- Keep file browser closed when not needed (HoloMap runs continuously)
+- Keep file browser closed when not needed (analysis runs continuously)
 - Use Activity tab instead of live polling for finished jobs
-- Set `NEURALFORGE_JOB_TIMEOUT_MS=3600000` for long tasks (default: 30 min)
+- Set `DX_PLATFORM_JOB_TIMEOUT_MS=3600000` for long tasks (default: 30 min)
 
 ## `[MANIFESTO: FOR_THE_BRUTAL_BUILDER]`
 
 > *"One man with an IDE can build a prototype. One builder with NeuralForge can wage war on an entire codebase and win."*
 
-### The Problem We Solve
+**Problem We Solve:**
+- Juggling multiple LLM subscriptions (ChatGPT, Claude, Gemini, etc.)
+- Manual context setup for each task
+- No automation across your workflow
+- Cloud dependencies and telemetry
+- Single-model limitations
 
-In 2026, building software means juggling:
-- **API rate limits** that destroy your productivity
-- **Multiple subscriptions** you barely use
-- **Cloud proxies** that telemetry your every keystroke
-- **Isolated tools** that don't talk to each other
-- **Plugins** that slow your IDE to a crawl
+**DX-Platform Solution:**
+- ✅ **Unified Interface** - Connect all LLMs in one place
+- ✅ **100% Local** - Your code never leaves your machine
+- ✅ **Autonomous Agents** - Multi-agent orchestration for specialized tasks
+- ✅ **Zero Telemetry** - No tracking, no data exfil
+- ✅ **Multi-Provider** - ChatGPT, Claude, Gemini, all working together
+- ✅ **Session-Based** - Use your real accounts, no API keys
+- ✅ **Policy-Driven** - Full control over what agents can access
 
-You're paying per token to fix your own code.
+**Built for Developers Who Want Power & Control**
 
-### The NeuralForge Way
-
-We gave you something different: **sovereignty with superpowers.**
-
-NeuralForge is not a plugin. It's not a chatbot. It's a **local-first, distributed agentic AI mesh** that turns your existing web subscriptions into a unified, unstoppable development war machine.
-
-**What you get:**
-- ✅ **100% local execution** - Your code never leaves your machine
-- ✅ **Zero telemetry** - No tracking, no analytics, no data exfil
-- ✅ **Multi-provider orchestration** - ChatGPT, Claude, Gemini, DeepSeek, all at once
-- ✅ **Swarm consensus** - Run parallel implementations, pick the best
-- ✅ **Session-based auth** - Use your real accounts, zero API key juggling
-- ✅ **Policy-driven execution** - Full control over what agents can access
-- ✅ **Distributed mesh** - Multiple agents, multiple providers, parallel missions
-
-### Built for the Brutal Builder
-
-NeuralForge assumes you:
-- Don't want hand-holding, want **maximum power**
-- Can handle complexity if it's **transparent**
-- Value **sovereignty** over convenience
-- Think in systems, not features
-- Want to **weaponize AI**, not babysit it
+DX-Platform assumes you:
+- Value sovereignty over convenience
+- Want complete visibility into automation
+- Can handle complexity if it's transparent
+- Think in terms of workflows, not features
+- Want to amplify your productivity with AI
 
 ### The Vision
 
 A world where:
-- Developers keep 100% control of their code and context
-- AI becomes a **local utility**, not a SaaS subscription
-- Agentic meshes coordinate multiple AI systems without friction
-- The only limit is your imagination and your local hardware
+- Developers keep 100% control of code and context
+- AI becomes a local utility, not a SaaS subscription
+- Multiple AI models coordinate seamlessly
+- Your only limit is hardware and imagination
 
-**Welcome to NeuralForge. No API keys. No cloud. No mercy.**
-
-```
-[EXIT: NEURALFORGE://CORE]
->_ READY. ARMED. OPERATION: BUILD_TO_DESTROY_BOILERPLATE INITIALIZED
->_ MISSION AWAITING ORDERS
-```
+**Welcome to DX-Platform. Developer-first. Autonomous. Yours.**
 
 ---

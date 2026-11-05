@@ -1,23 +1,23 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import type { JobService } from "@neuralforge/job";
-import { createWTagentBackup, type WTagentDatabase } from "@neuralforge/database";
+import type { JobService } from "@dx-platform/job";
+import { createWTagentBackup, type WTagentDatabase } from "@dx-platform/database";
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
-import { extractJwtFromHeader, verifyJwt, JwtResult } from "@neuralforge/shared/jwt";
-import { createRateLimiter, type RateLimitRequest } from "@neuralforge/shared/rate-limit";
-import { createCorsValidator, type CorsOptions } from "@neuralforge/shared/cors";
-import { executeGatewayChatCompletion } from "@neuralforge/gateway";
+import { extractJwtFromHeader, verifyJwt, JwtResult } from "@dx-platform/shared/jwt";
+import { createRateLimiter, type RateLimitRequest } from "@dx-platform/shared/rate-limit";
+import { createCorsValidator, type CorsOptions } from "@dx-platform/shared/cors";
+import { executeGatewayChatCompletion } from "@dx-platform/gateway";
 import {
   createWebAdapter,
   findProvider,
   getProviderProfileDir,
   launchNativeLoginBrowser,
   PROVIDERS,
-} from "@neuralforge/browser";
-import { getAppDataDir } from "@neuralforge/platform/paths";
-import type { JobStatus } from "@neuralforge/job";
+} from "@dx-platform/browser";
+import { getAppDataDir } from "@dx-platform/platform";
+import type { JobStatus } from "@dx-platform/job";
 
 export interface BuildAppOptions {
   jobService: JobService;
@@ -553,7 +553,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     if (!secret) {
       return reply.code(503).send({ error: { code: "CONFIG_ERROR", message: "Artifact preview secret is not configured." } });
     }
-    const { createArtifactPreview } = await import("@neuralforge/artifacts");
+    const { createArtifactPreview } = await import("@dx-platform/artifacts");
     const preview = createArtifactPreview({
       secret,
       ttlMs: Number(process.env.WTAGENT_ARTIFACT_TTL_MS) || 3600 * 1000,
@@ -588,7 +588,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     if (!secret) {
       return reply.code(503).send({ error: { code: "CONFIG_ERROR", message: "Artifact preview secret is not configured." } });
     }
-    const { createArtifactPreview } = await import("@neuralforge/artifacts");
+    const { createArtifactPreview } = await import("@dx-platform/artifacts");
     const preview = createArtifactPreview({ secret });
     const token = request.params.token;
     try {

@@ -24,31 +24,31 @@ importers:
 
   apps/api:
     dependencies:
-      '@neuralforge/artifacts':
+      '@dx-platform/artifacts':
         specifier: workspace:*
         version: link:../../packages/artifacts
-      '@neuralforge/browser':
+      '@dx-platform/browser':
         specifier: workspace:*
         version: link:../../packages/browser
-      '@neuralforge/database':
+      '@dx-platform/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@neuralforge/gateway':
+      '@dx-platform/gateway':
         specifier: workspace:*
         version: link:../../packages/gateway
-      '@neuralforge/job':
+      '@dx-platform/job':
         specifier: workspace:*
         version: link:../../packages/job
-      '@neuralforge/platform':
+      '@dx-platform/platform':
         specifier: workspace:*
         version: link:../../packages/platform
-      '@neuralforge/plugins':
+      '@dx-platform/plugins':
         specifier: workspace:*
         version: link:../../packages/plugins
-      '@neuralforge/session':
+      '@dx-platform/session':
         specifier: workspace:*
         version: link:../../packages/session
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       fastify:
@@ -88,13 +88,13 @@ importers:
 
   packages/artifacts:
     dependencies:
-      '@neuralforge/policy':
+      '@dx-platform/policy':
         specifier: workspace:*
         version: link:../policy
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -104,13 +104,13 @@ importers:
 
   packages/audio:
     dependencies:
-      '@neuralforge/artifacts':
+      '@dx-platform/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -120,19 +120,19 @@ importers:
 
   packages/browser:
     dependencies:
-      '@neuralforge/platform':
+      '@dx-platform/platform':
         specifier: workspace:*
         version: link:../platform
-      '@neuralforge/protocol':
+      '@dx-platform/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/tools':
+      '@dx-platform/tools':
         specifier: workspace:*
         version: link:../tools
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -145,45 +145,45 @@ importers:
 
   packages/cli:
     dependencies:
+      '@dx-platform/artifacts':
+        specifier: workspace:*
+        version: link:../artifacts
+      '@dx-platform/audio':
+        specifier: workspace:*
+        version: link:../audio
+      '@dx-platform/browser':
+        specifier: workspace:*
+        version: link:../browser
+      '@dx-platform/image':
+        specifier: workspace:*
+        version: link:../image
+      '@dx-platform/platform':
+        specifier: workspace:*
+        version: link:../platform
+      '@dx-platform/policy':
+        specifier: workspace:*
+        version: link:../policy
+      '@dx-platform/protocol':
+        specifier: workspace:*
+        version: link:../protocol
+      '@dx-platform/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@dx-platform/session':
+        specifier: workspace:*
+        version: link:../session
+      '@dx-platform/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@dx-platform/tools':
+        specifier: workspace:*
+        version: link:../tools
+      '@dx-platform/types':
+        specifier: workspace:*
+        version: link:../types
       '@inquirer/prompts':
         specifier: ^8.5.2
         version: 8.7.5(@types/node@22.20.5)
-      '@neuralforge/artifacts':
-        specifier: workspace:*
-        version: link:../artifacts
-      '@neuralforge/audio':
-        specifier: workspace:*
-        version: link:../audio
-      '@neuralforge/browser':
-        specifier: workspace:*
-        version: link:../browser
-      '@neuralforge/image':
-        specifier: workspace:*
-        version: link:../image
-      '@neuralforge/platform':
-        specifier: workspace:*
-        version: link:../platform
-      '@neuralforge/policy':
-        specifier: workspace:*
-        version: link:../policy
-      '@neuralforge/protocol':
-        specifier: workspace:*
-        version: link:../protocol
-      '@neuralforge/runtime':
-        specifier: workspace:*
-        version: link:../runtime
-      '@neuralforge/session':
-        specifier: workspace:*
-        version: link:../session
-      '@neuralforge/shared':
-        specifier: workspace:*
-        version: link:../shared
-      '@neuralforge/tools':
-        specifier: workspace:*
-        version: link:../tools
-      '@neuralforge/types':
-        specifier: workspace:*
-        version: link:../types
       commander:
         specifier: ^14.0.3
         version: 14.0.3
@@ -207,6 +207,22 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@22.20.5)(tsx@4.23.15)
 
+  packages/config-api:
+    dependencies:
+      '@dx-platform/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      '@dx-platform/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@dx-platform/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/database:
     dependencies:
       '@electric-sql/pglite':
@@ -222,7 +238,7 @@ importers:
 
   packages/errors:
     dependencies:
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -232,7 +248,7 @@ importers:
 
   packages/gateway:
     dependencies:
-      '@neuralforge/job':
+      '@dx-platform/job':
         specifier: workspace:*
         version: link:../job
     devDependencies:
@@ -242,19 +258,19 @@ importers:
 
   packages/image:
     dependencies:
-      '@neuralforge/artifacts':
+      '@dx-platform/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@neuralforge/browser':
+      '@dx-platform/browser':
         specifier: workspace:*
         version: link:../browser
-      '@neuralforge/protocol':
+      '@dx-platform/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -264,28 +280,41 @@ importers:
 
   packages/job:
     dependencies:
-      '@neuralforge/browser':
+      '@dx-platform/browser':
         specifier: workspace:*
         version: link:../browser
-      '@neuralforge/platform':
+      '@dx-platform/platform':
         specifier: workspace:*
         version: link:../platform
-      '@neuralforge/policy':
+      '@dx-platform/policy':
         specifier: workspace:*
         version: link:../policy
-      '@neuralforge/runtime':
+      '@dx-platform/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@neuralforge/session':
+      '@dx-platform/session':
         specifier: workspace:*
         version: link:../session
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/tools':
+      '@dx-platform/tools':
         specifier: workspace:*
         version: link:../tools
-      '@neuralforge/types':
+      '@dx-platform/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/local:
+    dependencies:
+      '@dx-platform/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -295,13 +324,13 @@ importers:
 
   packages/mcp:
     dependencies:
-      '@neuralforge/policy':
+      '@dx-platform/policy':
         specifier: workspace:*
         version: link:../policy
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/tools':
+      '@dx-platform/tools':
         specifier: workspace:*
         version: link:../tools
     devDependencies:
@@ -309,12 +338,44 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  packages/platform:
+  packages/observability:
     dependencies:
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/openapi:
+    dependencies:
+      '@dx-platform/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@dx-platform/types':
+        specifier: workspace:*
+        version: link:../types
+      fastify:
+        specifier: ^5.12.8
+        version: 5.12.8
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.5)(tsx@4.23.15)
+
+  packages/platform:
+    dependencies:
+      '@dx-platform/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -324,10 +385,10 @@ importers:
 
   packages/plugins:
     dependencies:
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -337,10 +398,10 @@ importers:
 
   packages/policy:
     dependencies:
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -350,10 +411,10 @@ importers:
 
   packages/protocol:
     dependencies:
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
       fast-xml-parser:
@@ -366,31 +427,31 @@ importers:
 
   packages/runtime:
     dependencies:
-      '@neuralforge/artifacts':
+      '@dx-platform/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@neuralforge/audio':
+      '@dx-platform/audio':
         specifier: workspace:*
         version: link:../audio
-      '@neuralforge/browser':
+      '@dx-platform/browser':
         specifier: workspace:*
         version: link:../browser
-      '@neuralforge/image':
+      '@dx-platform/image':
         specifier: workspace:*
         version: link:../image
-      '@neuralforge/protocol':
+      '@dx-platform/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@neuralforge/session':
+      '@dx-platform/session':
         specifier: workspace:*
         version: link:../session
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/tools':
+      '@dx-platform/tools':
         specifier: workspace:*
         version: link:../tools
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -400,19 +461,19 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@neuralforge/browser':
+      '@dx-platform/browser':
         specifier: workspace:*
         version: link:../browser
-      '@neuralforge/job':
+      '@dx-platform/job':
         specifier: workspace:*
         version: link:../job
-      '@neuralforge/runtime':
+      '@dx-platform/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -422,19 +483,19 @@ importers:
 
   packages/session:
     dependencies:
-      '@neuralforge/browser':
+      '@dx-platform/browser':
         specifier: workspace:*
         version: link:../browser
-      '@neuralforge/policy':
+      '@dx-platform/policy':
         specifier: workspace:*
         version: link:../policy
-      '@neuralforge/protocol':
+      '@dx-platform/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -444,7 +505,7 @@ importers:
 
   packages/shared:
     dependencies:
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -454,49 +515,49 @@ importers:
 
   packages/tests:
     dependencies:
-      '@neuralforge/artifacts':
+      '@dx-platform/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@neuralforge/audio':
+      '@dx-platform/audio':
         specifier: workspace:*
         version: link:../audio
-      '@neuralforge/browser':
+      '@dx-platform/browser':
         specifier: workspace:*
         version: link:../browser
-      '@neuralforge/gateway':
+      '@dx-platform/gateway':
         specifier: workspace:*
         version: link:../gateway
-      '@neuralforge/image':
+      '@dx-platform/image':
         specifier: workspace:*
         version: link:../image
-      '@neuralforge/job':
+      '@dx-platform/job':
         specifier: workspace:*
         version: link:../job
-      '@neuralforge/mcp':
+      '@dx-platform/mcp':
         specifier: workspace:*
         version: link:../mcp
-      '@neuralforge/platform':
+      '@dx-platform/platform':
         specifier: workspace:*
         version: link:../platform
-      '@neuralforge/policy':
+      '@dx-platform/policy':
         specifier: workspace:*
         version: link:../policy
-      '@neuralforge/protocol':
+      '@dx-platform/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@neuralforge/runtime':
+      '@dx-platform/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@neuralforge/session':
+      '@dx-platform/session':
         specifier: workspace:*
         version: link:../session
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/tools':
+      '@dx-platform/tools':
         specifier: workspace:*
         version: link:../tools
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
       neuralforge:
@@ -521,16 +582,16 @@ importers:
 
   packages/tools:
     dependencies:
-      '@neuralforge/platform':
+      '@dx-platform/platform':
         specifier: workspace:*
         version: link:../platform
-      '@neuralforge/policy':
+      '@dx-platform/policy':
         specifier: workspace:*
         version: link:../policy
-      '@neuralforge/shared':
+      '@dx-platform/shared':
         specifier: workspace:*
         version: link:../shared
-      '@neuralforge/types':
+      '@dx-platform/types':
         specifier: workspace:*
         version: link:../types
       zod:
@@ -543,6 +604,31 @@ importers:
 
   packages/types:
     devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/ws-server:
+    dependencies:
+      '@dx-platform/job':
+        specifier: workspace:*
+        version: link:../job
+      '@dx-platform/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@dx-platform/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@dx-platform/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.0
+        version: 22.20.5
+      '@types/ws':
+        specifier: ^8.5.10
+        version: 8.18.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1264,6 +1350,9 @@ packages:
 
   '@types/react@19.3.0':
     resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
+
+  '@types/ws@8.18.2':
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
 
   '@vitest/expect@3.2.7':
     resolution: {integrity: sha512-E8eBXaKibuvH2pSZErOjdVb5vF4PbKYcrnluBTYxEk1l/VhhwZg1kZQsdtjq+CsF5CFydf2Rdkz7jDHKSisi3w==}
@@ -2355,6 +2444,10 @@ snapshots:
   '@types/react@19.3.0':
     dependencies:
       csstype: 3.2.3
+
+  '@types/ws@8.18.2':
+    dependencies:
+      '@types/node': 22.20.5
 
   '@vitest/expect@3.2.7':
     dependencies:

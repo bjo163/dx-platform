@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/api",
+  "name": "@dx-platform/api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -12,15 +12,15 @@
     "test": "vitest run --root ../.. apps/api/test"
   },
   "dependencies": {
-    "@neuralforge/browser": "workspace:*",
-    "@neuralforge/artifacts": "workspace:*",
-    "@neuralforge/job": "workspace:*",
-    "@neuralforge/gateway": "workspace:*",
-    "@neuralforge/database": "workspace:*",
-    "@neuralforge/plugins": "workspace:*",
-    "@neuralforge/platform": "workspace:*",
-    "@neuralforge/session": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
+    "@dx-platform/browser": "workspace:*",
+    "@dx-platform/artifacts": "workspace:*",
+    "@dx-platform/job": "workspace:*",
+    "@dx-platform/gateway": "workspace:*",
+    "@dx-platform/database": "workspace:*",
+    "@dx-platform/plugins": "workspace:*",
+    "@dx-platform/platform": "workspace:*",
+    "@dx-platform/session": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
     "fastify": "^5.12.8"
   },
   "devDependencies": {
@@ -28,3 +28,4 @@
     "tsx": "^4.15.3"
   }
 }
+

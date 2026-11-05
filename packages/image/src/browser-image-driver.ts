@@ -14,7 +14,7 @@ import type {
   ImageTurnResult,
   ImageTextResult,
 } from "./image-provider-driver.js";
-import { appendSystemReminder } from "@neuralforge/protocol/markers";
+import { appendSystemReminder } from "@dx-platform/protocol";
 
 const IMAGE_OUTBOUND_CORRELATION_PREFIX =
   " Opaque NeuralForge transport correlation ID (do not repeat): ";

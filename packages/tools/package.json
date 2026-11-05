@@ -1,5 +1,5 @@
 {
-  "name": "@neuralforge/tools",
+  "name": "@dx-platform/tools",
   "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,13 +22,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@neuralforge/types": "workspace:*",
-    "@neuralforge/shared": "workspace:*",
-    "@neuralforge/policy": "workspace:*",
-    "@neuralforge/platform": "workspace:*",
+    "@dx-platform/types": "workspace:*",
+    "@dx-platform/shared": "workspace:*",
+    "@dx-platform/policy": "workspace:*",
+    "@dx-platform/platform": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+
