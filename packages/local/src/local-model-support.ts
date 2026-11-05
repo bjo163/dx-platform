@@ -1,4 +1,4 @@
-import { exec } from "node:child_process";
+import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { writeConfig, readConfig } from "@dx-platform/shared/paths";
@@ -46,7 +46,7 @@ export class LocalModelSupport {
   async isOllamaAvailable(): Promise<boolean> {
     if (!this.ollama) return false;
     try {
-      const result = await this.#execCommand(`curl -s http://${this.ollama.host}:${this.ollama.port}/api/tags`);
+      const result = await this.#execCommand("curl", ["-s", `http://${this.ollama.host}:${this.ollama.port}/api/tags`]);
       return result.status === 200;
     } catch {
       return false;
@@ -56,7 +56,7 @@ export class LocalModelSupport {
   async listOllamaModels(): Promise<string[]> {
     if (!this.ollama) return [];
     try {
-      const result = await this.#execCommand(`curl -s http://${this.ollama.host}:${this.ollama.port}/api/tags`);
+      const result = await this.#execCommand("curl", ["-s", `http://${this.ollama.host}:${this.ollama.port}/api/tags`]);
       const data = JSON.parse(result.data);
       return data.models?.map((m: any) => m.name) ?? [];
     } catch {
@@ -67,7 +67,7 @@ export class LocalModelSupport {
   async isLMStudioAvailable(): Promise<boolean> {
     if (!this.lmstudio) return false;
     try {
-      const result = await this.#execCommand(`curl -s http://${this.lmstudio.host}:${this.lmstudio.port}/v1/models`);
+      const result = await this.#execCommand("curl", ["-s", `http://${this.lmstudio.host}:${this.lmstudio.port}/v1/models`]);
       return result.status === 200;
     } catch {
       return false;
@@ -77,7 +77,7 @@ export class LocalModelSupport {
   async listLMStudioModels(): Promise<string[]> {
     if (!this.lmstudio) return [];
     try {
-      const result = await this.#execCommand(`curl -s http://${this.lmstudio.host}:${this.lmstudio.port}/v1/models`);
+      const result = await this.#execCommand("curl", ["-s", `http://${this.lmstudio.host}:${this.lmstudio.port}/v1/models`]);
       const data = JSON.parse(result.data);
       return data.data?.map((m: any) => m.id) ?? [];
     } catch {
@@ -89,9 +89,7 @@ export class LocalModelSupport {
     if (!this.ollama) return "";
     const mdl = model ?? this.ollama.model ?? "llama2";
     try {
-      const result = await this.#execCommand(
-        `curl -s -X POST http://${this.ollama.host}:${this.ollama.port}/api/generate -d '{"model":"${mdl}","prompt":"${prompt}"}'`
-      );
+      const result = await this.#execCommand("curl", ["-s", "-X", "POST", `http://${this.ollama.host}:${this.ollama.port}/api/generate`, "-d", `{"model":"${mdl}","prompt":"${prompt}"}`]);
       const parsed = JSON.parse(result.data);
       return parsed.response ?? "";
     } catch (error) {
@@ -104,9 +102,7 @@ export class LocalModelSupport {
     if (!this.lmstudio) return "";
     const mdl = model ?? this.lmstudio.model ?? "local-model";
     try {
-      const result = await this.#execCommand(
-        `curl -s -X POST http://${this.lmstudio.host}:${this.lmstudio.port}/v1/completions -d '{"model":"${mdl}","prompt":"${prompt}"}'`
-      );
+      const result = await this.#execCommand("curl", ["-s", "-X", "POST", `http://${this.lmstudio.host}:${this.lmstudio.port}/v1/completions`, "-d", `{"model":"${mdl}","prompt":"${prompt}"}`]);
       const data = JSON.parse(result.data);
       return data?.choices?.[0]?.text ?? "";
     } catch (error) {
@@ -115,13 +111,28 @@ export class LocalModelSupport {
     }
   }
 
-  #execCommand(cmd: string): Promise<{ data: string; status: number }> {
+  #execCommand(command: string, args: readonly string[]): Promise<{ data: string; status: number }> {
     return new Promise((resolve, reject) => {
-      exec(cmd, (error: any, stdout: string, stderr: string) => {
-        if (error) {
-          reject(error);
+      const child = spawn(command, args, {
+        env: { ...process.env, PATH: process.env.PATH },
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk.toString("utf8");
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk.toString("utf8");
+      });
+      child.once("error", (error) => {
+        reject(error);
+      });
+      child.once("close", (code) => {
+        if (code === 0 || code === 1) {
+          resolve({ data: stdout, status: code });
         } else {
-          resolve({ data: stdout, status: 200 });
+          reject(new Error(stderr || `Command exited with ${code}`));
         }
       });
     });
